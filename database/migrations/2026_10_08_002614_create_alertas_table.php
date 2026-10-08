@@ -15,14 +15,13 @@ return new class extends Migration
             $table->id('alerta_id'); // Llave primaria
             
             // Llaves foráneas. Asumimos que las tablas extintores y usuarios tienen como llave primaria extintor_id y usuario_id.
-            $table->foreignId('extintor_id')->references('extintor_id')->on('extintores');[cite: 3]
-            $table->foreignId('usuario_id')->references('usuario_id')->on('usuarios');[cite: 3]
+            $table->foreignId('extintor_id')->references('extintor_id')->on('extintores');
+            $table->foreignId('usuario_id')->references('usuario_id')->on('usuarios');
             
-            $table->string('tipo');[cite: 3]
-            $table->string('mensaje');[cite: 3]
-            $table->dateTime('fecha_generada');[cite: 3]
-            $table->boolean('leida')->default(false); // Default false para las no leídas
-            
+            $table->string('tipo');
+            $table->string('mensaje');
+            $table->dateTime('fecha_generada');
+            $table->boolean('leida')->default(false);
             $table->timestamps();
         });
     }

@@ -10,8 +10,8 @@ class Alerta extends Model
 {
     use HasFactory;
 
-    protected $table = 'alertas';[cite: 3]
-    protected $primaryKey = 'alerta_id';[cite: 3]
+    protected $table = 'alertas';
+    protected $primaryKey = 'alerta_id';
 
     protected $fillable = [
         'extintor_id',
@@ -24,24 +24,24 @@ class Alerta extends Model
 
     // Casteamos los tipos de datos especiales
     protected $casts = [
-        'leida' => 'boolean',[cite: 3]
-        'fecha_generada' => 'datetime',[cite: 3]
+        'leida' => 'boolean',
+        'fecha_generada' => 'datetime',
     ];
 
     // Relaciones
     public function extintor()
     {
-        return $this->belongsTo(Extintor::class, 'extintor_id', 'extintor_id');[cite: 3]
+        return $this->belongsTo(Extintor::class, 'extintor_id', 'extintor_id');
     }
 
     public function usuario()
     {
-        return $this->belongsTo(Usuario::class, 'usuario_id', 'usuario_id');[cite: 3]
+        return $this->belongsTo(Usuario::class, 'usuario_id', 'usuario_id');
     }
 
     // Local Scope para filtrar alertas no leídas (Tu extra)
     public function scopeNoLeidas(Builder $query)
     {
-        return $query->where('leida', false);[cite: 3]
+        return $query->where('leida', false);
     }
 }

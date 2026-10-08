@@ -10,7 +10,7 @@ class TipoExtintorSeeder extends Seeder
 {
     public function run(): void
     {
-        // Insertamos los 4 tipos solicitados: PQS, CO2, Agua y Clase K[cite: 3]
+
         $tipos = [
             ['nombre' => 'PQS', 'agente_extintor' => 'Polvo Químico Seco', 'clase_fuego' => 'A,B,C', 'unidad' => 'kg'],
             ['nombre' => 'CO2', 'agente_extintor' => 'Dióxido de Carbono', 'clase_fuego' => 'B,C', 'unidad' => 'kg'],

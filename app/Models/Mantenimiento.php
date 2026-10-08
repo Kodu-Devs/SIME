@@ -22,11 +22,11 @@ class Mantenimiento extends Model
 
     public function scopePendientes($query)
     {
-        return $query->whereNull('fecha_realizada'); //[cite: 10]
+        return $query->whereNull('fecha_realizada');
     }
 
     public function scopeRealizados($query)
     {
-        return $query->whereNotNull('fecha_realizada'); //[cite: 10]
+        return $query->whereNotNull('fecha_realizada');
     }
 }
