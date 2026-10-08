@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('alertas', function (Blueprint $table) {
-            $table->id('alerta_id'); // Llave primaria
+            $table->id(); // Llave primaria
             
             // Llaves foráneas. Asumimos que las tablas extintores y usuarios tienen como llave primaria extintor_id y usuario_id.
             $table->foreignId('extintor_id')->references('extintor_id')->on('extintores');

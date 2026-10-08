@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Piso extends Model
 {
     protected $table = 'pisos';
-    protected $primaryKey = 'piso_id';
 
     protected $fillable = ['instalacion_id', 'nombre'];
 

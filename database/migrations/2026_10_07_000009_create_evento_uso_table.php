@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('evento_uso', function (Blueprint $table) {
-            $table->id('evento_id'); // Llave primaria asignada
+            $table->id(); // Llave primaria asignada
             $table->foreignId('extintor_id')->constrained('extintores');
             $table->foreignId('usuario_id')->constrained('usuarios');
             $table->dateTime('fecha');

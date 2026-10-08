@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('extintores', function (Blueprint $table) {
-            $table->id('extintor_id');
+            $table->id();
 
             $table->string('etiqueta_inventario')->unique();
             $table->foreignId('tipoextintor_id')->constrained('tipo_extintor');

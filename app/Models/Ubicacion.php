@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Ubicacion extends Model
 {
     protected $table = 'ubicaciones';
-    protected $primaryKey = 'ubicacion_id';
 
     protected $fillable = ['piso_id', 'tipo_area', 'nombre', 'posicion'];
 

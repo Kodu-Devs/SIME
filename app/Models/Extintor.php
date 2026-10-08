@@ -11,7 +11,6 @@ class Extintor extends Model
     use HasFactory;
 
     protected $table = 'extintores';
-    protected $primaryKey = 'extintor_id';
 
     protected $fillable = [
         'etiqueta_inventario',

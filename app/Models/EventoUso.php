@@ -10,7 +10,6 @@ class EventoUso extends Model
     use HasFactory;
 
     protected $table = 'evento_uso';
-    protected $primaryKey = 'evento_id';
 
     protected $fillable = [
         'extintor_id',

@@ -13,7 +13,6 @@ class TipoExtintor extends Model
     protected $table = 'tipo_extintor';
 
     // Define la llave primaria personalizada
-    protected $primaryKey = 'tipoextintor_id';
 
     // Permite la asignación masiva para estos campos
     protected $fillable = [

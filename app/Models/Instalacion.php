@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Instalacion extends Model
 {
     protected $table = 'instalaciones';
-    protected $primaryKey = 'instalacion_id';
 
     protected $fillable = ['nombre', 'tipo'];
 

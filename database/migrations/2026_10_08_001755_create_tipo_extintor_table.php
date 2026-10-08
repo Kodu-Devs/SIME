@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tipo_extintor', function (Blueprint $table) {
-            $table->id('tipoextintor_id'); // Llave primaria
+            $table->id(); // Llave primaria
             $table->string('nombre'); // PQS, CO2...
             $table->string('agente_extintor');
             $table->string('clase_fuego'); // Ej. "A,B,C"

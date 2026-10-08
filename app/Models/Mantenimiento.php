@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Mantenimiento extends Model
 {
     protected $table = 'mantenimientos'; 
-    protected $primaryKey = 'mantenimiento_id'; 
     protected $fillable = ['extintor_id', 'tipo', 'descripcion', 'fecha_programada', 'fecha_realizada']; 
     
     protected $casts = [
