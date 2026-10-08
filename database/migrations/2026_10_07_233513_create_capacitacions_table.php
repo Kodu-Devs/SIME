@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->dateTime('fecha_hora');
-            $table->foreignId('ubicacion_id')->constrained('ubicaciones', 'ubicacion_id');
+            $table->foreignId('ubicacion_id')->constrained('ubicaciones');
             $table->timestamps();
         });
     }

@@ -13,7 +13,7 @@ class EventoUso extends Model
 
     protected $fillable = [
         'extintor_id',
-        'usuario_id',
+        'user_id',
         'fecha',
         'motivo',
         'capacitacion_id',
@@ -33,7 +33,7 @@ class EventoUso extends Model
 
     public function usuario()
     {
-        return $this->belongsTo(Usuario::class, 'usuario_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function capacitacion()

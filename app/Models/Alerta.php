@@ -14,7 +14,7 @@ class Alerta extends Model
 
     protected $fillable = [
         'extintor_id',
-        'usuario_id',
+        'user_id',
         'tipo',
         'mensaje',
         'fecha_generada',
@@ -30,12 +30,12 @@ class Alerta extends Model
     // Relaciones
     public function extintor()
     {
-        return $this->belongsTo(Extintor::class, 'extintor_id', 'extintor_id');
+        return $this->belongsTo(Extintor::class);
     }
 
     public function usuario()
     {
-        return $this->belongsTo(Usuario::class, 'usuario_id', 'usuario_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     // Local Scope para filtrar alertas no leídas (Tu extra)

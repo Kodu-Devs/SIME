@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('evento_uso', function (Blueprint $table) {
             $table->id(); // Llave primaria asignada
             $table->foreignId('extintor_id')->constrained('extintores');
-            $table->foreignId('usuario_id')->constrained('usuarios');
+            $table->foreignId('user_id')->constrained('users');
             $table->dateTime('fecha');
             $table->string('motivo');
         
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('evento_usos');
+        Schema::dropIfExists('evento_uso');
     }
 };

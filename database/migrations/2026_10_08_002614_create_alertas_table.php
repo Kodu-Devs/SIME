@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('alertas', function (Blueprint $table) {
             $table->id(); // Llave primaria
             
-            // Llaves foráneas. Asumimos que las tablas extintores y usuarios tienen como llave primaria extintor_id y usuario_id.
-            $table->foreignId('extintor_id')->references('extintor_id')->on('extintores');
-            $table->foreignId('usuario_id')->references('usuario_id')->on('usuarios');
+            // Llaves foráneas.
+            $table->foreignId('extintor_id')->constrained('extintores');
+            $table->foreignId('user_id')->constrained('users');
             
             $table->string('tipo');
             $table->string('mensaje');
