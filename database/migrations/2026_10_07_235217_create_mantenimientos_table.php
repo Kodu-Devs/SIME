@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('mantenimientos', function (Blueprint $table) {
          $table->id(); 
-         $table->foreignId('extintor_id')->constrained('extintores', 'extintor_id'); 
+         $table->foreignId('extintor_id')->constrained('extintores');
          $table->string('tipo'); 
          $table->string('descripcion')->nullable(); 
          $table->dateTime('fecha_programada'); 

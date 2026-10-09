@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('ubicaciones', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('piso_id')->constrained('pisos', 'piso_id');
+            $table->foreignId('piso_id')->constrained('pisos');
             $table->string('tipo_area');
             $table->text('nombre');
             $table->json('posicion')->nullable();

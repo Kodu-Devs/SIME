@@ -10,7 +10,7 @@ return new class extends Migration
 {
     Schema::create('pisos', function (Blueprint $table) {
         $table->id();
-        $table->foreignId('instalacion_id')->constrained('instalaciones', 'instalacion_id');
+        $table->foreignId('instalacion_id')->constrained('instalaciones');
         $table->string('nombre');
         $table->timestamps();
     });
