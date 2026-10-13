@@ -18,7 +18,7 @@ class AlertaSeeder extends Seeder
 
         // Toma el primer extintor registrado para relacionarlo
         $extintor = Extintor::first();
-        $extintorId = $extintor ? $extintor->extintor_id : 1;
+        $extintorId = $extintor ? $extintor->id : 1;
 
         $alertas = [
             [
@@ -64,7 +64,7 @@ class AlertaSeeder extends Seeder
         ];
 
         foreach ($alertas as $alerta) {
-        Alerta::firstOrCreate(
+        Alerta::updateOrCreate(
             // 1. Criterios de búsqueda (para comprobar si la alerta ya existe)
             [
                 'extintor_id' => $alerta['extintor_id'],

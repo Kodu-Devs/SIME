@@ -107,7 +107,7 @@ class ExtintorSeeder extends Seeder
                 $estatus = 'Medio uso';
             }
 
-            $extintor = Extintor::firstOrCreate(
+            $extintor = Extintor::updateOrCreate(
                 ['etiqueta_inventario' => $etiqueta],
                 [
                     'tipoextintor_id'   => $tipo->getKey(),

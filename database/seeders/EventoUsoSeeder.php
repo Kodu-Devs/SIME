@@ -12,9 +12,11 @@ class EventoUsoSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = User::first(); // el único usuario (admin)
-
-        // [tipo_descarga, lleva_capacitacion, motivo]
+        $admin = User::first();
+        if (!$admin) {
+            $this->command->warn('Saltando EventoUsoSeeder: No hay usuarios. Corre primero AdminSeeder.');
+            return;
+        }
         $casos = [
             ['parcial', true, 'Práctica de capacitación'],
             ['parcial', true, 'Capacitación de brigada'],
@@ -26,7 +28,6 @@ class EventoUsoSeeder extends Seeder
         ];
 
         foreach ($casos as [$tipo, $conCapacitacion, $motivo]) {
-            // total = Vacío, parcial = Medio uso
             $estatus = $tipo === 'total' ? 'Vacío' : 'Medio uso';
 
             $extintor = Extintor::where('estatus', $estatus)
@@ -34,7 +35,7 @@ class EventoUsoSeeder extends Seeder
                 ->first();
 
             if (!$extintor) {
-                $this->command->warn("No hay extintor en '$estatus', se salta.");
+                $this->command->warn("No hay extintor en estatus '$estatus' para el motivo '$motivo'. Se salta.");
                 continue;
             }
 
@@ -42,14 +43,20 @@ class EventoUsoSeeder extends Seeder
                 ? Capacitacion::inRandomOrder()->first()
                 : null;
 
-            EventoUso::create([
-                'extintor_id'     => $extintor->id,
-                'user_id'         => $admin->id,
-                'fecha'           => now()->subDays(rand(1, 90)),
-                'motivo'          => $motivo,
-                'tipo_descarga'   => $tipo,
-                'capacitacion_id' => $capacitacion?->id,
-            ]);
+            EventoUso::updateOrCreate(
+                [
+                    'extintor_id' => $extintor->id, 
+                    'motivo'      => $motivo,
+                ],
+                [
+                    'user_id'         => $admin->id,
+                    'tipo_descarga'   => $tipo,
+                    'capacitacion_id' => $capacitacion?->id,
+                    'fecha'           => now()->subDays(rand(1, 90)),
+                ]
+            );
         }
+        
+        $this->command->info('Eventos de uso sembrados correctamente.');
     }
 }

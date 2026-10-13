@@ -11,6 +11,14 @@ class UbicacionSeeder extends Seeder
 {
     public function run(): void
     {
+        $instalacionesCache = Instalacion::all();
+        $pisosCache = Piso::all();
+
+        // Validación inicial para no hacer nada si las tablas previas están vacías
+        if ($instalacionesCache->isEmpty() || $pisosCache->isEmpty()) {
+            $this->command->warn('Saltando UbicacionSeeder: Faltan instalaciones o pisos. Corre los seeders anteriores primero.');
+            return;
+        }
 
         $ubicaciones = [
             ['Edificio A', 'Planta baja', 'Escaleras', 'Escaleras'],
@@ -39,27 +47,28 @@ class UbicacionSeeder extends Seeder
         ];
 
         foreach ($ubicaciones as [$nombreInst, $nombrePiso, $nombre, $tipoArea]) {
-
-            $inst = Instalacion::where('nombre', $nombreInst)->first();
+            
+            // Buscamos en la colección (sin consultar a la BD en cada vuelta)
+            $inst = $instalacionesCache->firstWhere('nombre', $nombreInst);
             if (!$inst) {
-                $this->command->warn("Instalación no encontrada: {$nombreInst}");
+                $this->command->warn("Instalación no encontrada: {$nombreInst}. Se omite.");
                 continue;
             }
 
-
-            $piso = Piso::where('instalacion_id', $inst->id)
-                ->where('nombre', $nombrePiso)
-                ->first();
+            // Buscamos el piso que pertenezca a la instalación encontrada
+            $piso = $pisosCache->where('instalacion_id', $inst->id)
+                               ->firstWhere('nombre', $nombrePiso);
             if (!$piso) {
-                $this->command->warn("Piso no encontrado: {$nombreInst} / {$nombrePiso}");
+                $this->command->warn("Piso no encontrado: {$nombreInst} / {$nombrePiso}. Se omite.");
                 continue;
             }
 
-
-            Ubicacion::firstOrCreate(
+            Ubicacion::updateOrCreate(
                 ['piso_id' => $piso->id, 'nombre' => $nombre],
                 ['tipo_area' => $tipoArea, 'posicion' => null]
             );
         }
+        
+        $this->command->info('Ubicaciones sembradas con éxito y de forma optimizada.');
     }
 }

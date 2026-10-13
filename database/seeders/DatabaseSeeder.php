@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,13 +14,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'nombre' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            // 1. Tablas base / Catálogos independientes
+            AdminSeeder::class,
+            TipoExtintorSeeder::class,
+            InstalacionSeeder::class,
+            
+            // 2. Tablas intermedias en cascada
+            PisoSeeder::class,
+            UbicacionSeeder::class,
+            
+            // 3. Extintores (depende de ubicación y tipo)
+            ExtintorSeeder::class,
+            
+            // 4. Tablas transaccionales y operativas (dependen de usuarios y extintores)
+            CapacitacionSeeder::class,
+            EventoUsoSeeder::class,
+            MantenimientoSeeder::class,
+            AlertaSeeder::class,
         ]);
-
-        $this->call(TipoExtintorSeeder::class);
     }
 }

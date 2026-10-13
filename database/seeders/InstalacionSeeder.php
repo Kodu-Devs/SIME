@@ -26,7 +26,7 @@ class InstalacionSeeder extends Seeder
         ];
 
         foreach ($instalaciones as $instalacion) {
-            Instalacion::firstOrCreate(
+            Instalacion::updateOrCreate(
                 ['nombre' => $instalacion['nombre']],
                 ['tipo'   => $instalacion['tipo']]
             );

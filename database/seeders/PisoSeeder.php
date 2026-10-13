@@ -5,13 +5,18 @@ namespace Database\Seeders;
 use App\Models\Instalacion;
 use App\Models\Piso;
 use Illuminate\Database\Seeder;
-use RuntimeException;
 
 class PisoSeeder extends Seeder
 {
-    
     public function run(): void
     {
+        $instalacionesCache = Instalacion::all()->keyBy('nombre');
+
+        if ($instalacionesCache->isEmpty()) {
+            $this->command->warn('Saltando PisoSeeder: No hay instalaciones. Corre primero InstalacionSeeder.');
+            return;
+        }
+
         $pisos = [
             ['instalacion' => 'Edificio A',                      'nombre' => 'Planta baja'],
             ['instalacion' => 'Edificio A',                      'nombre' => 'Nivel 1'],
@@ -35,18 +40,22 @@ class PisoSeeder extends Seeder
         ];
 
         foreach ($pisos as $piso) {
-            $instalacion = Instalacion::where('nombre', $piso['instalacion'])->first();
+            // Buscamos en la colección de memoria en vez de consultar la base de datos
+            $instalacion = $instalacionesCache->get($piso['instalacion']);
 
             if (! $instalacion) {
-                throw new RuntimeException(
-                    "No existe la instalación '{$piso['instalacion']}'. Corre primero InstalacionSeeder."
-                );
+                // Cambiamos la excepción que rompe todo por un simple aviso
+                $this->command->warn("Se omite el piso: No existe la instalación '{$piso['instalacion']}'.");
+                continue;
             }
 
+            // firstOrCreate es perfecto aquí: si encuentra esta combinación no hace nada, si no, la crea.
             Piso::firstOrCreate([
                 'instalacion_id' => $instalacion->id,
                 'nombre'         => $piso['nombre'],
             ]);
         }
+        
+        $this->command->info('Pisos sembrados con éxito.');
     }
 }
