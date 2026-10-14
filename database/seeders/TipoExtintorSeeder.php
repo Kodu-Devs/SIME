@@ -10,7 +10,6 @@ class TipoExtintorSeeder extends Seeder
 {
     public function run(): void
     {
-
         $tipos = [
             ['nombre' => 'PQS', 'agente_extintor' => 'Polvo Químico Seco', 'clase_fuego' => 'A,B,C', 'unidad' => 'kg'],
             ['nombre' => 'CO2', 'agente_extintor' => 'Dióxido de Carbono', 'clase_fuego' => 'B,C', 'unidad' => 'kg'],
@@ -19,7 +18,18 @@ class TipoExtintorSeeder extends Seeder
         ];
 
         foreach ($tipos as $tipo) {
-            TipoExtintor::create($tipo);
+            TipoExtintor::updateOrCreate(
+                // 1. Condición de búsqueda (lo que hace único al registro)
+                ['nombre' => $tipo['nombre']],
+                // 2. Valores a actualizar o insertar
+                [
+                    'agente_extintor' => $tipo['agente_extintor'],
+                    'clase_fuego'     => $tipo['clase_fuego'],
+                    'unidad'          => $tipo['unidad'],
+                ]
+            );
         }
+        
+        $this->command->info('Tipos de extintores sembrados correctamente.');
     }
 }
