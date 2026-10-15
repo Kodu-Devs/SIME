@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Capacitacion;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class capacitacionController extends Controller
 {

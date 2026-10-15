@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Ubicacion;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ubicacionController extends Controller
 {

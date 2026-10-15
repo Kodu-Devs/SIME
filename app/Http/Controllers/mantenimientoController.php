@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Mantenimiento;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class mantenimientoController extends Controller
 {

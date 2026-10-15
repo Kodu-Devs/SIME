@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Instalacion;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class instalacionController extends Controller
 {
