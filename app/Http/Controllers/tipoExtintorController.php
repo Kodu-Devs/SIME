@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TipoExtintor;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class tipoExtintorController extends Controller
 {

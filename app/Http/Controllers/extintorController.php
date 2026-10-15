@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Extintor;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class extintorController extends Controller
 {

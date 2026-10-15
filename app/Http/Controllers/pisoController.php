@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Piso;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class pisoController extends Controller
 {

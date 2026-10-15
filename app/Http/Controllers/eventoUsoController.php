@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\EventoUso;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class eventoUsoController extends Controller
 {
