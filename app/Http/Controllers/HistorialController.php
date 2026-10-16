@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Piso;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
-class pisoController extends Controller
+class HistorialController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -35,7 +33,7 @@ class pisoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Piso $piso)
+    public function show(string $id)
     {
         //
     }
@@ -43,7 +41,7 @@ class pisoController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Piso $piso)
+    public function edit(string $id)
     {
         //
     }
@@ -51,7 +49,7 @@ class pisoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Piso $piso)
+    public function update(Request $request, string $id)
     {
         //
     }
@@ -59,7 +57,7 @@ class pisoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Piso $piso)
+    public function destroy(string $id)
     {
         //
     }
