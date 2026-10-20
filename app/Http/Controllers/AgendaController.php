@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Mantenimiento;
 use App\Models\Capacitacion;
+use Carbon\Carbon;
 
 class AgendaController extends Controller
 {
@@ -13,8 +14,42 @@ class AgendaController extends Controller
      */
     public function index()
     {
-        //
+        //Obtener mes actual
+        $mes = now()->format('Y-m');
+        $fecha_inicio = Carbon::parse($mes)->startOfMonth();
+        $fecha_fin = Carbon::parse($mes)->endOfMonth();
+
+
+        //Obtener mantenimientos del mes
+        $mantenimientos = Mantenimiento::with('extintor')->whereBetween('fecha_programada', [$fecha_inicio, $fecha_fin])
+            ->get()
+            ->map(function ($dm) {
+                return [
+                    'id' => $dm->id,
+                    'clase' => 'mantenimiento',
+                    'titulo' => $dm->tipo . '-' . ($dm->extintor->etiqueta_inventario),
+                    'fecha' => $dm->fecha_programada,
+                    'realizado' => !is_null($dm->fecha_realizada)
+                ];
+            });
+
+
+        //Obtener capacitaciones del mes
+        $capacitacion = Capacitacion::with('ubicacion')->whereBetween('fecha_hora', [$fecha_inicio, $fecha_fin])
+            ->get()
+            ->map(function ($dc) {
+                return [
+                    'id' => $dc->id,
+                    'clase' => 'capacitacion',
+                    'titulo' => 'Capacitacion: ' . $dc->nombre,
+                    'fecha' => $dc->fecha_hora->format('Y-m-d H:i'),
+                    'realizado' => $dc->fecha_hora->isPast()
+                ];
+            });
     }
+
+
+
 
     /**
      * Show the form for creating a new resource.
