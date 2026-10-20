@@ -25,12 +25,13 @@ Route::get('/historial-publico', [ConsultaPublicaController::class, 'historial']
 // RUTAS ADMINISTRATIVAS (Protegidas)
 // ==========================================
 Route::middleware(['auth', 'verified'])->group(function () {
-    
+
     // El Dashboard (Sobreescribimos la ruta por defecto de Breeze)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Mapa interactivo exclusivo del administrador
     Route::get('/mapa-admin', [MapaController::class, 'index'])->name('mapa.admin');
+    Route::any('/mapa-admin/ubicacion/{ubicacion}/posicion', [MapaController::class, 'updatePosicion'])->name('mapa.ubicacion.posicion');
 
     // Recursos Completos (CRUDs que usarán vistas Maestro-Detalle)
     Route::resource('extintores', ExtintorController::class);
