@@ -31,7 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Mapa interactivo exclusivo del administrador
     Route::get('/mapa-admin', [MapaController::class, 'index'])->name('mapa.admin');
-    Route::any('/mapa-admin/ubicacion/{ubicacion}/posicion', [MapaController::class, 'updatePosicion'])->name('mapa.ubicacion.posicion');
+    Route::put('/mapa-admin/ubicacion/{ubicacion}/posicion', [MapaController::class, 'updatePosicion'])->name('mapa.ubicacion.posicion');
 
     // Recursos Completos (CRUDs que usarán vistas Maestro-Detalle)
     Route::resource('extintores', ExtintorController::class);
