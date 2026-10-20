@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Alerta;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
-class alertaController extends Controller
+class AgendaController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -35,7 +33,7 @@ class alertaController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Alerta $alerta)
+    public function show(string $id)
     {
         //
     }
@@ -43,7 +41,7 @@ class alertaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Alerta $alerta)
+    public function edit(string $id)
     {
         //
     }
@@ -51,7 +49,7 @@ class alertaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Alerta $alerta)
+    public function update(Request $request, string $id)
     {
         //
     }
@@ -59,7 +57,7 @@ class alertaController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Alerta $alerta)
+    public function destroy(string $id)
     {
         //
     }
