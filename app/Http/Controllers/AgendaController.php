@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Mantenimiento;
+use App\Models\Capacitacion;
 
 class AgendaController extends Controller
 {
@@ -27,7 +29,29 @@ class AgendaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $datos = $request->input('evento');
+
+        //Mantenimientos
+        if ($datos === 'mantenimientos') {
+            $mantenimiento = Mantenimiento::create([
+                //'extintor_id'
+                'tipo' => $request->input('tipo'),
+                'descripcion' => $request->input('descripcion'),
+                'fecha_programada' => $request->input('fecha_programada'),
+                'fecha_realizada' => $request->input('fecha_realizada')
+            ]);
+            //Guardado de alerta
+
+
+            //Capacitaciones 
+        } elseif ($datos === 'capacitacion') {
+            $capacitacion = Capacitacion::create([
+                'nombre' => $request->input('nombre'),
+                'fecha_hora' => $request->input('fecha_hora'),
+                //'ubicacion_id'
+            ]);
+            //Guardado de alerta
+        }
     }
 
     /**
