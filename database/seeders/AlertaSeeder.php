@@ -12,50 +12,52 @@ class AlertaSeeder extends Seeder
 {
     public function run(): void
     {
-        // Busca el usuario admin (o toma el primer usuario en la base de datos)
-        $admin = User::where('role', 'admin')->first() ?? User::first();
-        $userId = $admin ? $admin->id : 1;
-
-        // Toma el primer extintor registrado para relacionarlo
+        // 1. Obtener un usuario y un extintor aleatorios o existentes de forma segura
+        $admin = User::first();
         $extintor = Extintor::first();
-        $extintorId = $extintor ? $extintor->id : 1;
+
+        // Si no hay usuarios o extintores, evitamos que falle y salimos
+        if (!$admin || !$extintor) {
+            $this->command->warn('AlertaSeeder omitido: No hay usuarios o extintores registrados aún.');
+            return;
+        }
 
         $alertas = [
             [
-                'extintor_id'    => $extintorId,
-                'user_id'        => $userId,
+                'extintor_id'    => $extintor->id, // Usa el ID real del registro encontrado
+                'user_id'        => $admin->id,     // Usa el ID real del usuario encontrado
                 'tipo'           => 'Urgente',
                 'mensaje'        => 'Extintor sin presión y con fecha de recarga vencida.',
                 'fecha_generada' => Carbon::now()->subDays(3),
                 'leida'          => false,
             ],
             [
-                'extintor_id'    => $extintorId,
-                'user_id'        => $userId,
+                'extintor_id'    => $extintor->id,
+                'user_id'        => $admin->id,
                 'tipo'           => 'Urgente',
-                'mensaje'        => 'Extintor reportado como vacío .',
+                'mensaje'        => 'Extintor reportado como vacío.',
                 'fecha_generada' => Carbon::now()->subHours(4),
                 'leida'          => false,
             ],
             [
-                'extintor_id'    => $extintorId,
-                'user_id'        => $userId,
+                'extintor_id'    => $extintor->id,
+                'user_id'        => $admin->id,
                 'tipo'           => 'Próximo',
                 'mensaje'        => 'Mantenimiento preventivo programado para la próxima semana.',
                 'fecha_generada' => Carbon::now()->subDays(1),
                 'leida'          => false,
             ],
             [
-                'extintor_id'    => $extintorId,
-                'user_id'        => $userId,
+                'extintor_id'    => $extintor->id,
+                'user_id'        => $admin->id,
                 'tipo'           => 'Próximo',
                 'mensaje'        => 'Extintor próximo a vencer en los siguientes 15 días.',
                 'fecha_generada' => Carbon::now()->subDays(5),
                 'leida'          => true,
             ],
             [
-                'extintor_id'    => $extintorId,
-                'user_id'        => $userId,
+                'extintor_id'    => $extintor->id,
+                'user_id'        => $admin->id,
                 'tipo'           => 'Informativo',
                 'mensaje'        => 'Inspección de rutina completada correctamente.',
                 'fecha_generada' => Carbon::now()->subHours(12),
@@ -64,16 +66,13 @@ class AlertaSeeder extends Seeder
         ];
 
         foreach ($alertas as $alerta) {
-        Alerta::updateOrCreate(
-            // 1. Criterios de búsqueda (para comprobar si la alerta ya existe)
-            [
-                'extintor_id' => $alerta['extintor_id'],
-                'mensaje'     => $alerta['mensaje'],
-            ],
-            // 2. Valores que se guardarán si NO existe
-            $alerta
-        );
+            Alerta::updateOrCreate(
+                [
+                    'extintor_id' => $alerta['extintor_id'],
+                    'mensaje'     => $alerta['mensaje'],
+                ],
+                $alerta
+            );
         }
     }
 }
-
