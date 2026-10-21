@@ -6,8 +6,8 @@ use App\Models\Capacitacion;
 use App\Models\EventoUso;
 use App\Models\Extintor;
 use App\Models\User;
-use Illuminate\Database\Seeder;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class EventoUsoSeeder extends Seeder
 {
@@ -17,12 +17,15 @@ class EventoUsoSeeder extends Seeder
         $admin = User::orderBy('id')->first();
         $extintor = Extintor::orderBy('id')->first();
 
-        if (!$admin || !$extintor) {
+        if (! $admin || ! $extintor) {
             $this->command->warn('EventoUsoSeeder omitido: Faltan usuarios o extintores.');
+
             return;
         }
 
-        $capacitaciones = Capacitacion::orderBy('id')->get();
+        // withTrashed: sin las capacitaciones dadas de baja la lista se recorre y
+        // updateOrCreate reasignaria los eventos existentes a otra capacitacion
+        $capacitaciones = Capacitacion::withTrashed()->orderBy('id')->get();
 
         $ejemplos = [
             ['motivo' => 'Práctica de capacitación controlada', 'tipo_descarga' => 'parcial', 'offset_dias' => 1],
@@ -46,12 +49,12 @@ class EventoUsoSeeder extends Seeder
             EventoUso::updateOrCreate(
                 [
                     'extintor_id' => $extintor->id,
-                    'motivo'      => $ejemplo['motivo'],
+                    'motivo' => $ejemplo['motivo'],
                 ],
                 [
-                    'user_id'         => $admin->id,
-                    'fecha'           => $fechaUso,
-                    'tipo_descarga'   => $ejemplo['tipo_descarga'],
+                    'user_id' => $admin->id,
+                    'fecha' => $fechaUso,
+                    'tipo_descarga' => $ejemplo['tipo_descarga'],
                     'capacitacion_id' => $capacitacion ? $capacitacion->id : null,
                 ]
             );

@@ -38,7 +38,9 @@ class EventoUso extends Model
 
     public function capacitacion()
     {
-        return $this->belongsTo(Capacitacion::class, 'capacitacion_id');
+        // withTrashed: el evento es historico y debe seguir mostrando su
+        // capacitacion aunque esta se haya dado de baja
+        return $this->belongsTo(Capacitacion::class, 'capacitacion_id')->withTrashed();
     }
 
     // --- Scope ---
