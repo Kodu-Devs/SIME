@@ -2,71 +2,145 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Extintor;
+use App\Models\Instalacion;
 use App\Models\Piso;
+use App\Models\TipoExtintor;
 use App\Models\Ubicacion;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 /**
- * Controlador encargado de gestionar la información espacial y de estado
- * para el Mapa Interactivo del panel de administradores (SPA - Inertia.js).
+ * Controlador del Módulo 2: Mapa y Dashboard.
+ * Gestiona la navegación progresiva (Instalación -> Piso -> Ubicaciones) 
+ * y provee métricas precalculadas para gráficas.
  */
 class MapaController extends Controller
 {
     /**
-     * Obtiene la estructura de pisos, ubicaciones y el estatus actual de sus extintores.
-     * Implementa Eager Loading para mitigar el problema N+1 y muta la colección para 
-     * entregar un payload JSON estrictamente formateado, reduciendo la carga de 
-     * procesamiento lógico en el frontend.
-     *
-     * @return \Inertia\Response
+     * Muestra el Dashboard principal del Mapa.
+     * Retorna métricas agrupadas directamente desde la base de datos 
+     * descartando extintores en estatus 'Baja'.
+     * 
+     * Ruta: GET /mapa (Pública)
      */
     public function index()
     {
-        $pisos = Piso::with(['ubicaciones.extintores'])->get()
-            ->map(fn($piso) => [
-                'id' => $piso->id,
-                'nombre' => $piso->nombre,
+        // 1. Conteo por Estatus
+        $porEstatus = Extintor::where('estatus', '!=', 'Baja')
+            ->selectRaw('estatus, count(*) as total')
+            ->groupBy('estatus')
+            ->pluck('total', 'estatus');
 
-                // Transformación de la colección de ubicaciones para aislar la data de presentación
-                'ubicaciones' => $piso->ubicaciones->map(fn($ubicacion) => [
-                    'id' => $ubicacion->id,
-                    'nombre' => $ubicacion->nombre ?? 'Sin nombre',
-                    'tipo_area' => $ubicacion->tipo_area ?? 'No definido',
-                    'posicion' => $ubicacion->posicion ?? null,
+        // 2. Conteo de Vencidos (calculado por fecha, no por estatus)
+        $vencidos = Extintor::where('estatus', '!=', 'Baja')
+            ->whereDate('fecha_vencimiento', '<', today())
+            ->count();
 
-                    // Se resuelve el primer registro de la relación hasMany (Extintores)
-                    // para asignar la directiva visual (color del pin) en el mapa del cliente.
-                    'estatus_extintor' => $ubicacion->extintores->first()?->estatus ?? 'sin_extintor',
-                    'etiqueta_extintor' => $ubicacion->extintores->first()?->etiqueta_inventario ?? 'N/A'
-                ])
-            ]);
+        // 3. Conteo por Tipo de Extintor
+        $porTipo = TipoExtintor::withCount([
+            'extintores' => fn($q) =>
+            $q->where('estatus', '!=', 'Baja')
+        ])->get(['id', 'nombre']);
 
-        // Inyección del payload directamente al componente de React
-        return Inertia::render('Admin/Mapa/Index', [
-            'pisos' => $pisos
+        // 4. Conteo por Edificio (Instalación) usando Joins para optimizar
+        $porEdificio = Extintor::join('ubicaciones', 'extintores.ubicacion_id', '=', 'ubicaciones.id')
+            ->join('pisos', 'ubicaciones.piso_id', '=', 'pisos.id')
+            ->join('instalaciones', 'pisos.instalacion_id', '=', 'instalaciones.id')
+            ->where('extintores.estatus', '!=', 'Baja')
+            ->groupBy('instalaciones.nombre')
+            ->selectRaw('instalaciones.nombre as nombre, count(*) as total')
+            ->pluck('total', 'nombre');
+
+        // return Inertia::render('Mapa/Index', compact(
+        //     'porEstatus',
+        //     'vencidos',
+        //     'porTipo',
+        //     'porEdificio'
+        // ));
+        return response()->json([
+            'porEstatus' => $porEstatus,
+            'vencidos' => $vencidos,
+            'porTipo' => $porTipo,
+            'porEdificio' => $porEdificio
         ]);
     }
 
     /**
-     * Actualiza las coordenadas (X, Y) de una ubicación específica.
-     * Diseñado para ser consumido mediante acciones de Drag and Drop.
-     * Utiliza Route Model Binding para la inyección automática del modelo.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Ubicacion  $ubicacion
-     * @return \Illuminate\Http\RedirectResponse
+     * Muestra una instalación específica y carga sus pisos.
+     * 
+     * Ruta: GET /mapa/{instalacion} (Pública)
+     */
+    public function edificio(Instalacion $instalacion)
+    {
+        // Cargamos los pisos de esta instalación ordenados por ID
+        $instalacion->load(['pisos' => function ($query) {
+            $query->orderBy('id', 'asc');
+        }]);
+
+        // return Inertia::render('Mapa/Edificio', [
+        //     'instalacion' => $instalacion
+        // ]);
+        return $instalacion;
+    }
+
+    /**
+     * Muestra las ubicaciones y los datos de los extintores de un piso específico.
+     * La data extraída incluye el detalle para el "hover" en Frontend.
+     * 
+     * Ruta: GET /mapa/{instalacion}/{piso} (Pública)
+     */
+    public function piso(Instalacion $instalacion, Piso $piso)
+    {
+        // Validar que el piso realmente pertenezca a la instalación
+        abort_if($piso->instalacion_id !== $instalacion->id, 404);
+
+        // Cargamos ubicaciones y sus extintores (excluyendo bajas) con su tipo
+        $ubicaciones = $piso->ubicaciones()->with(['extintores' => function ($query) {
+            $query->where('estatus', '!=', 'Baja')->with('tipoExtintor:id,nombre');
+        }])->get()->map(fn($ubicacion) => [
+            'id' => $ubicacion->id,
+            'nombre' => $ubicacion->nombre,
+            'tipo_area' => $ubicacion->tipo_area,
+            'posicion' => $ubicacion->posicion,
+
+            // Mapeamos los extintores para mandar estrictamente lo que pide la guía (hover)
+            'extintores' => $ubicacion->extintores->map(fn($ext) => [
+                'id' => $ext->id,
+                'etiqueta' => $ext->etiqueta_inventario,
+                'tipo' => $ext->tipoExtintor?->nombre ?? 'N/A',
+                'capacidad' => $ext->capacidad,
+                'estatus' => $ext->estatus,
+                'vencimiento' => $ext->fecha_vencimiento
+            ])
+        ]);
+
+        // return Inertia::render('Mapa/Piso', [
+        //     'instalacion' => $instalacion->only('id', 'nombre'),
+        //     'piso' => $piso->only('id', 'nombre'),
+        //     'ubicaciones' => $ubicaciones
+        // ]);
+
+        return response()->json([
+            'instalacion' => $instalacion->only('id', 'nombre'),
+            'piso' => $piso->only('id', 'nombre'),
+            'ubicaciones' => $ubicaciones
+        ]);
+    }
+
+    /**
+     * Actualiza las coordenadas espaciales de una ubicación (Drag & Drop).
+     * 
+     * Ruta: PUT /mapa/ubicaciones/{ubicacion}/posicion (Privada - Requiere Auth)
      */
     public function updatePosicion(Request $request, Ubicacion $ubicacion)
     {
-        // Validación estricta del payload para garantizar la integridad de las coordenadas espaciales
         $validated = $request->validate([
             'x' => 'required|numeric',
             'y' => 'required|numeric',
         ]);
 
-        // Mutación del campo JSON. La serialización es manejada nativamente
-        // por el atributo $casts definido en el modelo Ubicacion.
         $ubicacion->update([
             'posicion' => [
                 'x' => $validated['x'],
@@ -74,8 +148,6 @@ class MapaController extends Controller
             ]
         ]);
 
-        // Redirección Inertia: Notifica éxito y fuerza la rehidratación del estado (props) 
-        // en el frontend sin recargar el DOM completo.
-        return back()->with('success', 'Posición guardada correctamente en el mapa.');
+        return back()->with('success', 'Posición actualizada correctamente.');
     }
 }
