@@ -53,18 +53,12 @@ class MapaController extends Controller
             ->selectRaw('instalaciones.nombre as nombre, count(*) as total')
             ->pluck('total', 'nombre');
 
-        // return Inertia::render('Mapa/Index', compact(
-        //     'porEstatus',
-        //     'vencidos',
-        //     'porTipo',
-        //     'porEdificio'
-        // ));
-        return response()->json([
-            'porEstatus' => $porEstatus,
-            'vencidos' => $vencidos,
-            'porTipo' => $porTipo,
-            'porEdificio' => $porEdificio
-        ]);
+        return Inertia::render('Mapa/Index', compact(
+            'porEstatus',
+            'vencidos',
+            'porTipo',
+            'porEdificio'
+        ));
     }
 
     /**
@@ -79,10 +73,9 @@ class MapaController extends Controller
             $query->orderBy('id', 'asc');
         }]);
 
-        // return Inertia::render('Mapa/Edificio', [
-        //     'instalacion' => $instalacion
-        // ]);
-        return $instalacion;
+        return Inertia::render('Mapa/Edificio', [
+            'instalacion' => $instalacion
+        ]);
     }
 
     /**
@@ -116,13 +109,7 @@ class MapaController extends Controller
             ])
         ]);
 
-        // return Inertia::render('Mapa/Piso', [
-        //     'instalacion' => $instalacion->only('id', 'nombre'),
-        //     'piso' => $piso->only('id', 'nombre'),
-        //     'ubicaciones' => $ubicaciones
-        // ]);
-
-        return response()->json([
+        return Inertia::render('Mapa/Piso', [
             'instalacion' => $instalacion->only('id', 'nombre'),
             'piso' => $piso->only('id', 'nombre'),
             'ubicaciones' => $ubicaciones
