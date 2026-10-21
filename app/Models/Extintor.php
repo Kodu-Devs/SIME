@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 
 class Extintor extends Model
 {
@@ -48,16 +48,17 @@ class Extintor extends Model
     }
 
 
-    public function scopeVencidos($query)
+    public function scopeVencidos(Builder $query): Builder
     {
-        return $query->where('estatus', 'vencido');
+        return $query->where('fecha_vencimiento', '<', now())
+            ->where('estatus', '!=', 'Baja');
     }
 
-    public function scopePorVencer($query, $dias = 30)
+    public function scopePorVencer(Builder $query, int $dias = 30): Builder
     {
         return $query->whereBetween('fecha_vencimiento', [
             now(),
-            now()->addDays($dias)
+            now()->addDays($dias),
         ]);
     }
 }
