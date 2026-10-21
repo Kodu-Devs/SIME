@@ -10,6 +10,7 @@ use App\Models\Capacitacion;
 use App\Models\Extintor;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class AgendaController extends Controller
@@ -64,7 +65,7 @@ class AgendaController extends Controller
             $combos['extintores_mantenimiento'] = Extintor::where('estatus', '!=', 'Baja')->select('id', 'etiqueta_inventario', 'estatus')->get();
 
             //Extintores para capacitacion
-            $combos['extintores_capacitacion'] = Extintor::where('estatus', 'Medio uso')->whereDosentHave('mantenimietos', function ($q) {
+            $combos['extintores_capacitacion'] = Extintor::where('estatus', 'Medio uso')->whereDoesntHave('mantenimientos', function ($q) {
                 $q->where('fecha_realizada', '>=', now()->subWeek());
             })->select('id', 'etiqueta_inventario')->get();
         }
@@ -73,82 +74,97 @@ class AgendaController extends Controller
     }
 
 
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-
-
     /**
      * Store a newly created resource in storage.
      */
+    //Mantenimientos
     public function storeMantenimiento(StoreMantenimientoRequest $request)
     {
-        //Mantenimientos
         $request->validated();
-        Mantenimiento::create([
-            'extintor_id' => $request->input('extintor_id'),
-            'tipo' => $request->input('tipo'),
-            'descripcion' => $request->input('descripcion'),
-            'fecha_programada' => $request->input('fecha_programada'),
-            'fecha_realizada' => $request->input('fecha_realizada')
-        ]);
+        DB::transaction(function () use ($request) {
+            Mantenimiento::create([
+                'extintor_id' => $request->input('extintor_id'),
+                'tipo' => $request->input('tipo'),
+                'descripcion' => $request->input('descripcion'),
+                'fecha_programada' => $request->input('fecha_programada'),
+                'fecha_realizada' => $request->input('fecha_realizada')
+            ]);
+        });
         return back();
     }
 
+    //Capacitaciones
     public function storeCapacitacion(StoreCapacitacionRequest $request)
     {
-        //Capacitacion
         $request->validated();
-        $capacitacion = Capacitacion::create([
-            'nombre' => $request->input('nombre'),
-            'fecha_hora' => $request->input('fecha_hora'),
-            'ubicacion_id' => $request->input('ubicacion_id')
-        ]);
+        DB::transaction(function () use ($request) {
+            Capacitacion::create([
+                'nombre' => $request->input('nombre'),
+                'fecha_hora' => $request->input('fecha_hora'),
+                'ubicacion_id' => $request->input('ubicacion_id')
+            ]);
+        });
         return back();
     }
 
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //Este metodo no se requiere
-    }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    //Actualizar mantenimiento
+    public function updateMantenimiento(StoreMantenimientoRequest $request, Mantenimiento $m)
     {
-        //
+        DB::transaction(function () use ($request, $m) {
+            $m->update($request->validated());
+            //AlertaService::cerrarPara('mantenimiento_id',$m->id);
+        });
+        return back();
+    }
+
+    //Actualizar capacitacion
+    public function updateCapacitacion(StoreCapacitacionRequest $request, Capacitacion $c)
+    {
+        DB::transaction(function () use ($request, $c) {
+            $c->update($request->validated());
+            //AlertaService::cerrarPara('capacitacion_id',$c->id);
+        });
+        return back();
     }
 
 
     /**
-     * Nuevo metodo para realizar mantenimientos
+     * Realizar el mantenimiento para registrar fecha_realizado y cambiar estado
      */
-    public function realizarMantenimiento(Mantenimiento $m) {}
+    public function realizarMantenimiento(Mantenimiento $m)
+    {
+        if ($m->fecha_realizada) {
+            return back()->with("Aviso", "El mantenimiento ya fue realizado.");
+        }
+
+        DB::transaction(function () use ($m) {
+            $m->update([
+                'fecha_realizada' => now()->format('Y-m-d H:i:s')
+            ]);
+
+            //Metodos requeridos para funcionamiento
+            //EstatusExtintor::trasMantenimiento($m);
+            //AlertaService::cerrarPara('mantenimiento_id',$m->id);
+        });
+        return back();
+    }
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    //Quitar mantenimientos
+    public function destroyMantenimiento(Mantenimiento $m)
+    {
+        //Logica SoftDelete
+    }
+
+    //Quitar capacitacion
+    public function destroyCapacitacion(Capacitacion $c)
     {
         //Logica SoftDelete
     }
