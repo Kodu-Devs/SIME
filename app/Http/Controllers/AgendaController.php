@@ -90,7 +90,7 @@ class AgendaController extends Controller
                 'fecha_realizada' => $request->input('fecha_realizada')
             ]);
         });
-        return back();
+        return back()->with('success', 'Mantenimiento creado correctamente.');
     }
 
     //Capacitaciones
@@ -104,7 +104,7 @@ class AgendaController extends Controller
                 'ubicacion_id' => $request->input('ubicacion_id')
             ]);
         });
-        return back();
+        return back()->with('success', 'Capacitación creada correctamente.');
     }
 
 
@@ -118,7 +118,7 @@ class AgendaController extends Controller
             $m->update($request->validated());
             //AlertaService::cerrarPara('mantenimiento_id',$m->id);
         });
-        return back();
+        return back()->with('success', 'Mantenimiento actualizado correctamente.');
     }
 
     //Actualizar capacitacion
@@ -128,7 +128,7 @@ class AgendaController extends Controller
             $c->update($request->validated());
             //AlertaService::cerrarPara('capacitacion_id',$c->id);
         });
-        return back();
+        return back()->with('success', 'Capacitación actualizada correctamente.');
     }
 
 
@@ -150,7 +150,7 @@ class AgendaController extends Controller
             //EstatusExtintor::trasMantenimiento($m);
             //AlertaService::cerrarPara('mantenimiento_id',$m->id);
         });
-        return back();
+        return back()->with('success', 'Mantenimiento registrado correctamente.');
     }
 
 
