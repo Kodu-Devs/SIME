@@ -20,6 +20,7 @@ class UbicacionSeeder extends Seeder
             return;
         }
 
+        // [instalación, piso, nombre, tipo_area]  (copiado tal cual del Excel)
         $ubicaciones = [
             ['Edificio A', 'Planta baja', 'Escaleras', 'Escaleras'],
             ['Edificio A', 'Planta baja', 'Oficina de cómputo', 'Oficina'],
@@ -47,7 +48,6 @@ class UbicacionSeeder extends Seeder
         ];
 
         foreach ($ubicaciones as [$nombreInst, $nombrePiso, $nombre, $tipoArea]) {
-            
             // Buscamos en la colección (sin consultar a la BD en cada vuelta)
             $inst = $instalacionesCache->firstWhere('nombre', $nombreInst);
             if (!$inst) {
@@ -57,18 +57,21 @@ class UbicacionSeeder extends Seeder
 
             // Buscamos el piso que pertenezca a la instalación encontrada
             $piso = $pisosCache->where('instalacion_id', $inst->id)
-                               ->firstWhere('nombre', $nombrePiso);
+                ->firstWhere('nombre', $nombrePiso);
             if (!$piso) {
                 $this->command->warn("Piso no encontrado: {$nombreInst} / {$nombrePiso}. Se omite.");
                 continue;
             }
 
+            // 'posicion' NO va en el arreglo de actualización: así no se borran
+            // las coordenadas que llene Frontend. Al crear queda en null
+            // (la columna es nullable).
             Ubicacion::updateOrCreate(
                 ['piso_id' => $piso->id, 'nombre' => $nombre],
-                ['tipo_area' => $tipoArea, 'posicion' => null]
+                ['tipo_area' => $tipoArea]
             );
         }
-        
-        $this->command->info('Ubicaciones sembradas con éxito y de forma optimizada.');
+
+        $this->command->info('Ubicaciones sembradas con éxito.');
     }
 }
