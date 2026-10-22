@@ -17,18 +17,29 @@ class AdminSeeder extends Seeder
 
         if (empty($email) || empty($password)) {
             $this->command->info('ADMIN_EMAIL o ADMIN_PASSWORD no definidos. Saltando AdminSeeder para evitar vulnerabilidades.');
+
             return;
+        }
+
+        // User usa SoftDeletes: updateOrCreate solo ve usuarios activos, asi que si el
+        // admin estaba dado de baja intentaria insertarlo de nuevo y chocaria con el
+        // indice unico de email. Se busca incluyendo bajas y se restaura primero.
+        $adminExistente = User::withTrashed()->where('email', $email)->first();
+
+        if ($adminExistente?->trashed()) {
+            $adminExistente->restore();
         }
 
         User::updateOrCreate(
             ['email' => $email],
             [
-                'nombre' => $nombre,
-                'password' => Hash::make($password), 
+                // 'name' por el rename de la columna users.nombre
+                'name' => $nombre,
+                'password' => Hash::make($password),
                 'remember_token' => Str::random(10),
             ]
         );
-        
+
         $this->command->info('Administrador sembrado con éxito.');
     }
 }
