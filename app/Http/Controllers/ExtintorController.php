@@ -7,6 +7,7 @@ use App\Models\Extintor;
 use App\Models\TipoExtintor;
 use App\Models\Instalacion;
 use Inertia\Inertia;
+use Illuminate\Validation\Rule;
 
 class ExtintorController extends Controller
 {
@@ -42,29 +43,26 @@ class ExtintorController extends Controller
             ])
             ->get();
 
-        $capacidades = [
-            // Capacidades estándar para PQS y CO2 (en kg)
-            '1 kg', '2 kg', '2.27 kg', '4.5 kg', '6 kg', '6.8 kg', '9 kg', '12 kg', '34 kg', '50 kg',
-            
-            // Capacidades estándar para Agua a presión y Clase K (en litros)
-            '2.5 L', '6 L', '9 L'
-        ];
-
         return Inertia::render('Extintores/Index', [
             'extintores' => $extintores,
             'tipos' => $tipos,
             'instalaciones' => $instalaciones,
-            'capacidades' => $capacidades
+            'capacidades_kg' => Extintor::CAPACIDADES_KG,
+            'capacidades_l' => Extintor::CAPACIDADES_L,
         ]);
     }
 
     public function store(Request $request)
     {
+        $tipoSeleccionado = TipoExtintor::find($request->tipoextintor_id);
+        $listaCapacidades = ($tipoSeleccionado && $tipoSeleccionado->unidad === 'l') 
+                        ? Extintor::CAPACIDADES_L 
+                        : Extintor::CAPACIDADES_KG;
         // Validación estricta de los datos enviados por el usuario
         $validated = $request->validate([
             'tipoextintor_id' => 'required|exists:tipo_extintores,id',
             'ubicacion_id' => 'required|exists:ubicaciones,id',
-            'capacidad' => 'required|string|max:50',
+            'capacidad' => ['required', Rule::in($listaCapacidades)],
             'fecha_instalacion' => 'required|date',
             'fecha_vencimiento' => 'required|date|after:fecha_instalacion', 
         ], [
@@ -94,7 +92,7 @@ class ExtintorController extends Controller
             'capacidad' => $validated['capacidad'],
             'fecha_instalacion' => $validated['fecha_instalacion'],
             'fecha_vencimiento' => $validated['fecha_vencimiento'],
-            'estatus' => 'Vigente',
+            'estatus' => 'Disponible',
         ]);
 
         return redirect()->route('extintores.index')
@@ -103,11 +101,15 @@ class ExtintorController extends Controller
 
     public function update(Request $request, Extintor $extintor)
     {
+        $tipoSeleccionado = TipoExtintor::find($request->tipoextintor_id);
+        $listaCapacidades = ($tipoSeleccionado && $tipoSeleccionado->unidad === 'l') 
+                        ? Extintor::CAPACIDADES_L 
+                        : Extintor::CAPACIDADES_KG;
         // Se reutilizan las reglas de validación para asegurar la integridad de los datos a actualizar
         $validated = $request->validate([
             'tipoextintor_id' => 'required|exists:tipo_extintores,id',
             'ubicacion_id' => 'required|exists:ubicaciones,id',
-            'capacidad' => 'required|string|max:50',
+            'capacidad' => ['required', Rule::in($listaCapacidades)],
             'fecha_instalacion' => 'required|date',
             'fecha_vencimiento' => 'required|date|after:fecha_instalacion', 
         ], [
@@ -135,9 +137,8 @@ class ExtintorController extends Controller
             ->with('success', "El extintor {$extintor->etiqueta_inventario} se actualizó correctamente.");
     }
 
-    public function destroy(Extintor $extintor)
+    public function baja(Extintor $extintor)
     {
-        // Borrado lógico manual: el registro se conserva para historial, pero cambia su estado
         $extintor->update([
             'estatus' => 'Baja'
         ]);

@@ -7,24 +7,28 @@ use App\Http\Controllers\ExtintorController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\HistorialController;
 use App\Http\Controllers\AlertaController;
-use App\Http\Controllers\ConsultaPublicaController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // ==========================================
-// RUTAS PÚBLICAS (ConsultaPublicaController)
+// RUTAS PÚBLICAS (Solo Lectura)
 // ==========================================
-// Cambiamos la vista de bienvenida por defecto al mapa público
-Route::get('/', [ConsultaPublicaController::class, 'mapa'])->name('publico.mapa');
-Route::get('/agenda-publica', [ConsultaPublicaController::class, 'agenda'])->name('publico.agenda');
-Route::get('/historial-publico', [ConsultaPublicaController::class, 'historial'])->name('publico.historial');
+
+// El mapa es la página de inicio por defecto
+Route::get('/', [MapaController::class, 'index'])->name('mapa.index');
 
 Route::prefix('mapa')->name('mapa.')->group(function () {
-    Route::get('/', [MapaController::class, 'index'])->name('index');
     Route::get('/{instalacion}', [MapaController::class, 'edificio'])->name('edificio');
     Route::get('/{instalacion}/{piso}', [MapaController::class, 'piso'])->name('piso');
 });
+
+// Módulo 3: Extintores (Lectura)
+Route::get('/extintores', [ExtintorController::class, 'index'])->name('extintores.index');
+
+// Módulos 4 y 5: Agenda e Historial (Lectura)
+Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
+Route::get('/historial', [HistorialController::class, 'index'])->name('historial.index');
 
 
 // ==========================================
@@ -32,25 +36,35 @@ Route::prefix('mapa')->name('mapa.')->group(function () {
 // ==========================================
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // El Dashboard (Sobreescribimos la ruta por defecto de Breeze)
+    // El Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Mapa interactivo exclusivo del administrador
+    // Módulo 2: Mapa interactivo (Escritura)
     Route::put('/mapa/ubicacion/{ubicacion}/posicion', [MapaController::class, 'updatePosicion'])->name('mapa.ubicacion.posicion');
 
-    // Recursos Completos (CRUDs que usarán vistas Maestro-Detalle)
-    Route::resource('extintores', ExtintorController::class);
-    Route::resource('agenda', AgendaController::class);
-    Route::resource('historial', HistorialController::class);
+    // Módulo 3: Extintores (Escritura y baja)
+    Route::post('/extintores', [ExtintorController::class, 'store'])->name('extintores.store');
+    Route::put('/extintores/{extintor}', [ExtintorController::class, 'update'])->name('extintores.update');
+    Route::patch('/extintores/{extintor}/baja', [ExtintorController::class, 'baja'])->name('extintores.baja');
 
-    // Alertas (Solo lectura/actualización para el modal, sin resource completo)
+    // Módulo 4: Agenda (Escritura)
+    Route::post('/agenda/mantenimientos', [AgendaController::class, 'storeMantenimiento'])->name('agenda.mantenimientos.store');
+    Route::put('/agenda/mantenimientos/{mantenimiento}', [AgendaController::class, 'updateMantenimiento'])->name('agenda.mantenimientos.update');
+    Route::patch('/agenda/mantenimientos/{mantenimiento}/realizar', [AgendaController::class, 'realizar'])->name('agenda.mantenimientos.realizar');
+    Route::delete('/agenda/mantenimientos/{mantenimiento}', [AgendaController::class, 'destroyMantenimiento'])->name('agenda.mantenimientos.destroy');
+    // (Faltarían aquí las rutas equivalentes para capacitaciones según la guía)
+
+    // Módulo 5: Historial (Escritura)
+    Route::post('/historial/usos', [HistorialController::class, 'storeUso'])->name('historial.usos.store');
+    Route::get('/historial/exportar', [HistorialController::class, 'exportar'])->name('historial.exportar');
+
+    // Alertas 
     Route::get('/alertas', [AlertaController::class, 'index'])->name('alertas.index');
     Route::post('/alertas/{alerta}/leer', [AlertaController::class, 'marcarLeida'])->name('alertas.leer');
 
-    // Rutas de Perfil (Generadas por Breeze)
+    // Rutas de Perfil (Generadas por Breeze) 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__ . '/auth.php';
