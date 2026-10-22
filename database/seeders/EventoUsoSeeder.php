@@ -6,57 +6,58 @@ use App\Models\Capacitacion;
 use App\Models\EventoUso;
 use App\Models\Extintor;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
 class EventoUsoSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = User::first();
-        if (!$admin) {
-            $this->command->warn('Saltando EventoUsoSeeder: No hay usuarios. Corre primero AdminSeeder.');
+        // Se seleccionan por posición (id) tal como marcan las reglas del equipo
+        $admin = User::orderBy('id')->first();
+        $extintor = Extintor::orderBy('id')->first();
+
+        if (! $admin || ! $extintor) {
+            $this->command->warn('EventoUsoSeeder omitido: Faltan usuarios o extintores.');
+
             return;
         }
-        $casos = [
-            ['parcial', true, 'Práctica de capacitación'],
-            ['parcial', true, 'Capacitación de brigada'],
-            ['parcial', false, 'Simulacro de evacuación'],
-            ['parcial', false, 'Conato de incendio controlado'],
-            ['total', false, 'Incendio en cocina'],
-            ['total', false, 'Descarga accidental'],
-            ['total', false, 'Uso en emergencia real'],
+
+        // withTrashed: sin las capacitaciones dadas de baja la lista se recorre y
+        // updateOrCreate reasignaria los eventos existentes a otra capacitacion
+        $capacitaciones = Capacitacion::withTrashed()->orderBy('id')->get();
+
+        $ejemplos = [
+            ['motivo' => 'Práctica de capacitación controlada', 'tipo_descarga' => 'parcial', 'offset_dias' => 1],
+            ['motivo' => 'Capacitación de brigada interna', 'tipo_descarga' => 'parcial', 'offset_dias' => 2],
+            ['motivo' => 'Simulacro de evacuación trimestral', 'tipo_descarga' => 'parcial', 'offset_dias' => 0],
+            ['motivo' => 'Conato de incendio controlado en prácticas', 'tipo_descarga' => 'parcial', 'offset_dias' => 3],
+            ['motivo' => 'Incendio real atendido en área de cocina', 'tipo_descarga' => 'total', 'offset_dias' => 1],
+            ['motivo' => 'Descarga accidental durante maniobras', 'tipo_descarga' => 'total', 'offset_dias' => 2],
+            ['motivo' => 'Uso en emergencia real imprevista', 'tipo_descarga' => 'total', 'offset_dias' => 0],
         ];
 
-        foreach ($casos as [$tipo, $conCapacitacion, $motivo]) {
-            $estatus = $tipo === 'total' ? 'Vacío' : 'Medio uso';
+        foreach ($ejemplos as $index => $ejemplo) {
+            $capacitacion = $capacitaciones[$index] ?? null;
 
-            $extintor = Extintor::where('estatus', $estatus)
-                ->inRandomOrder()
-                ->first();
-
-            if (!$extintor) {
-                $this->command->warn("No hay extintor en estatus '$estatus' para el motivo '$motivo'. Se salta.");
-                continue;
+            if ($capacitacion && $capacitacion->fecha_hora) {
+                $fechaUso = Carbon::parse($capacitacion->fecha_hora)->addDays($ejemplo['offset_dias']);
+            } else {
+                $fechaUso = Carbon::now()->subDays(10 - $index);
             }
-
-            $capacitacion = $conCapacitacion
-                ? Capacitacion::inRandomOrder()->first()
-                : null;
 
             EventoUso::updateOrCreate(
                 [
-                    'extintor_id' => $extintor->id, 
-                    'motivo'      => $motivo,
+                    'extintor_id' => $extintor->id,
+                    'motivo' => $ejemplo['motivo'],
                 ],
                 [
-                    'user_id'         => $admin->id,
-                    'tipo_descarga'   => $tipo,
-                    'capacitacion_id' => $capacitacion?->id,
-                    'fecha'           => now()->subDays(rand(1, 90)),
+                    'user_id' => $admin->id,
+                    'fecha' => $fechaUso,
+                    'tipo_descarga' => $ejemplo['tipo_descarga'],
+                    'capacitacion_id' => $capacitacion ? $capacitacion->id : null,
                 ]
             );
         }
-        
-        $this->command->info('Eventos de uso sembrados correctamente.');
     }
 }

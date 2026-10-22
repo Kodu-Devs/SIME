@@ -2,19 +2,23 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Capacitacion;
 use App\Models\Ubicacion;
+use Illuminate\Database\Seeder;
 
 class CapacitacionSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Validación FUERA del ciclo. Preguntamos una sola vez.
+        // Validación FUERA del ciclo: se pregunta una sola vez.
         if (Ubicacion::count() === 0) {
             $this->command->warn('Saltando CapacitacionSeeder: No hay ubicaciones. Corre primero UbicacionSeeder.');
+
             return;
         }
+
+        // Ubicaciones ordenadas por id: se asignan por posición, sin azar.
+        $ubicaciones = Ubicacion::orderBy('id')->get();
 
         $capacitaciones = [
             ['Uso y manejo de extintores',       '2026-03-10 09:00:00'],
@@ -25,13 +29,15 @@ class CapacitacionSeeder extends Seeder
             ['Capacitación para nuevo personal', '2026-12-02 12:00:00'],
         ];
 
-        foreach ($capacitaciones as [$nombre, $fechaHora]) {
-            // Obtenemos una ubicación aleatoria para cada capacitación
-            $ubicacion = Ubicacion::inRandomOrder()->first();
+        foreach ($capacitaciones as $i => [$nombre, $fechaHora]) {
+            // 1.ª capacitación → 1.ª ubicación, 2.ª → 2.ª, etc.
+            $ubicacion = $ubicaciones->get($i % $ubicaciones->count());
 
-            Capacitacion::updateOrCreate(
+            // firstOrCreate: si la capacitación ya existe, NO le cambia la ubicación
+            // withTrashed: con SoftDeletes, firstOrCreate no ve las capacitaciones
+            // dadas de baja y crearia un duplicado; asi la baja se respeta y no se repite
+            Capacitacion::withTrashed()->firstOrCreate(
                 ['nombre' => $nombre, 'fecha_hora' => $fechaHora],
-                // Nota: Asegúrate de que la llave primaria de Ubicacion sea 'id' y no 'ubicacion_id'
                 ['ubicacion_id' => $ubicacion->id]
             );
         }
