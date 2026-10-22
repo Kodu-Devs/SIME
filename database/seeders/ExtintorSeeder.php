@@ -107,7 +107,7 @@ class ExtintorSeeder extends Seeder
                 $estatus = 'Medio uso';
             }
 
-            $extintor = Extintor::updateOrCreate(
+            $extintor = Extintor::firstOrCreate(
                 ['etiqueta_inventario' => $etiqueta],
                 [
                     'tipoextintor_id'   => $tipo->getKey(),
@@ -172,11 +172,11 @@ class ExtintorSeeder extends Seeder
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00442', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Edificio C', 'piso' => 'Planta baja', 'ubicacion' => 'Escaleras'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00443', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Edificio C', 'piso' => 'Nivel 1', 'ubicacion' => 'Biblioteca'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00444', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Edificio B', 'piso' => 'Nivel 1', 'ubicacion' => 'Pasillo'],
-            ['etiqueta_inventario' => 'ITJMM-62007-5100-00469', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => null, 'piso' => null, 'ubicacion' => null],
+            ['etiqueta_inventario' => 'ITJMM-62007-5100-00469', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Edificio C', 'piso' => 'Planta baja', 'ubicacion' => 'Auditorio'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00470', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Cafetería y SUM', 'piso' => 'Nivel único', 'ubicacion' => 'Cocina'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00583', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Edificio C', 'piso' => 'Nivel 1', 'ubicacion' => 'Biblioteca'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00680', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Cafetería y SUM', 'piso' => 'Nivel único', 'ubicacion' => 'SUM'],
-            ['etiqueta_inventario' => 'ITJMM-62007-5100-00703', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => null, 'piso' => null, 'ubicacion' => null],
+            ['etiqueta_inventario' => 'ITJMM-62007-5100-00703', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Edificio E', 'piso' => 'Planta baja', 'ubicacion' => 'Auditorio'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00740', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Vigilancia', 'piso' => 'Nivel único', 'ubicacion' => 'Cuarto de vigilancia'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00769', 'tipo' => 'PQS', 'capacidad' => '1 kg', 'instalacion' => 'Almacén', 'piso' => 'Nivel único', 'ubicacion' => 'Almacén general'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00824', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Almacén', 'piso' => 'Nivel único', 'ubicacion' => 'Almacén general'],
@@ -184,8 +184,8 @@ class ExtintorSeeder extends Seeder
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00826', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Edificio C', 'piso' => 'Planta baja', 'ubicacion' => 'Pasillo'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00844', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Edificio B', 'piso' => 'Nivel 1', 'ubicacion' => 'Pasillo'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00845', 'tipo' => 'PQS', 'capacidad' => '2 kg', 'instalacion' => 'Edificio A', 'piso' => 'Planta baja', 'ubicacion' => 'Oficina de cómputo'],
-            ['etiqueta_inventario' => 'ITJMM-62007-5100-00846', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => null, 'piso' => null, 'ubicacion' => null],
-            ['etiqueta_inventario' => 'ITJMM-62007-5100-00900', 'tipo' => null, 'capacidad' => '4.5 kg', 'instalacion' => 'Parque vehicular', 'piso' => 'Nivel único', 'ubicacion' => 'Estacionamiento'],
+            ['etiqueta_inventario' => 'ITJMM-62007-5100-00846', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Edificio B', 'piso' => 'Nivel 1', 'ubicacion' => 'Lab. Redes'],
+            ['etiqueta_inventario' => 'ITJMM-62007-5100-00900', 'tipo' => 'CO2', 'capacidad' => '4.5 kg', 'instalacion' => 'Parque vehicular', 'piso' => 'Nivel único', 'ubicacion' => 'Estacionamiento'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00902', 'tipo' => 'PQS', 'capacidad' => '1 kg', 'instalacion' => 'Edificio C', 'piso' => 'Planta baja', 'ubicacion' => 'Lab. Programación'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00906', 'tipo' => 'PQS', 'capacidad' => '2.5 kg', 'instalacion' => 'Edificio C', 'piso' => 'Planta baja', 'ubicacion' => 'Lab. Programación'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00957', 'tipo' => 'PQS', 'capacidad' => '2.5 kg', 'instalacion' => 'Edificio A', 'piso' => 'Nivel 1', 'ubicacion' => 'Lab. Dibujo'],
