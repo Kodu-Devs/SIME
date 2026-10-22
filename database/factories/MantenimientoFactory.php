@@ -18,7 +18,7 @@ class MantenimientoFactory extends Factory
     public function definition(): array
     {
         return [
-    'tipo' => $this->faker->randomElement(['revision', 'recarga', 'reemplazo']), 
+    'tipo' => $this->faker->randomElement(['Relleno de contenido', 'Revisión', 'Otra']),
     'descripcion' => $this->faker->sentence(),
     'fecha_programada' => $this->faker->dateTimeBetween('now', '+1 month'),
     'fecha_realizada' => null,
