@@ -68,9 +68,11 @@ class AgendaController extends Controller
             $combos['extintores_capacitacion'] = Extintor::where('estatus', 'Medio uso')->whereDoesntHave('mantenimientos', function ($q) {
                 $q->where('fecha_realizada', '>=', now()->subWeek());
             })->select('id', 'etiqueta_inventario')->get();
+
+            return Inertia::render('Agenda/Index', ['eventos' => $eventos, 'mesActual' => $mes, 'combos' => $combos]);
         }
 
-        return Inertia::render('agenda/index', ['eventos' => $eventos, 'mesActual' => $mes, 'combos' => $combos]); //diccionario clave:valor
+        return Inertia::render('Publico/Agenda/Index', ['eventos' => $eventos, 'mesActual' => $mes]); //diccionario clave:valor
     }
 
 
@@ -80,14 +82,14 @@ class AgendaController extends Controller
     //Mantenimientos
     public function storeMantenimiento(StoreMantenimientoRequest $request)
     {
-        $request->validated();
-        DB::transaction(function () use ($request) {
+        $v = $request->validated();
+        DB::transaction(function () use ($v) {
             Mantenimiento::create([
-                'extintor_id' => $request->input('extintor_id'),
-                'tipo' => $request->input('tipo'),
-                'descripcion' => $request->input('descripcion'),
-                'fecha_programada' => $request->input('fecha_programada'),
-                'fecha_realizada' => $request->input('fecha_realizada')
+                'extintor_id' => $v['extintor_id'],
+                'tipo' => $v['tipo'],
+                'descripcion' => $v['descripcion'],
+                'fecha_programada' => $v['fecha_programada'],
+                'fecha_realizada' => null
             ]);
         });
         return back()->with('success', 'Mantenimiento creado correctamente.');
@@ -96,12 +98,12 @@ class AgendaController extends Controller
     //Capacitaciones
     public function storeCapacitacion(StoreCapacitacionRequest $request)
     {
-        $request->validated();
-        DB::transaction(function () use ($request) {
+        $v = $request->validated();
+        DB::transaction(function () use ($v) {
             Capacitacion::create([
-                'nombre' => $request->input('nombre'),
-                'fecha_hora' => $request->input('fecha_hora'),
-                'ubicacion_id' => $request->input('ubicacion_id')
+                'nombre' => $v['nombre'],
+                'fecha_hora' => $v['fecha_hora'],
+                'ubicacion_id' => $v['ubicacion_id']
             ]);
         });
         return back()->with('success', 'Capacitación creada correctamente.');
@@ -114,8 +116,9 @@ class AgendaController extends Controller
     //Actualizar mantenimiento
     public function updateMantenimiento(StoreMantenimientoRequest $request, Mantenimiento $m)
     {
-        DB::transaction(function () use ($request, $m) {
-            $m->update($request->validated());
+        $v = $request->validated();
+        DB::transaction(function () use ($v, $m) {
+            $m->update($v);
             //AlertaService::cerrarPara('mantenimiento_id',$m->id);
         });
         return back()->with('success', 'Mantenimiento actualizado correctamente.');
@@ -124,8 +127,9 @@ class AgendaController extends Controller
     //Actualizar capacitacion
     public function updateCapacitacion(StoreCapacitacionRequest $request, Capacitacion $c)
     {
-        DB::transaction(function () use ($request, $c) {
-            $c->update($request->validated());
+        $v = $request->validated();
+        DB::transaction(function () use ($v, $c) {
+            $c->update($v);
             //AlertaService::cerrarPara('capacitacion_id',$c->id);
         });
         return back()->with('success', 'Capacitación actualizada correctamente.');
@@ -160,12 +164,30 @@ class AgendaController extends Controller
     //Quitar mantenimientos
     public function destroyMantenimiento(Mantenimiento $m)
     {
-        //Logica SoftDelete
+        if ($m->fecha_realizada !== null) {
+            return back()->with('error', 'No se puede eliminar un mantenimiento realizado.');
+        }
+
+        DB::transaction(function () use ($m) {
+            $m->delete();
+            //AlertaService::cerrarPara('mantenimiento_id',$m->id);
+        });
+
+        return back()->with('success', 'Se ha eliminado correctamente el mantenimiento.');
     }
 
     //Quitar capacitacion
     public function destroyCapacitacion(Capacitacion $c)
     {
-        //Logica SoftDelete
+        if ($c->fecha_hora->isPast() || $c->eventosUso()->exists()) {
+            return back()->with('error', 'No se puede eliminar una capacitación que ya pasó o tiene usos registrados');
+        }
+
+        DB::transaction(function () use ($c) {
+            $c->delete();
+            //AlertaService::cerrarPara('capacitacion_id',$c->id);
+        });
+
+        return back()->with('success', 'Se ha eliminado correctamente la capacitación.');
     }
 }
