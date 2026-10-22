@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Capacitacion;
 use App\Models\Ubicacion;
+use Illuminate\Database\Seeder;
 
 class CapacitacionSeeder extends Seeder
 {
@@ -13,6 +13,7 @@ class CapacitacionSeeder extends Seeder
         // Validación FUERA del ciclo: se pregunta una sola vez.
         if (Ubicacion::count() === 0) {
             $this->command->warn('Saltando CapacitacionSeeder: No hay ubicaciones. Corre primero UbicacionSeeder.');
+
             return;
         }
 
@@ -33,7 +34,9 @@ class CapacitacionSeeder extends Seeder
             $ubicacion = $ubicaciones->get($i % $ubicaciones->count());
 
             // firstOrCreate: si la capacitación ya existe, NO le cambia la ubicación
-            Capacitacion::firstOrCreate(
+            // withTrashed: con SoftDeletes, firstOrCreate no ve las capacitaciones
+            // dadas de baja y crearia un duplicado; asi la baja se respeta y no se repite
+            Capacitacion::withTrashed()->firstOrCreate(
                 ['nombre' => $nombre, 'fecha_hora' => $fechaHora],
                 ['ubicacion_id' => $ubicacion->id]
             );

@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Mantenimiento;
 use App\Models\Extintor;
+use App\Models\Mantenimiento;
+use Illuminate\Database\Seeder;
 
 class MantenimientoSeeder extends Seeder
 {
@@ -38,15 +38,17 @@ class MantenimientoSeeder extends Seeder
         foreach ($datosFijos as $data) {
             $extintor = $extintores[$contador % $extintores->count()];
 
-            Mantenimiento::firstOrCreate(
+            // withTrashed: con SoftDeletes, firstOrCreate no ve los mantenimientos
+            // dados de baja y crearia un duplicado; asi la baja se respeta y no se repite
+            Mantenimiento::withTrashed()->firstOrCreate(
                 [
                     'extintor_id' => $extintor->getKey(),
-                    'fecha_programada' => $data['fecha_programada']
+                    'fecha_programada' => $data['fecha_programada'],
                 ],
                 [
                     'tipo' => $data['tipo'],
                     'descripcion' => $data['descripcion'],
-                    'fecha_realizada' => $data['fecha_realizada']
+                    'fecha_realizada' => $data['fecha_realizada'],
                 ]
             );
 

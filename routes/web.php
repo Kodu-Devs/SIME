@@ -20,6 +20,12 @@ Route::get('/', [ConsultaPublicaController::class, 'mapa'])->name('publico.mapa'
 Route::get('/agenda-publica', [ConsultaPublicaController::class, 'agenda'])->name('publico.agenda');
 Route::get('/historial-publico', [ConsultaPublicaController::class, 'historial'])->name('publico.historial');
 
+Route::prefix('mapa')->name('mapa.')->group(function () {
+    Route::get('/', [MapaController::class, 'index'])->name('index');
+    Route::get('/{instalacion}', [MapaController::class, 'edificio'])->name('edificio');
+    Route::get('/{instalacion}/{piso}', [MapaController::class, 'piso'])->name('piso');
+});
+
 
 // ==========================================
 // RUTAS ADMINISTRATIVAS (Protegidas)
@@ -30,8 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Mapa interactivo exclusivo del administrador
-    Route::get('/mapa-admin', [MapaController::class, 'index'])->name('mapa.admin');
-    Route::put('/mapa-admin/ubicacion/{ubicacion}/posicion', [MapaController::class, 'updatePosicion'])->name('mapa.ubicacion.posicion');
+    Route::put('/mapa/ubicacion/{ubicacion}/posicion', [MapaController::class, 'updatePosicion'])->name('mapa.ubicacion.posicion');
 
     // Recursos Completos (CRUDs que usarán vistas Maestro-Detalle)
     Route::resource('extintores', ExtintorController::class);
