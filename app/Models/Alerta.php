@@ -14,6 +14,8 @@ class Alerta extends Model
 
     protected $fillable = [
         'extintor_id',
+        'mantenimiento_id',
+        'capacitacion_id',
         'user_id',
         'tipo',
         'mensaje',
@@ -33,14 +35,26 @@ class Alerta extends Model
         return $this->belongsTo(Extintor::class);
     }
 
+    // withTrashed(): mantenimientos y capacitaciones tienen baja lógica,
+    // y la alerta debe seguir resolviendo su origen aunque se den de baja.
+    public function mantenimiento()
+    {
+        return $this->belongsTo(Mantenimiento::class, 'mantenimiento_id')->withTrashed();
+    }
+
+    public function capacitacion()
+    {
+        return $this->belongsTo(Capacitacion::class, 'capacitacion_id')->withTrashed();
+    }
+
     public function usuario()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // Local Scope para filtrar alertas no leídas (Tu extra)
+    // Local Scope para filtrar alertas no leídas 
     public function scopeNoLeidas(Builder $query)
     {
         return $query->where('leida', false);
     }
-}
+}}
