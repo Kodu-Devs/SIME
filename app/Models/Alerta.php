@@ -57,4 +57,4 @@ class Alerta extends Model
     {
         return $query->where('leida', false);
     }
-}}
+}
