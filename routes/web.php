@@ -30,6 +30,10 @@ Route::get('/extintores', [ExtintorController::class, 'index'])->name('extintore
 Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
 Route::get('/historial', [HistorialController::class, 'index'])->name('historial.index');
 
+// Módulo 8: Consulta Pública (Valeria)
+Route::get('/como-usar-extintor', function () {
+    return Inertia::render('Publico/ComoUsarExtintor');
+})->name('publico.como-usar');
 
 // ==========================================
 // RUTAS ADMINISTRATIVAS (Protegidas)
