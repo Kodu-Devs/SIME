@@ -28,8 +28,7 @@ class StoreMantenimientoRequest extends FormRequest
             'extintor_id' => ['required', Rule::exists('extintores', 'id')->whereNot('estatus', 'Baja')],
             'tipo' => ['required', 'in:Relleno de contenido,Revisión,Otra'],
             'descripcion' => ['nullable', 'string', 'max:255'],
-            'fecha_programada' => ['required', 'date'],
-            'fecha_realizada' => ['nullable', 'date', 'after_or_equal:fecha_programada']
+            'fecha_programada' => ['required', 'date', 'after_or_equal:today'],
         ];
     }
 }

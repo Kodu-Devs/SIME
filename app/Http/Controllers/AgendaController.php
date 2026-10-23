@@ -20,6 +20,9 @@ class AgendaController extends Controller
      */
     public function index(Request $request)
     {
+        //Validar mes
+        $request->validate(['mes' => ['nullable', 'date_format:Y-m']]);
+
         //Obtener mes actual
         $mes = $request->input('mes', now()->format('Y-m'));
         $fecha_inicio = Carbon::parse($mes)->startOfMonth();
@@ -59,6 +62,7 @@ class AgendaController extends Controller
         $combos = [];
         //Datos para administrador
         if (Auth::check()) {
+            // TODO Módulo 2 (Eivan):
             //$combos['ubicaciones']=CatalogoUbicacion::arbol();
 
             //Extintores para manteninimiento
@@ -116,9 +120,15 @@ class AgendaController extends Controller
     //Actualizar mantenimiento
     public function updateMantenimiento(StoreMantenimientoRequest $request, Mantenimiento $m)
     {
+        if ($m->fecha_realizada !== null) {
+            return back()->with('error', 'No se puede editar un mantenimiento realizado.');
+        }
+
         $v = $request->validated();
+
         DB::transaction(function () use ($v, $m) {
             $m->update($v);
+            // TODO Módulo 6 (Ramón):
             //AlertaService::cerrarPara('mantenimiento_id',$m->id);
         });
         return back()->with('success', 'Mantenimiento actualizado correctamente.');
@@ -127,9 +137,15 @@ class AgendaController extends Controller
     //Actualizar capacitacion
     public function updateCapacitacion(StoreCapacitacionRequest $request, Capacitacion $c)
     {
+        if ($c->fecha_hora->isPast() || $c->eventosUso()->exists()) {
+            return back()->with('error', 'No se puede editar una capacitación que ya pasó o tiene usos registrados');
+        }
+
         $v = $request->validated();
+
         DB::transaction(function () use ($v, $c) {
             $c->update($v);
+            // TODO Módulo 6 (Ramón):
             //AlertaService::cerrarPara('capacitacion_id',$c->id);
         });
         return back()->with('success', 'Capacitación actualizada correctamente.');
@@ -142,7 +158,7 @@ class AgendaController extends Controller
     public function realizarMantenimiento(Mantenimiento $m)
     {
         if ($m->fecha_realizada) {
-            return back()->with("Aviso", "El mantenimiento ya fue realizado.");
+            return back()->with("error", "El mantenimiento ya fue realizado.");
         }
 
         DB::transaction(function () use ($m) {
@@ -151,7 +167,11 @@ class AgendaController extends Controller
             ]);
 
             //Metodos requeridos para funcionamiento
+
+            // TODO Módulo 3 (Diego):
             //EstatusExtintor::trasMantenimiento($m);
+
+            // TODO Módulo 6 (Ramón):
             //AlertaService::cerrarPara('mantenimiento_id',$m->id);
         });
         return back()->with('success', 'Mantenimiento registrado correctamente.');
@@ -170,6 +190,7 @@ class AgendaController extends Controller
 
         DB::transaction(function () use ($m) {
             $m->delete();
+            // TODO Módulo 6 (Ramón):
             //AlertaService::cerrarPara('mantenimiento_id',$m->id);
         });
 
@@ -185,6 +206,7 @@ class AgendaController extends Controller
 
         DB::transaction(function () use ($c) {
             $c->delete();
+            // TODO Módulo 6 (Ramón):
             //AlertaService::cerrarPara('capacitacion_id',$c->id);
         });
 
