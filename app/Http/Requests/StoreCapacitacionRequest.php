@@ -26,7 +26,7 @@ class StoreCapacitacionRequest extends FormRequest
     {
         return [
             'nombre' => ['required', 'string', 'max:255'],
-            'fecha_hora' => ['required', 'date'],
+            'fecha_hora' => ['required', 'date', 'after:now'],
             'ubicacion_id' => ['required', 'exists:ubicaciones,id']
         ];
     }
