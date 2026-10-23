@@ -54,5 +54,29 @@ class MantenimientoSeeder extends Seeder
 
             $contador++;
         }
+
+        // Pendientes con fecha relativa a hoy para que la agenda siempre tenga proximos;
+        // la clave no incluye la fecha para que al re-sembrar se actualice y no se duplique
+        $proximos = [
+            ['tipo' => 'Revisión', 'descripcion' => 'Revisión trimestral programada', 'dias' => 10, 'hora' => 10],
+            ['tipo' => 'Relleno de contenido', 'descripcion' => 'Recarga programada', 'dias' => 18, 'hora' => 9],
+            ['tipo' => 'Revisión', 'descripcion' => 'Revisión preventiva programada', 'dias' => 25, 'hora' => 11],
+        ];
+
+        foreach ($proximos as $indice => $data) {
+            $extintor = $extintores[$indice % $extintores->count()];
+
+            Mantenimiento::withTrashed()->updateOrCreate(
+                [
+                    'extintor_id' => $extintor->getKey(),
+                    'descripcion' => $data['descripcion'],
+                ],
+                [
+                    'tipo' => $data['tipo'],
+                    'fecha_programada' => now()->startOfDay()->addDays($data['dias'])->setTime($data['hora'], 0),
+                    'fecha_realizada' => null,
+                ]
+            );
+        }
     }
 }
