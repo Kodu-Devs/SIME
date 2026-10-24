@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Services\ResumenExtintores;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Services\RecomendacionService;
 
 class DashboardController extends Controller
 {
-    public function index(ResumenExtintores $resumen): Response
+    public function index(ResumenExtintores $resumen, RecomendacionService $recomendaciones): Response
     {
                 return Inertia::render('Dashboard', [
                 'tarjetas' => [
@@ -20,6 +21,7 @@ class DashboardController extends Controller
                 ],
                 'alerta_vencido' => $resumen->extintorVencidoUrgente(),
                 'agenda'         => $resumen->proximaAgenda(),
+                'recomendaciones' => $recomendaciones->generar(),
         ]);
     }
 }
