@@ -1,13 +1,14 @@
 import { Link, usePage } from "@inertiajs/react";
 import { useState } from "react";
+import Dropdown from "@/Components/Dropdown";
 
-export default function AdminLayout({ children, title = "SIME" }) {
+export default function AdminLayout({ children }) {
     const { auth } = usePage().props;
     const [showNotifications, setShowNotifications] = useState(false);
 
     const navItems = [
         { name: "Resumen", route: "dashboard", active: "dashboard" },
-        { name: "Mapa", route: "mapa.admin", active: "mapa.admin" },
+        { name: "Mapa", route: "mapa.index", active: "mapa.*" },
         {
             name: "Extintores",
             route: "extintores.index",
@@ -19,25 +20,31 @@ export default function AdminLayout({ children, title = "SIME" }) {
 
     return (
         <div className="min-h-screen bg-neutro-50 text-neutro-900 flex flex-col md:flex-row pb-16 md:pb-0">
-            {/* SIDEBAR DESKTOP / TABLET */}
-            <aside className="hidden md:flex md:w-60 md:flex-col bg-sime-navy text-white shrink-0 min-h-screen">
-                <div className="h-16 flex items-center px-6 border-b border-white/10">
-                    <span className="text-titulo-2 font-bold tracking-wider">
-                        SIME
-                    </span>
+            {/* 1. SIDEBAR DESKTOP Y TABLET (Blanco con borde gris como en Figma) */}
+            <aside className="hidden md:flex md:w-56 md:flex-col bg-neutro-900 border-r border-neutro-100 shrink-0 min-h-screen">
+                {/* Logo en el Sidebar */}
+                <div className="h-16 flex items-center px-6 border-b border-neutro-100">
+                    <span className="bg-[url('/img/Logo.png')] bg-contain bg-center bg-no-repeat w-10 h-10 "></span>
+                    {/* <Link
+                        href={route("dashboard")}
+                        className="text-titulo-2 font-bold text-neutro-300 tracking-wider"
+                    >
+                        SIMEs
+                    </Link> */}
                 </div>
 
-                <nav className="flex-1 px-3 py-6 space-y-2">
+                {/* Enlaces del Sidebar */}
+                <nav className="flex-1 px-3 py-6 space-y-1.5">
                     {navItems.map((item) => {
                         const isActive = route().current(item.active);
                         return (
                             <Link
                                 key={item.name}
                                 href={route(item.route)}
-                                className={`flex items-center px-4 py-3 rounded-lg text-etiqueta transition ${
+                                className={`flex items-center px-4 py-2.5 rounded-lg text-etiqueta transition ${
                                     isActive
-                                        ? "bg-primario-500 text-white"
-                                        : "text-white/80 hover:bg-white/10 hover:text-white"
+                                        ? "bg-primario-100 text-primario-700 font-bold" // Activo en Figma: fondo rosita, texto rojo
+                                        : "text-neutro-600 hover:bg-neutro-50 hover:text-neutro-900" // Inactivo: texto gris
                                 }`}
                             >
                                 {item.name}
@@ -47,7 +54,7 @@ export default function AdminLayout({ children, title = "SIME" }) {
                 </nav>
             </aside>
 
-            {/* CONTENEDOR PRINCIPAL */}
+            {/* 2. CONTENEDOR PRINCIPAL DERECHO */}
             <div className="flex-1 flex flex-col min-w-0">
                 {/* HEADER SUPERIOR */}
                 <header className="h-16 bg-white border-b border-neutro-100 px-4 md:px-8 flex items-center justify-between gap-4">
@@ -55,53 +62,74 @@ export default function AdminLayout({ children, title = "SIME" }) {
                     <div className="flex-1 max-w-md">
                         <input
                             type="search"
-                            placeholder="Buscar extintor por código o ubicación..."
+                            placeholder="Buscar extintor por código o ubicación"
                             className="w-full rounded-lg border-neutro-100 bg-neutro-50 px-4 py-2 text-etiqueta text-neutro-900 placeholder-neutro-300 focus:border-acento-500 focus:ring-acento-500"
                         />
                     </div>
 
-                    {/* Acciones Derecha: Notificaciones + Perfil */}
-                    <div className="flex items-center gap-4 relative">
+                    {/* Acciones Derecha: Campana de Notificaciones + Menú Administrador */}
+                    <div className="flex items-center gap-3 relative">
                         <button
                             type="button"
                             onClick={() =>
                                 setShowNotifications(!showNotifications)
                             }
-                            className="relative p-2 rounded-full text-neutro-600 hover:bg-neutro-50"
+                            className="relative p-2 rounded-lg border border-neutro-100 text-neutro-600 hover:bg-neutro-50 transition"
                         >
                             <span className="sr-only">Notificaciones</span>
                             🔔
-                            <span className="absolute -top-0.5 -right-0.5 bg-primario-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                            <span className="absolute -top-1.5 -right-1.5 bg-primario-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
                                 3
                             </span>
                         </button>
 
-                        {/* Popover de Notificaciones (Esqueleto) */}
+                        {/* Popover de Notificaciones */}
                         {showNotifications && (
-                            <div className="absolute right-0 top-12 w-80 bg-white rounded-xl shadow-lg border border-neutro-100 p-4 z-50">
+                            <div className="absolute right-0 top-12 w-80 sm:w-96 bg-white rounded-xl shadow-lg border border-neutro-100 p-4 z-50">
                                 <div className="flex justify-between items-center mb-3">
-                                    <h3 className="text-etiqueta text-neutro-900">
+                                    <h3 className="text-etiqueta text-neutro-900 font-bold">
                                         Notificaciones
                                     </h3>
-                                    <button className="text-xs text-acento-500 hover:underline">
+                                    <button className="text-xs text-primario-500 hover:underline">
                                         Marcar todo como leído
                                     </button>
                                 </div>
                                 <div className="text-xs text-neutro-600 py-4 text-center">
-                                    Aquí irá el listado de alertas de
-                                    AlertaController
+                                    Aquí irá el listado de alertas
                                 </div>
                             </div>
                         )}
 
-                        <div className="flex items-center gap-2">
-                            <div className="w-9 h-9 rounded-full bg-sime-navy text-white flex items-center justify-center text-etiqueta">
-                                AD
-                            </div>
-                            <span className="hidden sm:inline text-etiqueta text-neutro-900">
-                                {auth?.user?.nombre || "Administrador"}
-                            </span>
-                        </div>
+                        {/* Dropdown de Perfil y Cerrar Sesión */}
+                        <Dropdown>
+                            <Dropdown.Trigger>
+                                <button
+                                    type="button"
+                                    className="flex items-center gap-2 rounded-full border border-neutro-100 bg-white px-2.5 py-1 hover:bg-neutro-50 transition focus:outline-none"
+                                >
+                                    <div className="w-7 h-7 rounded-full bg-primario-100 text-primario-700 flex items-center justify-center text-xs font-bold">
+                                        AD
+                                    </div>
+                                    <span className="hidden sm:inline text-etiqueta text-neutro-900 pr-1">
+                                        {auth?.user?.name || "Administrador"}
+                                    </span>
+                                </button>
+                            </Dropdown.Trigger>
+
+                            <Dropdown.Content align="right" width="48">
+                                <Dropdown.Link href={route("profile.edit")}>
+                                    Mi Perfil
+                                </Dropdown.Link>
+                                <Dropdown.Link
+                                    href={route("logout")}
+                                    method="post"
+                                    as="button"
+                                >
+                                    Cerrar Sesión
+                                </Dropdown.Link>
+                                -
+                            </Dropdown.Content>
+                        </Dropdown>
                     </div>
                 </header>
 
@@ -109,8 +137,8 @@ export default function AdminLayout({ children, title = "SIME" }) {
                 <main className="flex-1 p-4 md:p-8">{children}</main>
             </div>
 
-            {/* BOTTOM NAVIGATION BAR (SOLO MÓVIL) */}
-            <nav className="md:hidden fixed bottom-0 inset-x-0 bg-sime-navy text-white flex justify-around items-center h-16 z-40 border-t border-white/10">
+            {/* 3. BARRA INFERIOR (SOLO MÓVIL) */}
+            <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-neutro-100 flex justify-around items-center h-16 z-40">
                 {navItems.map((item) => {
                     const isActive = route().current(item.active);
                     return (
@@ -118,7 +146,9 @@ export default function AdminLayout({ children, title = "SIME" }) {
                             key={item.name}
                             href={route(item.route)}
                             className={`flex flex-col items-center justify-center w-full h-full text-xs font-semibold ${
-                                isActive ? "text-primario-500" : "text-white/70"
+                                isActive
+                                    ? "text-primario-700 bg-primario-100/50"
+                                    : "text-neutro-600"
                             }`}
                         >
                             <span>{item.name}</span>
