@@ -23,8 +23,13 @@ export default function AdminLayout({ children }) {
             {/* 1. SIDEBAR DESKTOP Y TABLET (Blanco con borde gris como en Figma) */}
             <aside className="hidden md:flex md:w-56 md:flex-col bg-neutro-900 border-r border-neutro-100 shrink-0 min-h-screen">
                 {/* Logo en el Sidebar */}
-                <div className="h-16 flex items-center px-6 border-b border-neutro-100">
-                    <span className="bg-[url('/img/Logo.png')] bg-contain bg-center bg-no-repeat w-10 h-10 "></span>
+                <div className="h-16 flex items-center px-5 py-3">
+                    {/* <span className="bg-[url('/img/Logo.png')] bg-contain bg-center bg-no-repeat w-14 h-14 "></span> */}
+                    <img
+                        src="/img/Logo_h.png"
+                        alt="Logo SIME"
+                        className="w-20 h-20 object-contain"
+                    />
                     {/* <Link
                         href={route("dashboard")}
                         className="text-titulo-2 font-bold text-neutro-300 tracking-wider"
@@ -34,17 +39,17 @@ export default function AdminLayout({ children }) {
                 </div>
 
                 {/* Enlaces del Sidebar */}
-                <nav className="flex-1 px-3 py-6 space-y-1.5">
+                <nav className="flex-1 px-3 py-3 space-y-3">
                     {navItems.map((item) => {
                         const isActive = route().current(item.active);
                         return (
                             <Link
                                 key={item.name}
                                 href={route(item.route)}
-                                className={`flex items-center px-4 py-2.5 rounded-lg text-etiqueta transition ${
+                                className={`flex items-center px-4 py-3 rounded-lg text-etiqueta transition ${
                                     isActive
-                                        ? "bg-primario-100 text-primario-700 font-bold" // Activo en Figma: fondo rosita, texto rojo
-                                        : "text-neutro-600 hover:bg-neutro-50 hover:text-neutro-900" // Inactivo: texto gris
+                                        ? "bg-primario-700 text-neutro-50 font-bold" // Activo en Figma: fondo rosita, texto rojo
+                                        : "text-neutro-300 hover:bg-primario-700/50 hover:text-neutro-50" // Inactivo: texto gris
                                 }`}
                             >
                                 {item.name}
@@ -74,7 +79,7 @@ export default function AdminLayout({ children }) {
                             onClick={() =>
                                 setShowNotifications(!showNotifications)
                             }
-                            className="relative p-2 rounded-lg border border-neutro-100 text-neutro-600 hover:bg-neutro-50 transition"
+                            className="relative p-2 rounded-full text-neutro-600 hover:bg-neutro-50 transition"
                         >
                             <span className="sr-only">Notificaciones</span>
                             🔔
@@ -85,7 +90,7 @@ export default function AdminLayout({ children }) {
 
                         {/* Popover de Notificaciones */}
                         {showNotifications && (
-                            <div className="absolute right-0 top-12 w-80 sm:w-96 bg-white rounded-xl shadow-lg border border-neutro-100 p-4 z-50">
+                            <div className="absolute right-0 top-12 w-80 sm:w-96 bg-white rounded-xl shadow-lg border border-neutro-100 p-4 z-50 ">
                                 <div className="flex justify-between items-center mb-3">
                                     <h3 className="text-etiqueta text-neutro-900 font-bold">
                                         Notificaciones
@@ -105,7 +110,7 @@ export default function AdminLayout({ children }) {
                             <Dropdown.Trigger>
                                 <button
                                     type="button"
-                                    className="flex items-center gap-2 rounded-full border border-neutro-100 bg-white px-2.5 py-1 hover:bg-neutro-50 transition focus:outline-none"
+                                    className="flex items-center gap-2 rounded-full bg-white px-2.5 py-1 hover:bg-neutro-50 transition focus:outline-none"
                                 >
                                     <div className="w-7 h-7 rounded-full bg-primario-100 text-primario-700 flex items-center justify-center text-xs font-bold">
                                         AD
@@ -127,7 +132,6 @@ export default function AdminLayout({ children }) {
                                 >
                                     Cerrar Sesión
                                 </Dropdown.Link>
-                                -
                             </Dropdown.Content>
                         </Dropdown>
                     </div>
