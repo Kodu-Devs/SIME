@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\Alerta;
 use App\Models\Extintor;
 use App\Models\Mantenimiento;
 use App\Models\Capacitacion;
 use App\Models\User;
-use PHPUnit\Logging\OpenTestReporting\Status;
 
 class AlertaService
 {
@@ -22,13 +22,11 @@ class AlertaService
 
         //Validación y logica para extintores
         if ($fecha_vencimiento->lessThan($fecha_hoy) && $e->estatus !== 'Baja') {
-            //LLamar a generar con tipo:Urgente
-
+            self::generar('extintor_id', $e->id, 'Urgente', 'Extintor vencido');
         } elseif ($e->estatus == 'Vacío' || $e->estatus == 'Fuera de servicio') {
-            //Llamar a generar con tipo:Urgente
-
+            self::generar('extintor_id', $e->id, 'Urgente', 'Extintor vacío o fuera de servicio');
         } elseif ($fecha_vencimiento->betweenIncluded($fecha_hoy, $limit)) {
-            //Llamar a generar con tipo:Proximo
+            self::generar('extintor_id', $e->id, 'Próximo', 'Extintor por vencer.');
         }
     }
 
@@ -41,6 +39,7 @@ class AlertaService
         //Validar si ya tiene fecha realizada para cerrar
         if ($m->fecha_realizada !== null) {
             self::cerrarPara('mantenimiento_id', $m->id);
+            return;
         }
 
         //Validación y logica para mantenimientos
@@ -49,9 +48,9 @@ class AlertaService
         $limit = $fecha_hoy->copy()->addDays(7);
 
         if ($fecha_programada->lessThan($fecha_hoy) && $m->fecha_realizada == null) {
-            //Llamar a generar
+            self::generar('mantenimiento_id', $m->id, 'Urgente', 'Mantenimiento atrasado');
         } elseif ($fecha_programada->betweenIncluded($fecha_hoy, $limit)) {
-            //Llamar a generar
+            self::generar('mantenimiento_id', $m->id, 'Próximo', 'Mantenimiento próximo');
         }
     }
 
@@ -67,7 +66,7 @@ class AlertaService
 
         //Validación y logica para capacitaciones
         if ($fecha_hora->betweenIncluded($fecha_hoy, $limit)) {
-            //Llamar a generar con tipo: Informativo
+            self::generar('capacitacion_id', $c->id, 'Informativo', 'Capacitación próxima');
         }
     }
 
@@ -75,7 +74,24 @@ class AlertaService
     /**
      * Método para generar una alerta
      */
-    public static function generar($campo, $id, $tipo, $mensaje) {}
+    public static function generar(string $campo, int $id, string $tipo, string $mensaje)
+    {
+        $exists = Alerta::where($campo, $id)->where('tipo', $tipo)->noLeidas()->exists();
+
+        if (!$exists) {
+            $adminId = User::first()->id;
+            DB::transaction(function () use ($campo, $id, $adminId, $tipo, $mensaje) {
+                Alerta::create([
+                    $campo => $id,
+                    'user_id' => $adminId,
+                    'tipo' => $tipo,
+                    'mensaje' => $mensaje,
+                    'fecha_generada' => now()->format('Y-m-d H:i:s'),
+                    'leida' => false
+                ]);
+            });
+        }
+    }
 
 
     /**
