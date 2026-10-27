@@ -11,7 +11,7 @@ export default function ExtintorFormPanel({
 }) {
     const isEditing = Boolean(selectedExtintor);
 
-    // Selección en cascada: Instalación -> Piso -> Ubicación
+    // Estados para la cascada: Edificio -> Piso
     const [selectedInstalacionId, setSelectedInstalacionId] = useState('');
     const [selectedPisoId, setSelectedPisoId] = useState('');
 
@@ -23,42 +23,86 @@ export default function ExtintorFormPanel({
         fecha_vencimiento: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
     });
 
-    // Pisos de la instalación seleccionada
+    // 1. Obtener pisos disponibles según el edificio
     const pisosDisponibles = useMemo(() => {
         if (!selectedInstalacionId) return [];
-        const inst = instalaciones.find((i) => i.id == selectedInstalacionId);
+        const inst = instalaciones.find((i) => String(i.id) === String(selectedInstalacionId));
         return inst?.pisos || [];
     }, [selectedInstalacionId, instalaciones]);
 
-    // Ubicaciones del piso seleccionado
+    // 2. Obtener ubicaciones disponibles según el piso
     const ubicacionesDisponibles = useMemo(() => {
         if (!selectedPisoId) return [];
-        const piso = pisosDisponibles.find((p) => p.id == selectedPisoId);
+        const piso = pisosDisponibles.find((p) => String(p.id) === String(selectedPisoId));
         return piso?.ubicaciones || [];
     }, [selectedPisoId, pisosDisponibles]);
 
-    // Lista de capacidades según la unidad del tipo
+    // 3. Capacidades según tipo seleccionado
     const listaCapacidades = useMemo(() => {
-        const tipo = tipos.find((t) => t.id == data.tipoextintor_id);
+        const tipo = tipos.find((t) => String(t.id) === String(data.tipoextintor_id));
         return (tipo && tipo.unidad === 'l') ? capacidades_l : capacidades_kg;
     }, [data.tipoextintor_id, tipos, capacidades_kg, capacidades_l]);
 
+    // Efecto de autocompletado inteligente al seleccionar fila
     useEffect(() => {
         clearErrors();
+
         if (selectedExtintor) {
+            // Resolver Tipo por ID o por coincidencia de nombre
+            let resolvedTipoId = selectedExtintor.raw?.tipoextintor_id || selectedExtintor.tipoextintor_id || '';
+            if (!resolvedTipoId && selectedExtintor.tipo) {
+                const foundTipo = tipos.find(t =>
+                    (t.nombre || '').toLowerCase() === selectedExtintor.tipo.toLowerCase()
+                );
+                if (foundTipo) resolvedTipoId = foundTipo.id;
+            }
+
+            // Resolver Ubicación, Piso y Edificio navegando en el árbol de instalaciones
+            let resolvedInstalacionId = '';
+            let resolvedPisoId = '';
+            let resolvedUbicacionId = selectedExtintor.raw?.ubicacion_id || '';
+
+            if (selectedExtintor.area_nombre) {
+                for (const inst of instalaciones) {
+                    for (const p of (inst.pisos || [])) {
+                        for (const ub of (p.ubicaciones || [])) {
+                            if (
+                                (resolvedUbicacionId && String(ub.id) === String(resolvedUbicacionId)) ||
+                                (ub.nombre && ub.nombre.trim().toLowerCase() === selectedExtintor.area_nombre.trim().toLowerCase())
+                            ) {
+                                resolvedInstalacionId = inst.id;
+                                resolvedPisoId = p.id;
+                                resolvedUbicacionId = ub.id;
+                                break;
+                            }
+                        }
+                        if (resolvedUbicacionId) break;
+                    }
+                    if (resolvedUbicacionId) break;
+                }
+            }
+
+            setSelectedInstalacionId(resolvedInstalacionId);
+            setSelectedPisoId(resolvedPisoId);
+
+            // Capacidad limpia (solo número)
+            const rawCap = String(selectedExtintor.capacidad_raw || selectedExtintor.capacidad || '')
+                .replace(/[^0-9.]/g, '')
+                .trim();
+
             setData({
-                tipoextintor_id: selectedExtintor.raw?.tipoextintor_id || selectedExtintor.tipoextintor_id || '',
-                ubicacion_id: selectedExtintor.raw?.ubicacion_id || '',
-                capacidad: selectedExtintor.capacidad_raw || '',
+                tipoextintor_id: resolvedTipoId,
+                ubicacion_id: resolvedUbicacionId,
+                capacidad: rawCap,
                 fecha_instalacion: selectedExtintor.raw?.fecha_instalacion || new Date().toISOString().split('T')[0],
-                fecha_vencimiento: selectedExtintor.raw?.fecha_vencimiento || '',
+                fecha_vencimiento: selectedExtintor.raw?.fecha_vencimiento || new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
             });
         } else {
             reset();
             setSelectedInstalacionId('');
             setSelectedPisoId('');
         }
-    }, [selectedExtintor]);
+    }, [selectedExtintor, tipos, instalaciones]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -90,7 +134,6 @@ export default function ExtintorFormPanel({
 
     return (
         <div className="bg-white rounded-2xl border border-neutral-200/80 p-5 shadow-sm font-['Manrope']">
-            {/* Encabezado */}
             <div className="text-center">
                 <h3 className="font-bold text-neutral-900 text-base md:text-[15px]">
                     {isEditing ? `Modificar ${selectedExtintor.codigo}` : 'Registro de un nuevo extintor'}
@@ -129,7 +172,7 @@ export default function ExtintorFormPanel({
                     )}
                 </div>
 
-                {/* Capacidad */}
+                {/* Capacidad (Sin repetir kg kg/l) */}
                 <div>
                     <label className="block font-bold text-neutral-800 mb-1">Capacidad</label>
                     <div className="relative">
@@ -140,11 +183,15 @@ export default function ExtintorFormPanel({
                             className="w-full bg-white border border-neutral-300 rounded-xl md:rounded-lg px-3 py-2 text-neutral-700 appearance-none focus:outline-none focus:border-[#C0262D] text-xs font-medium pr-8"
                         >
                             <option value="">[ Capacidad ]</option>
-                            {listaCapacidades.map((cap) => (
-                                <option key={cap} value={cap}>
-                                    {cap} kg/l
-                                </option>
-                            ))}
+                            {listaCapacidades.map((cap) => {
+                                const cleanValue = String(cap).replace(/[^0-9.]/g, '').trim();
+                                const unit = tipos.find(t => String(t.id) === String(data.tipoextintor_id))?.unidad === 'l' ? 'L' : 'kg';
+                                return (
+                                    <option key={cap} value={cleanValue}>
+                                        {cleanValue} {unit}
+                                    </option>
+                                );
+                            })}
                         </select>
                         <span className="absolute right-3.5 top-2.5 text-neutral-400 pointer-events-none text-xs">&gt;</span>
                     </div>
@@ -153,7 +200,7 @@ export default function ExtintorFormPanel({
                     )}
                 </div>
 
-                {/* Edificio y Piso (Cascada) */}
+                {/* Edificio y Piso en Cascada */}
                 <div className="grid grid-cols-2 gap-3">
                     <div>
                         <label className="block font-bold text-neutral-800 mb-1">Edificio</label>
@@ -227,7 +274,7 @@ export default function ExtintorFormPanel({
                     )}
                 </div>
 
-                {/* Inputs de Fechas Autorizados */}
+                {/* Fechas de Instalación y Vencimiento */}
                 <div className="grid grid-cols-2 gap-3 pt-1">
                     <div>
                         <label className="block font-bold text-neutral-800 mb-1">Fecha Instalación</label>

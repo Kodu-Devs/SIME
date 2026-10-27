@@ -30,7 +30,7 @@ export default function ExtintoresTable({ extintores = [], selectedExtintor, onS
 
     return (
         <div>
-            {/* ESCRITORIO: TABLA (5 COLUMNAS DE FIGMA) */}
+            {/* ESCRITORIO: TABLA */}
             <div className="hidden md:block bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                     <table className="min-w-full text-sm text-left">
@@ -62,7 +62,9 @@ export default function ExtintoresTable({ extintores = [], selectedExtintor, onS
                                         <tr
                                             key={extintor.id}
                                             onClick={() => onSelectExtintor(isSelected ? null : extintor)}
-                                            className={`cursor-pointer transition-colors ${isSelected ? 'bg-[#FDEDED]' : 'hover:bg-neutral-50/70'
+                                            className={`cursor-pointer transition-colors ${isSelected
+                                                ? 'bg-[#FDEDED]'
+                                                : 'hover:bg-[#FDEDED]' /* <--- CAMBIO AQUÍ */
                                                 }`}
                                         >
                                             <td className="px-5 py-4 font-normal text-neutral-800 text-xs">
@@ -109,7 +111,7 @@ export default function ExtintoresTable({ extintores = [], selectedExtintor, onS
                                 onClick={() => onSelectExtintor(isSelected ? null : extintor)}
                                 className={`p-4 rounded-2xl border transition-all cursor-pointer shadow-sm ${isSelected
                                     ? 'bg-[#FDEDED] border-[#F9CACB]'
-                                    : 'bg-white border-neutral-100 hover:border-neutral-200'
+                                    : 'bg-white border-neutral-100 hover:bg-[#FDEDED] hover:border-[#F9CACB]' /* <--- CAMBIO AQUÍ */
                                     }`}
                             >
                                 <div className="flex items-center justify-between">
