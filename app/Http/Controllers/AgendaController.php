@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use App\Models\Mantenimiento;
 use App\Models\Capacitacion;
 use App\Models\Extintor;
+use App\Services\CatalogoUbicaciones;
+use App\Services\AlertaService;
+use App\Services\EstatusExtintor;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -62,8 +65,8 @@ class AgendaController extends Controller
         $combos = [];
         //Datos para administrador
         if (Auth::check()) {
-            // TODO Módulo 2 (Eivan):
-            //$combos['ubicaciones']=CatalogoUbicacion::arbol();
+            //Obtiene ubicaciones
+            $combos['ubicaciones'] = CatalogoUbicaciones::arbol();
 
             //Extintores para manteninimiento
             $combos['extintores_mantenimiento'] = Extintor::where('estatus', '!=', 'Baja')->select('id', 'etiqueta_inventario', 'estatus')->get();
@@ -72,11 +75,9 @@ class AgendaController extends Controller
             $combos['extintores_capacitacion'] = Extintor::where('estatus', 'Medio uso')->whereDoesntHave('mantenimientos', function ($q) {
                 $q->where('fecha_realizada', '>=', now()->subWeek());
             })->select('id', 'etiqueta_inventario')->get();
-
-            return Inertia::render('Agenda/Index', ['eventos' => $eventos, 'mesActual' => $mes, 'combos' => $combos]);
         }
 
-        return Inertia::render('Publico/Agenda/Index', ['eventos' => $eventos, 'mesActual' => $mes]); //diccionario clave:valor
+        return Inertia::render('Agenda/Index', ['eventos' => $eventos, 'mesActual' => $mes, 'combos' => $combos]);
     }
 
 
@@ -128,8 +129,7 @@ class AgendaController extends Controller
 
         DB::transaction(function () use ($v, $m) {
             $m->update($v);
-            // TODO Módulo 6 (Ramón):
-            //AlertaService::cerrarPara('mantenimiento_id',$m->id);
+            AlertaService::cerrarPara('mantenimiento_id', $m->id);
         });
         return back()->with('success', 'Mantenimiento actualizado correctamente.');
     }
@@ -145,8 +145,7 @@ class AgendaController extends Controller
 
         DB::transaction(function () use ($v, $c) {
             $c->update($v);
-            // TODO Módulo 6 (Ramón):
-            //AlertaService::cerrarPara('capacitacion_id',$c->id);
+            AlertaService::cerrarPara('capacitacion_id', $c->id);
         });
         return back()->with('success', 'Capacitación actualizada correctamente.');
     }
@@ -165,14 +164,8 @@ class AgendaController extends Controller
             $m->update([
                 'fecha_realizada' => now()->format('Y-m-d H:i:s')
             ]);
-
-            //Metodos requeridos para funcionamiento
-
-            // TODO Módulo 3 (Diego):
-            //EstatusExtintor::trasMantenimiento($m);
-
-            // TODO Módulo 6 (Ramón):
-            //AlertaService::cerrarPara('mantenimiento_id',$m->id);
+            EstatusExtintor::trasMantenimiento($m);
+            AlertaService::cerrarPara('mantenimiento_id', $m->id);
         });
         return back()->with('success', 'Mantenimiento registrado correctamente.');
     }
@@ -190,12 +183,12 @@ class AgendaController extends Controller
 
         DB::transaction(function () use ($m) {
             $m->delete();
-            // TODO Módulo 6 (Ramón):
-            //AlertaService::cerrarPara('mantenimiento_id',$m->id);
+            AlertaService::cerrarPara('mantenimiento_id', $m->id);
         });
 
         return back()->with('success', 'Se ha eliminado correctamente el mantenimiento.');
     }
+
 
     //Quitar capacitacion
     public function destroyCapacitacion(Capacitacion $c)
@@ -206,8 +199,7 @@ class AgendaController extends Controller
 
         DB::transaction(function () use ($c) {
             $c->delete();
-            // TODO Módulo 6 (Ramón):
-            //AlertaService::cerrarPara('capacitacion_id',$c->id);
+            AlertaService::cerrarPara('capacitacion_id', $c->id);
         });
 
         return back()->with('success', 'Se ha eliminado correctamente la capacitación.');
