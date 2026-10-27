@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Models\Alerta;
 
@@ -40,7 +41,8 @@ class AlertaController extends Controller
                     'referencia' => $ref
                 ];
             })->groupBy(['tipo', 'categoria']);
-        //Pendiente return
+
+        return Inertia::render('Alertas/Index', ['alertas' => $alertas]);
     }
 
 
