@@ -8,6 +8,7 @@ use App\Models\Extintor;
 use App\Models\Mantenimiento;
 use App\Models\Capacitacion;
 use App\Models\User;
+use Carbon\Carbon;
 
 class AlertaService
 {
@@ -16,7 +17,7 @@ class AlertaService
      */
     public static function evaluarExtintor(Extintor $e)
     {
-        $fecha_vencimiento = $e->fecha_vencimiento;
+        $fecha_vencimiento = Carbon::parse($e->fecha_vencimiento);
         $fecha_hoy = today();
         $limit = $fecha_hoy->copy()->addDays(7);
 
@@ -26,7 +27,7 @@ class AlertaService
         } elseif ($e->estatus == 'Vacío' || $e->estatus == 'Fuera de servicio') {
             self::generar('extintor_id', $e->id, 'Urgente', 'Extintor vacío o fuera de servicio');
         } elseif ($fecha_vencimiento->betweenIncluded($fecha_hoy, $limit)) {
-            self::generar('extintor_id', $e->id, 'Próximo', 'Extintor por vencer.');
+            self::generar('extintor_id', $e->id, 'Próximo', 'Extintor por vencer');
         }
     }
 
@@ -44,7 +45,7 @@ class AlertaService
 
         //Validación y logica para mantenimientos
         $fecha_hoy = today();
-        $fecha_programada = $m->fecha_programada;
+        $fecha_programada = Carbon::parse($m->fecha_programada);
         $limit = $fecha_hoy->copy()->addDays(7);
 
         if ($fecha_programada->lessThan($fecha_hoy) && $m->fecha_realizada == null) {
@@ -60,7 +61,7 @@ class AlertaService
      */
     public static function evaluarCapacitacion(Capacitacion $c)
     {
-        $fecha_hora = $c->fecha_hora;
+        $fecha_hora = Carbon::parse($c->fecha_hora);
         $fecha_hoy = today();
         $limit = $fecha_hoy->copy()->addDays(3);
 
