@@ -9,4 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 //Comando para correr diariamente la generacion de alertas
-Schedule::command('alerta:generar')->dailyAt('6:00');
+Schedule::command('alertas:generar')->dailyAt('6:00');
