@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { Head } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import ExtintoresHeader from '@/Components/Extintores/ExtintoresHeader';
@@ -136,9 +137,9 @@ export default function Index(props) {
                                 <button
                                     type="button"
                                     onClick={handleClearSelection}
-                                    className="text-xs text-[#C0262D] font-bold flex items-center gap-1"
+                                    className="text-xs text-[#C0262D] font-bold inline-flex items-center gap-1.5"
                                 >
-                                    ← Volver a la lista
+                                    <ArrowLeft className="w-3.5 h-3.5" /> Volver a la lista
                                 </button>
                             </div>
                             <ExtintorFormPanel

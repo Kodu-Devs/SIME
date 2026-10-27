@@ -19,8 +19,8 @@ export default function ExtintorFilterPills({ activeFilter = 'Todos', onFilterCh
                         type="button"
                         onClick={() => onFilterChange(filter.name)}
                         className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-semibold border transition-all text-center ${isActive
-                                ? 'bg-neutral-900 text-white border-neutral-900 shadow-sm'
-                                : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-50'
+                            ? 'bg-neutral-900 text-white border-neutral-900 shadow-sm'
+                            : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-50'
                             }`}
                     >
                         {filter.dot && (

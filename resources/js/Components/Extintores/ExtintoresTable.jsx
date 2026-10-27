@@ -1,4 +1,5 @@
 import React from 'react';
+import { ArrowUp } from 'lucide-react';
 
 export default function ExtintoresTable({ extintores = [], selectedExtintor, onSelectExtintor }) {
     const renderBadge = (status = '') => {
@@ -41,7 +42,7 @@ export default function ExtintoresTable({ extintores = [], selectedExtintor, onS
                                 <th scope="col" className="px-5 py-3.5 font-bold text-neutral-800">
                                     <span className="inline-flex items-center gap-1">
                                         UBICACIÓN
-                                        <span className="text-[10px]">↑</span>
+                                        <ArrowUp className="w-3 h-3 text-neutral-500" />
                                     </span>
                                 </th>
                                 <th scope="col" className="px-5 py-3.5 font-bold text-neutral-600">PRÓXIMO MANT.</th>
@@ -64,7 +65,7 @@ export default function ExtintoresTable({ extintores = [], selectedExtintor, onS
                                             onClick={() => onSelectExtintor(isSelected ? null : extintor)}
                                             className={`cursor-pointer transition-colors ${isSelected
                                                 ? 'bg-[#FDEDED]'
-                                                : 'hover:bg-[#FDEDED]' /* <--- CAMBIO AQUÍ */
+                                                : 'hover:bg-[#FDEDED]'
                                                 }`}
                                         >
                                             <td className="px-5 py-4 font-normal text-neutral-800 text-xs">
