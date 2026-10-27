@@ -16,11 +16,21 @@ class AlertaController extends Controller
         // TODO: Lógica para devolver las alertas a Inertia
     }
 
+
     /**
      * Marca una alerta específica como leída.
      */
-    public function marcarLeida(Request $request, $id) // O usar Route Model Binding: (Alerta $alerta)
+    public function leer(Request $request, $id) // O usar Route Model Binding: (Alerta $alerta)
     {
         // TODO: Lógica para cambiar el status a leído
+    }
+
+
+    /*
+    * Marcar todas como leidas 
+    */
+    public function leerTodas(Request $request)
+    {
+        //TODO: Logica para cambiar el status a leído a todas las alertas
     }
 }
