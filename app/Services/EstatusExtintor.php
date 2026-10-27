@@ -3,31 +3,32 @@
 namespace App\Services;
 
 use App\Models\Extintor;
+use App\Models\Mantenimiento;
 
 class EstatusExtintor
 {
-    public function cambiarA(Extintor $extintor, string $estatus)
+    public static function cambiarA(Extintor $extintor, string $estatus)
     {
         $extintor->update([
             'estatus' => $estatus
         ]);
-        
+
         return $extintor;
     }
 
-    public function trasUso(Extintor $extintor, string $tipoDescarga)
+    public static function trasUso(Extintor $extintor, string $tipoDescarga)
     {
         if ($tipoDescarga === 'Total' || $tipoDescarga === 'Parcial') {
-            $this->cambiarA($extintor, 'Vacío');
+            self::cambiarA($extintor, 'Vacío');
         }
     }
 
-    public function trasMantenimiento($mantenimiento)
+    public static function trasMantenimiento(Mantenimiento $mantenimiento)
     {
         $extintor = $mantenimiento->extintor;
-        
+
         if ($extintor) {
-            $this->cambiarA($extintor, 'Disponible');
+            self::cambiarA($extintor, 'Disponible');
         }
     }
 }
