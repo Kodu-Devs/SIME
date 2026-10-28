@@ -2,6 +2,27 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
 import { ChevronDown } from 'lucide-react';
 
+// Helpers para manejo seguro de fechas locales
+const getToday = () => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+};
+
+const addOneMonth = (dateString) => {
+    if (!dateString) return '';
+    const [year, month, day] = dateString.split('-').map(Number);
+    if (!year || !month || !day) return '';
+    const date = new Date(year, month - 1, day);
+    date.setMonth(date.getMonth() + 1);
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+};
+
 export default function ExtintorFormPanel({
     selectedExtintor = null,
     tipos = [],
@@ -16,12 +37,14 @@ export default function ExtintorFormPanel({
     const [selectedInstalacionId, setSelectedInstalacionId] = useState('');
     const [selectedPisoId, setSelectedPisoId] = useState('');
 
+    const todayDate = getToday();
+
     const { data, setData, post, put, patch, processing, reset, errors, clearErrors } = useForm({
         tipoextintor_id: '',
         ubicacion_id: '',
         capacidad: '',
-        fecha_instalacion: new Date().toISOString().split('T')[0],
-        fecha_vencimiento: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+        fecha_instalacion: todayDate,
+        fecha_vencimiento: addOneMonth(todayDate),
     });
 
     // 1. Obtener pisos disponibles según el edificio
@@ -49,6 +72,7 @@ export default function ExtintorFormPanel({
         clearErrors();
 
         if (selectedExtintor) {
+            // Resolver Tipo por ID o por coincidencia de texto
             let resolvedTipoId = selectedExtintor.raw?.tipoextintor_id || selectedExtintor.tipoextintor_id || '';
             if (!resolvedTipoId && selectedExtintor.tipo) {
                 const foundTipo = tipos.find(t =>
@@ -57,6 +81,7 @@ export default function ExtintorFormPanel({
                 if (foundTipo) resolvedTipoId = foundTipo.id;
             }
 
+            // Resolver Edificio, Piso y Ubicación navegando el árbol del catálogo
             let resolvedInstalacionId = '';
             let resolvedPisoId = '';
             let resolvedUbicacionId = selectedExtintor.raw?.ubicacion_id || '';
@@ -84,23 +109,47 @@ export default function ExtintorFormPanel({
             setSelectedInstalacionId(resolvedInstalacionId);
             setSelectedPisoId(resolvedPisoId);
 
+            // Capacidad limpia (solo dígitos y punto decimal)
             const rawCap = String(selectedExtintor.capacidad_raw || selectedExtintor.capacidad || '')
                 .replace(/[^0-9.]/g, '')
                 .trim();
+
+            // En edición se toma el día de la modificación como instalación
+            const fechaInstalacionActual = getToday();
+            const fechaVencimientoActual = addOneMonth(fechaInstalacionActual);
 
             setData({
                 tipoextintor_id: resolvedTipoId,
                 ubicacion_id: resolvedUbicacionId,
                 capacidad: rawCap,
-                fecha_instalacion: selectedExtintor.raw?.fecha_instalacion || new Date().toISOString().split('T')[0],
-                fecha_vencimiento: selectedExtintor.raw?.fecha_vencimiento || new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+                fecha_instalacion: fechaInstalacionActual,
+                fecha_vencimiento: fechaVencimientoActual,
             });
         } else {
+            const defaultToday = getToday();
             reset();
             setSelectedInstalacionId('');
             setSelectedPisoId('');
+            setData({
+                tipoextintor_id: '',
+                ubicacion_id: '',
+                capacidad: '',
+                fecha_instalacion: defaultToday,
+                fecha_vencimiento: addOneMonth(defaultToday),
+            });
         }
     }, [selectedExtintor, tipos, instalaciones]);
+
+    // Recalcular vencimiento al editar fecha de instalación
+    const handleFechaInstalacionChange = (e) => {
+        const nuevaFechaInst = e.target.value;
+        const nuevaFechaVenc = addOneMonth(nuevaFechaInst);
+        setData((prev) => ({
+            ...prev,
+            fecha_instalacion: nuevaFechaInst,
+            fecha_vencimiento: nuevaFechaVenc,
+        }));
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -272,7 +321,7 @@ export default function ExtintorFormPanel({
                     )}
                 </div>
 
-                {/* Fechas de Instalación y Vencimiento */}
+                {/* Fechas: Instalación editable y Vencimiento solo visual */}
                 <div className="grid grid-cols-2 gap-3 pt-1">
                     <div>
                         <label className="block font-bold text-neutral-800 mb-1">Fecha Instalación</label>
@@ -280,7 +329,7 @@ export default function ExtintorFormPanel({
                             type="date"
                             name="fecha_instalacion"
                             value={data.fecha_instalacion}
-                            onChange={(e) => setData('fecha_instalacion', e.target.value)}
+                            onChange={handleFechaInstalacionChange}
                             className="w-full bg-white border border-neutral-300 rounded-xl md:rounded-lg px-3 py-2 text-neutral-700 text-xs font-medium focus:outline-none focus:border-[#C0262D]"
                         />
                         {errors.fecha_instalacion && (
@@ -288,13 +337,16 @@ export default function ExtintorFormPanel({
                         )}
                     </div>
                     <div>
-                        <label className="block font-bold text-neutral-800 mb-1">Fecha Vencimiento</label>
+                        <label className="block font-bold text-neutral-800 mb-1">
+                            Fecha Vencimiento <span className="text-[10px] font-normal text-neutral-400"></span>
+                        </label>
                         <input
                             type="date"
                             name="fecha_vencimiento"
                             value={data.fecha_vencimiento}
-                            onChange={(e) => setData('fecha_vencimiento', e.target.value)}
-                            className="w-full bg-white border border-neutral-300 rounded-xl md:rounded-lg px-3 py-2 text-neutral-700 text-xs font-medium focus:outline-none focus:border-[#C0262D]"
+                            readOnly
+                            tabIndex={-1}
+                            className="w-full bg-neutral-100 border border-neutral-200 rounded-xl md:rounded-lg px-3 py-2 text-neutral-500 text-xs font-medium cursor-not-allowed select-none focus:outline-none"
                         />
                         {errors.fecha_vencimiento && (
                             <span className="text-[10px] text-red-500 mt-0.5 block">{errors.fecha_vencimiento}</span>
