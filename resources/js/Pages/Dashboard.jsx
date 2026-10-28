@@ -21,6 +21,7 @@ export default function Dashboard({ tarjetas }) {
                             valor={tarjetas.total_extintores}
                             detalle={`En ${tarjetas.total_edificios} edificios`}
                         />
+
                         <TarjetaMetrica
                             titulo="Vigentes"
                             valor={tarjetas.vigentes}
