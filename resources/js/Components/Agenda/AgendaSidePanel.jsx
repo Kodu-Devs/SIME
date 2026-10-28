@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 
 export default function AgendaSidePanel({ combos = {} }) {
-    // Memoria para la pestaña activa
+    // Pestaña activa ('mantenimiento' | 'capacitacion')
     const [activeTab, setActiveTab] = useState("mantenimiento");
 
-    // Listas con datos de respaldo por si el controlador aún no manda nada
+    // 1. Extintores para capacitación enviados por AgendaController
     const extintoresCapacitacion =
         combos?.extintores_capacitacion?.length > 0
             ? combos.extintores_capacitacion
@@ -13,6 +13,7 @@ export default function AgendaSidePanel({ combos = {} }) {
                   { id: 2, etiqueta_inventario: "E-N1-03-Medio uso" },
               ];
 
+    // 2. Extintores para mantenimiento enviados por AgendaController
     const extintoresMantenimiento =
         combos?.extintores_mantenimiento?.length > 0
             ? combos.extintores_mantenimiento
@@ -29,25 +30,67 @@ export default function AgendaSidePanel({ combos = {} }) {
                   },
               ];
 
-    // ESTADO NUEVO: Guarda el ID del extintor que el usuario elige en el <select>
+    // 3. Aplanar el árbol de ubicaciones para el <select> de Lugar en Capacitación
+    const obtenerListaUbicaciones = () => {
+        const arbol = combos?.ubicaciones || [];
+        const lista = [];
+
+        arbol.forEach((inst) => {
+            if (inst.pisos && Array.isArray(inst.pisos)) {
+                inst.pisos.forEach((piso) => {
+                    if (piso.ubicaciones && Array.isArray(piso.ubicaciones)) {
+                        piso.ubicaciones.forEach((ub) => {
+                            lista.push({
+                                id: ub.id,
+                                texto: `${inst.nombre} - ${piso.nombre ?? piso.numero ?? ""} (${ub.nombre})`,
+                            });
+                        });
+                    }
+                });
+            } else if (inst.id && inst.nombre) {
+                lista.push({ id: inst.id, texto: inst.nombre });
+            }
+        });
+
+        return lista;
+    };
+
+    const ubicacionesPlanas = obtenerListaUbicaciones();
+
+    // Estado del extintor seleccionado en el menú desplegable
     const [extintorSeleccionadoId, setExtintorSeleccionadoId] = useState(
         extintoresMantenimiento[0]?.id || "",
     );
 
-    // Buscar todos los datos del extintor seleccionado para actualizar la parte de arriba
+    // Buscar el objeto exacto del extintor seleccionado en el arreglo
     const extintorSeleccionado =
         extintoresMantenimiento.find(
             (ext) => ext.id.toString() === extintorSeleccionadoId.toString(),
         ) || extintoresMantenimiento[0];
 
+    // EXTRACCIÓN DINÁMICA: Actualiza la ubicación y el tipo según el extintor elegido
+    const textoUbicacion = extintorSeleccionado?.ubicacion_nombre
+        ? `${extintorSeleccionado.ubicacion_nombre} - Piso ${extintorSeleccionado.piso_numero ?? "N/A"}`
+        : extintorSeleccionado?.ubicacion?.nombre
+          ? `${extintorSeleccionado.ubicacion.nombre}`
+          : "Ubicación no asignada";
+
+    const textoTipo =
+        extintorSeleccionado?.tipo_nombre ||
+        extintorSeleccionado?.tipo_extintor?.nombre ||
+        extintorSeleccionado?.tipo ||
+        "Polvo químico seco";
+
     return (
         <aside className="w-80 bg-white border border-neutro-300 rounded-xl p-5 flex flex-col gap-4 shadow-sm font-sans shrink-0">
+            {/* Título dinámico */}
             <h2 className="text-titulo-2 text-neutro-900">
                 {activeTab === "capacitacion"
                     ? "Nueva Capacitación"
                     : "Programar Mantenimiento"}
             </h2>
 
+            {/* Pestañas */}
             <div className="flex bg-neutro-100 p-1 rounded-lg">
                 <button
                     type="button"
@@ -84,8 +127,7 @@ export default function AgendaSidePanel({ combos = {} }) {
                         <input
                             type="text"
                             name="nombre"
-                            placeholder="Uso y manejo de extintores"
-                            className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 placeholder-neutro-300 focus:border-primario-700 focus:ring-0"
+                            className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
                         />
                     </div>
 
@@ -97,7 +139,7 @@ export default function AgendaSidePanel({ combos = {} }) {
                             <input
                                 type="date"
                                 name="fecha"
-                                className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-center text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
                             />
                         </div>
                         <div className="flex flex-col gap-1">
@@ -107,21 +149,36 @@ export default function AgendaSidePanel({ combos = {} }) {
                             <input
                                 type="time"
                                 name="hora"
-                                className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-center text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
                             />
                         </div>
                     </div>
 
+                    {/* Campo Lugar */}
                     <div className="flex flex-col gap-1">
                         <label className="text-etiqueta text-neutro-900">
                             Lugar
                         </label>
-                        <input
-                            type="text"
-                            name="ubicacion_id"
-                            placeholder="[Lugar]"
-                            className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 placeholder-neutro-300 focus:border-primario-700 focus:ring-0"
-                        />
+                        {ubicacionesPlanas.length > 0 ? (
+                            <select
+                                name="ubicacion_id"
+                                defaultValue=""
+                                className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
+                            >
+                                <option value="" disabled></option>
+                                {ubicacionesPlanas.map((ub) => (
+                                    <option key={ub.id} value={ub.id}>
+                                        {ub.texto}
+                                    </option>
+                                ))}
+                            </select>
+                        ) : (
+                            <input
+                                type="text"
+                                name="ubicacion_id"
+                                className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
+                            />
+                        )}
                     </div>
 
                     <div className="flex flex-col gap-1.5 mt-1">
@@ -129,19 +186,20 @@ export default function AgendaSidePanel({ combos = {} }) {
                             Extintores para la práctica
                         </span>
 
-                        {extintoresCapacitacion.map((extintor, idx) => (
-                            <label
-                                key={extintor.id}
-                                className="flex items-center gap-2 text-xs text-neutro-900 cursor-pointer"
-                            >
-                                <input
-                                    type="checkbox"
-                                    defaultChecked={idx === 0}
-                                    className="rounded border-neutro-300 text-primario-700 focus:ring-0"
-                                />
-                                {extintor.etiqueta_inventario}
-                            </label>
-                        ))}
+                        <div className="max-h-28 overflow-y-auto flex flex-col gap-1.5 pr-1">
+                            {extintoresCapacitacion.map((extintor) => (
+                                <label
+                                    key={extintor.id}
+                                    className="flex items-center gap-2 text-xs text-neutro-900 cursor-pointer"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        className="rounded border-neutro-300 text-primario-700 focus:ring-0"
+                                    />
+                                    {extintor.etiqueta_inventario}
+                                </label>
+                            ))}
+                        </div>
                     </div>
 
                     <div className="flex justify-end mt-2">
@@ -156,34 +214,15 @@ export default function AgendaSidePanel({ combos = {} }) {
             ) : (
                 /* ---------- FORMULARIO: MANTENIMIENTO ---------- */
                 <form className="flex flex-col gap-3">
-                    {/* PASTILLAS DINÁMICAS: Cambian según el extintor seleccionado */}
+                    {/* Selector integrado en la pastilla de folio + Pastilla de estatus */}
                     <div className="flex items-center gap-2">
-                        <span className="bg-neutro-100 border border-neutro-300 text-neutro-900 text-xs font-semibold px-2.5 py-1 rounded-md">
-                            {extintorSeleccionado?.etiqueta_inventario}
-                        </span>
-                        <span
-                            className={`text-xs font-semibold px-3 py-1 rounded-md ${
-                                extintorSeleccionado?.estatus === "Disponible"
-                                    ? "bg-primario-700 text-white"
-                                    : "bg-acento-500 text-neutro-900"
-                            }`}
-                        >
-                            {extintorSeleccionado?.estatus}
-                        </span>
-                    </div>
-
-                    {/* SELECTOR DESPLEGABLE: Actualiza el estado al cambiar */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-etiqueta text-neutro-900">
-                            Extintor a mantener
-                        </label>
                         <select
                             name="extintor_id"
                             value={extintorSeleccionadoId}
                             onChange={(e) =>
                                 setExtintorSeleccionadoId(e.target.value)
                             }
-                            className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
+                            className="flex-1 bg-neutro-100 border border-neutro-300 text-neutro-900 text-xs font-semibold pl-2.5 pr-7 py-1.5 rounded-md focus:border-primario-700 focus:ring-0 truncate cursor-pointer"
                         >
                             {extintoresMantenimiento.map((ext) => (
                                 <option key={ext.id} value={ext.id}>
@@ -191,6 +230,21 @@ export default function AgendaSidePanel({ combos = {} }) {
                                 </option>
                             ))}
                         </select>
+
+                        <span className="bg-acento-500 text-neutro-900 text-xs font-semibold px-3 py-1.5 rounded-md shrink-0">
+                            {extintorSeleccionado?.estatus || "Pendiente"}
+                        </span>
+                    </div>
+
+                    {/* RECUADRO INFORMATIVO DINÁMICO: Se actualiza al cambiar el extintor */}
+                    <div className="flex flex-col gap-1">
+                        <span className="text-etiqueta text-neutro-900">
+                            Datos del extintor
+                        </span>
+                        <div className="border border-neutro-300 rounded-lg p-2.5 text-xs text-neutro-600 flex flex-col gap-0.5">
+                            <span>{textoUbicacion}</span>
+                            <span>Tipo: {textoTipo}</span>
+                        </div>
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -205,7 +259,6 @@ export default function AgendaSidePanel({ combos = {} }) {
                             <input
                                 type="text"
                                 name="tipo"
-                                defaultValue="Mantenimiento preventivo"
                                 className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
                             />
                         </div>
@@ -218,7 +271,7 @@ export default function AgendaSidePanel({ combos = {} }) {
                                 <input
                                     type="date"
                                     name="fecha_programada"
-                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-center text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
                                 />
                             </div>
                             <div className="flex flex-col gap-1">
@@ -228,7 +281,7 @@ export default function AgendaSidePanel({ combos = {} }) {
                                 <input
                                     type="time"
                                     name="hora_programada"
-                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-center text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
                                 />
                             </div>
                         </div>
@@ -240,8 +293,7 @@ export default function AgendaSidePanel({ combos = {} }) {
                             <textarea
                                 rows="2"
                                 name="descripcion"
-                                placeholder="Revisión de sello de seguridad"
-                                className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 placeholder-neutro-300 resize-none focus:border-primario-700 focus:ring-0"
+                                className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 resize-none focus:border-primario-700 focus:ring-0"
                             ></textarea>
                         </div>
                     </div>
