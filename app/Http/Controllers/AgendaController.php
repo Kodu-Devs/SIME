@@ -69,7 +69,19 @@ class AgendaController extends Controller
             $combos['ubicaciones'] = CatalogoUbicaciones::arbol();
 
             //Extintores para manteninimiento
-            $combos['extintores_mantenimiento'] = Extintor::where('estatus', '!=', 'Baja')->select('id', 'etiqueta_inventario', 'estatus')->get();
+            $combos['extintores_mantenimiento'] = Extintor::with(['tipoExtintor', 'ubicacion.piso.instalacion'])->where('estatus', '!=', 'Baja')->get()
+                ->map(function ($e) {
+                    return [
+                        'id' => $e->id,
+                        'etiqueta_inventario' => $e->etiqueta_inventario,
+                        'estatus' => $e->estatus,
+                        'tipoextintor_nombre' => $e->tipoExtintor->nombre,
+                        'ubicacion_nombre' => $e->ubicacion->nombre,
+                        'piso_numero' => $e->ubicacion->piso->id,
+                        'piso_nombre' => $e->ubicacion->piso->nombre,
+                        'edificio' => $e->ubicacion->piso->instalacion->nombre
+                    ];
+                });
 
             //Extintores para capacitacion
             $combos['extintores_capacitacion'] = Extintor::where('estatus', 'Medio uso')->whereDoesntHave('mantenimientos', function ($q) {
