@@ -1,8 +1,9 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
 import TarjetaMetrica from "@/Components/Dashboard/TarjetaMetrica";
+import BannerAlerta from "@/Components/Dashboard/BannerAlerta";
 
-export default function Dashboard({ tarjetas }) {
+export default function Dashboard({ tarjetas, alerta_vencido }) {
     return (
         <AuthenticatedLayout
             header={
@@ -40,6 +41,14 @@ export default function Dashboard({ tarjetas }) {
                             detalle="Requiere atencion"
                         />
                     </div>
+                    {alerta_vencido && (
+                        <BannerAlerta
+                            etiqueta={alerta_vencido.etiqueta}
+                            ubicacion={alerta_vencido.ubicacion}
+                            edificio={alerta_vencido.edificio}
+                            piso={alerta_vencido.piso}
+                        />
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>
