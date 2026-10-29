@@ -60,15 +60,14 @@ class Extintor extends Model
 
     public function scopeVencidos(Builder $query): Builder
     {
-        return $query->where('fecha_vencimiento', '<', now())
-            ->where('estatus', '!=', 'Baja');
+        return $query->where('estatus', '!=', 'Baja')
+            ->whereDate('fecha_vencimiento', '<', today());
     }
 
-    public function scopePorVencer(Builder $query, int $dias = 30): Builder
+    public function scopePorVencer(Builder $query): Builder
     {
-        return $query->whereBetween('fecha_vencimiento', [
-            now(),
-            now()->addDays($dias),
-        ]);
+        return $query->where('estatus', '!=', 'Baja')
+            ->whereDate('fecha_vencimiento', '>=', today())
+            ->whereDate('fecha_vencimiento', '<=', today()->addDays(config('sime.dias_por_vencer')));
     }
 }

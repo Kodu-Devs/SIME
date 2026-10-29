@@ -68,7 +68,7 @@ class AlertaSeeder extends Seeder
                 'ubicacion_id' => $ubicacionId,
                 'estatus' => 'Disponible',
                 'fecha_instalacion' => Carbon::now()->subYear()->toDateString(),
-                'fecha_vencimiento' => Carbon::now()->addDays(15)->toDateString(),
+                'fecha_vencimiento' => Carbon::now()->addDays(5)->toDateString(), 
                 'capacidad' => '9 kg',
             ]
         );
