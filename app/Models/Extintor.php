@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Carbon\Carbon;
 
 class Extintor extends Model
 {
@@ -70,5 +71,14 @@ class Extintor extends Model
             now(),
             now()->addDays($dias),
         ]);
+    }
+
+    public static function calcularVencimiento($instalacion): Carbon
+    {
+        $instalacion = Carbon::parse($instalacion)->startOfDay();
+
+        $meses = (int) $instalacion->diffInMonths(today());
+
+        return $instalacion->copy()->addMonthsNoOverflow($meses + 1);
     }
 }
