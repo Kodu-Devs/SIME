@@ -18,6 +18,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd ~/sime
+            git restore .
             git pull origin main
 
             # Compilar frontend
@@ -36,7 +37,7 @@ jobs:
         if: success()
         run: |
           curl -H "Content-Type: application/json" \
-          -d '{"content": "🚀 **SIME Actualizado**: Se ha desplegado una nueva versión en producción correctamente. (Kodu-Devs)"}' \
+          -d '{"content": "🚀 **SIME Actualizado**: Se ha desplegado una nueva versión en producción correctamente."}' \
           ${{ secrets.DISCORD_WEBHOOK }}
 
       - name: Notificar error a Discord
