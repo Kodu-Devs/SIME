@@ -1,0 +1,48 @@
+name: Deploy SIME to Oracle VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Conectar por SSH y actualizar VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ubuntu
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd ~/sime
+            git restore .
+            git pull origin main
+
+            # Compilar frontend
+            docker run --rm -v $(pwd):/app -w /app node:20-alpine sh -c "npm install --legacy-peer-deps && npm run build"
+
+            # Actualizar dependencias de PHP
+            docker exec -i sime-app composer install --no-interaction --prefer-dist --optimize-autoloader
+
+            # Ejecutar migraciones sin seeders (--force es obligatorio en producción)
+            docker exec -i sime-app php artisan migrate --force
+
+            # Limpiar caché
+            docker exec -i sime-app php artisan optimize:clear
+
+      - name: Notificar éxito a Discord
+        if: success()
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d '{"content": "🚀 **SIME Actualizado**: Se ha desplegado una nueva versión en producción correctamente."}' \
+          ${{ secrets.DISCORD_WEBHOOK }}
+
+      - name: Notificar error a Discord
+        if: failure()
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d '{"content": "❌ **Error de Despliegue**: Falló la actualización automática de SIME en la VPS. Revisa los logs en GitHub Actions."}' \
+          ${{ secrets.DISCORD_WEBHOOK }}
