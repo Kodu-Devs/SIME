@@ -35,6 +35,14 @@ class AlertaSeeder extends Seeder
             return;
         }
 
+        // Los DEMO siguen la revisión mensual: la instalación cae 6 meses antes y
+        // el mismo día del mes que el vencimiento (relativo a hoy, como ExtintorSeeder).
+        $hoy = Carbon::now()->startOfDay();
+
+        $vencimientoVencido = $this->diaSeguro($hoy->copy()->subDays(10), true);
+        $vencimientoVacio = $this->diaSeguro($hoy->copy()->addDays(20), false);
+        $vencimientoPorVencer = $this->diaSeguro($hoy->copy()->addDays(3), false);
+
         // Columnas reales de extintores: 'tipoextintor_id' y 'fecha_vencimiento'.
         // 'fecha_instalacion' y 'capacidad' son NOT NULL, por eso se incluyen.
         $extVencido = Extintor::firstOrCreate(
@@ -43,8 +51,8 @@ class AlertaSeeder extends Seeder
                 'tipoextintor_id' => $tipoId,
                 'ubicacion_id' => $ubicacionId,
                 'estatus' => 'Disponible',
-                'fecha_instalacion' => Carbon::now()->subYears(2)->toDateString(),
-                'fecha_vencimiento' => Carbon::now()->subDays(10)->toDateString(),
+                'fecha_instalacion' => $vencimientoVencido->copy()->subMonthsNoOverflow(6)->toDateString(),
+                'fecha_vencimiento' => $vencimientoVencido->toDateString(),
                 'capacidad' => '9 kg',
             ]
         );
@@ -55,8 +63,8 @@ class AlertaSeeder extends Seeder
                 'tipoextintor_id' => $tipoId,
                 'ubicacion_id' => $ubicacionId,
                 'estatus' => 'Vacío',
-                'fecha_instalacion' => Carbon::now()->subYear()->toDateString(),
-                'fecha_vencimiento' => Carbon::now()->addMonths(6)->toDateString(),
+                'fecha_instalacion' => $vencimientoVacio->copy()->subMonthsNoOverflow(6)->toDateString(),
+                'fecha_vencimiento' => $vencimientoVacio->toDateString(),
                 'capacidad' => '9 kg',
             ]
         );
@@ -67,8 +75,8 @@ class AlertaSeeder extends Seeder
                 'tipoextintor_id' => $tipoId,
                 'ubicacion_id' => $ubicacionId,
                 'estatus' => 'Disponible',
-                'fecha_instalacion' => Carbon::now()->subYear()->toDateString(),
-                'fecha_vencimiento' => Carbon::now()->addDays(15)->toDateString(),
+                'fecha_instalacion' => $vencimientoPorVencer->copy()->subMonthsNoOverflow(6)->toDateString(),
+                'fecha_vencimiento' => $vencimientoPorVencer->toDateString(),
                 'capacidad' => '9 kg',
             ]
         );
@@ -78,7 +86,6 @@ class AlertaSeeder extends Seeder
                 'extintor_id' => $extVencido->id,
                 'user_id' => $admin->id,
                 'tipo' => 'Urgente',
-                'categoria' => 'vencido',
                 'mensaje' => "Extintor {$extVencido->etiqueta_inventario} sin presión y con fecha de recarga vencida desde el {$extVencido->fecha_vencimiento}.",
                 'fecha_generada' => Carbon::now()->subDays(3),
                 'leida' => false,
@@ -87,7 +94,6 @@ class AlertaSeeder extends Seeder
                 'extintor_id' => $extVacio->id,
                 'user_id' => $admin->id,
                 'tipo' => 'Urgente',
-                'categoria' => 'estatus',
                 'mensaje' => "Extintor {$extVacio->etiqueta_inventario} reportado como {$extVacio->estatus}.",
                 'fecha_generada' => Carbon::now()->subHours(4),
                 'leida' => false,
@@ -96,7 +102,6 @@ class AlertaSeeder extends Seeder
                 'extintor_id' => $extPorVencer->id,
                 'user_id' => $admin->id,
                 'tipo' => 'Próximo',
-                'categoria' => 'por_vencer',
                 'mensaje' => "Extintor {$extPorVencer->etiqueta_inventario} próximo a vencer el {$extPorVencer->fecha_vencimiento}.",
                 'fecha_generada' => Carbon::now()->subDays(5),
                 'leida' => true,
@@ -106,12 +111,27 @@ class AlertaSeeder extends Seeder
         foreach ($alertas as $alerta) {
             Alerta::firstOrCreate(
                 [
+
                     'extintor_id' => $alerta['extintor_id'],
                     'tipo' => $alerta['tipo'],
-                    'categoria' => $alerta['categoria'],
                 ],
                 $alerta
             );
         }
+    }
+
+    /**
+     * Los días 29, 30 y 31 no existen en todos los meses y correrían el
+     * vencimiento unos días. Se usa un día seguro (máximo 28).
+     */
+    private function diaSeguro(Carbon $fecha, bool $haciaAtras): Carbon
+    {
+        if ($fecha->day <= 28) {
+            return $fecha->copy();
+        }
+
+        return $haciaAtras
+            ? $fecha->copy()->day(28)
+            : $fecha->copy()->addMonthsNoOverflow(1)->startOfMonth();
     }
 }
