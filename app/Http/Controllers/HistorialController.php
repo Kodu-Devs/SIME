@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\EventoUso;
 use App\Models\Mantenimiento;
 use App\Models\Extintor;
-use App\Services\EstatusExtintor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +18,14 @@ class HistorialController extends Controller
      */
     public function index(Request $request)
     {
+        // REQUERIMIENTO SCRUM MASTER: Proteger los datos si el usuario no tiene sesión (Evitar fugas en F12)
+        if (!Auth::check()) {
+            return Inertia::render('Historial/Index', [
+                'eventos' => [],
+                'filters' => []
+            ]);
+        }
+
         // 1. Consulta de Eventos de Uso
         $usos = EventoUso::with(['extintor.ubicacion.piso.instalacion', 'user', 'capacitacion'])
             ->when($request->search, function ($query, $search) {
@@ -43,15 +50,16 @@ class HistorialController extends Controller
                     'id' => 'uso_' . $uso->id,
                     'tipo_evento' => 'Uso',
                     'fecha' => $uso->fecha,
+                    'tipo_motivo' => $uso->tipo_motivo, // Campo nuevo agregado en main
                     'detalle' => $uso->motivo,
-                    'subtipo' => $uso->tipo_descarga, // 'total' o 'parcial'
+                    'subtipo' => $uso->tipo_descarga,
                     'extintor' => $uso->extintor,
                     'usuario' => $uso->user ? $uso->user->name : 'Sistema',
                     'capacitacion' => $uso->capacitacion,
                 ];
             });
 
-        // 2. Consulta de Mantenimientos (Incluye eliminados lógicamente con withTrashed)
+        // 2. Consulta de Mantenimientos (Incluye eliminados lógicamente)
         $mantenimientos = Mantenimiento::withTrashed()
             ->with(['extintor.ubicacion.piso.instalacion'])
             ->when($request->search, function ($query, $search) {
@@ -86,8 +94,9 @@ class HistorialController extends Controller
                     'id' => 'mant_' . $mant->id,
                     'tipo_evento' => 'Mantenimiento',
                     'fecha' => $mant->fecha_realizada ?? $mant->fecha_programada,
+                    'tipo_motivo' => 'Mantenimiento', // Homologado para que el frontend no falle
                     'detalle' => $mant->descripcion ?? $mant->tipo,
-                    'subtipo' => $mant->tipo, // 'Relleno de contenido', 'Revisión', 'Otra'
+                    'subtipo' => $mant->tipo,
                     'extintor' => $mant->extintor,
                     'usuario' => 'Personal de Servicio',
                     'capacitacion' => null,
@@ -120,27 +129,28 @@ class HistorialController extends Controller
             ],
             'tipo_descarga' => ['required', Rule::in(['total', 'parcial'])],
             'fecha' => ['required', 'date', 'before_or_equal:today'],
+            'tipo_motivo' => ['required', Rule::in(EventoUso::TIPOS_MOTIVO)], // Validación del nuevo campo
             'motivo' => ['required', 'string', 'max:500'],
             'capacitacion_id' => ['nullable', 'exists:capacitaciones,id'],
         ]);
 
+        // Regla: si mandan capacitacion_id, el tipo de motivo DEBE ser Capacitación
+        if (!empty($validated['capacitacion_id']) && $validated['tipo_motivo'] !== 'Capacitación') {
+            return back()->withErrors(['tipo_motivo' => 'El tipo de motivo debe ser "Capacitación" si se selecciona una.']);
+        }
+
         // 2. Transacción de base de datos
         DB::transaction(function () use ($validated) {
-            // Asignar ID del usuario autenticado
             $validated['user_id'] = Auth::id();
-
-            // Crear el registro de uso
             EventoUso::create($validated);
 
-            // Obtener extintor y actualizar estatus
             $extintor = Extintor::findOrFail($validated['extintor_id']);
-
             $servicioEstatus = 'App\Services\EstatusExtintor';
 
             if (class_exists($servicioEstatus)) {
                 $servicioEstatus::trasUso($extintor, $validated['tipo_descarga']);
             } else {
-                // Respaldo directo en lo que el Módulo 3 integra el servicio
+                // TODO Módulo 3 (Diego) - Respaldo en lo que se integra el servicio
                 $nuevoEstatus = $validated['tipo_descarga'] === 'total' ? 'Vacío' : 'Medio uso';
                 $extintor->update(['estatus' => $nuevoEstatus]);
             }
@@ -149,12 +159,9 @@ class HistorialController extends Controller
         return redirect()->back()->with('success', 'Uso del extintor registrado correctamente.');
     }
 
-    /**
-     * Genera la descarga del informe de historial.
-     */
+    // Módulo 5 · Exportar: lo programa Sara
     public function exportar(Request $request)
     {
-        // Endpoint reservado para generar informes descargables
-        return response()->json(['message' => 'Generando reporte...']);
+        // TODO Sara: informe PDF / Excel
     }
 }
