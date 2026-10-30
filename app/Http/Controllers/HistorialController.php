@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\EventoUso;
 use App\Models\Mantenimiento;
 use App\Models\Extintor;
+use App\Services\EstatusExtintor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,7 @@ class HistorialController extends Controller
      */
     public function index(Request $request)
     {
-        // REQUERIMIENTO SCRUM MASTER: Proteger los datos si el usuario no tiene sesión (Evitar fugas en F12)
+        // Sin sesión no se mandan datos del historial (se verían con F12)
         if (!Auth::check()) {
             return Inertia::render('Historial/Index', [
                 'eventos' => [],
@@ -50,7 +51,7 @@ class HistorialController extends Controller
                     'id' => 'uso_' . $uso->id,
                     'tipo_evento' => 'Uso',
                     'fecha' => $uso->fecha,
-                    'tipo_motivo' => $uso->tipo_motivo, // Campo nuevo agregado en main
+                    'tipo_motivo' => $uso->tipo_motivo,
                     'detalle' => $uso->motivo,
                     'subtipo' => $uso->tipo_descarga,
                     'extintor' => $uso->extintor,
@@ -59,9 +60,9 @@ class HistorialController extends Controller
                 ];
             });
 
-        // 2. Consulta de Mantenimientos (Incluye eliminados lógicamente)
-        $mantenimientos = Mantenimiento::withTrashed()
-            ->with(['extintor.ubicacion.piso.instalacion'])
+        // 2. Consulta de Mantenimientos (Solo los realizados)
+        $mantenimientos = Mantenimiento::with(['extintor.ubicacion.piso.instalacion'])
+            ->whereNotNull('fecha_realizada')
             ->when($request->search, function ($query, $search) {
                 $query->whereHas('extintor', function ($q) use ($search) {
                     $q->where('etiqueta_inventario', 'like', "%{$search}%");
@@ -73,28 +74,18 @@ class HistorialController extends Controller
                 });
             })
             ->when($request->fecha_inicio, function ($query, $fechaInicio) {
-                $query->where(function ($q) use ($fechaInicio) {
-                    $q->whereDate('fecha_realizada', '>=', $fechaInicio)
-                      ->orWhere(function ($q2) use ($fechaInicio) {
-                          $q2->whereNull('fecha_realizada')->whereDate('fecha_programada', '>=', $fechaInicio);
-                      });
-                });
+                $query->whereDate('fecha_realizada', '>=', $fechaInicio);
             })
             ->when($request->fecha_fin, function ($query, $fechaFin) {
-                $query->where(function ($q) use ($fechaFin) {
-                    $q->whereDate('fecha_realizada', '<=', $fechaFin)
-                      ->orWhere(function ($q2) use ($fechaFin) {
-                          $q2->whereNull('fecha_realizada')->whereDate('fecha_programada', '<=', $fechaFin);
-                      });
-                });
+                $query->whereDate('fecha_realizada', '<=', $fechaFin);
             })
             ->get()
             ->map(function ($mant) {
                 return [
                     'id' => 'mant_' . $mant->id,
                     'tipo_evento' => 'Mantenimiento',
-                    'fecha' => $mant->fecha_realizada ?? $mant->fecha_programada,
-                    'tipo_motivo' => 'Mantenimiento', // Homologado para que el frontend no falle
+                    'fecha' => $mant->fecha_realizada,
+                    'tipo_motivo' => null, // Homologado para que el frontend maneje el valor vacío
                     'detalle' => $mant->descripcion ?? $mant->tipo,
                     'subtipo' => $mant->tipo,
                     'extintor' => $mant->extintor,
@@ -119,7 +110,7 @@ class HistorialController extends Controller
      */
     public function storeUso(Request $request)
     {
-        // 1. Validaciones
+        // 1. Validaciones con mensaje personalizado
         $validated = $request->validate([
             'extintor_id' => [
                 'required',
@@ -129,9 +120,11 @@ class HistorialController extends Controller
             ],
             'tipo_descarga' => ['required', Rule::in(['total', 'parcial'])],
             'fecha' => ['required', 'date', 'before_or_equal:today'],
-            'tipo_motivo' => ['required', Rule::in(EventoUso::TIPOS_MOTIVO)], // Validación del nuevo campo
+            'tipo_motivo' => ['required', Rule::in(EventoUso::TIPOS_MOTIVO)],
             'motivo' => ['required', 'string', 'max:500'],
             'capacitacion_id' => ['nullable', 'exists:capacitaciones,id'],
+        ], [
+            'extintor_id.exists' => 'El extintor no existe, está vacío o fue dado de baja.',
         ]);
 
         // Regla: si mandan capacitacion_id, el tipo de motivo DEBE ser Capacitación
@@ -145,15 +138,9 @@ class HistorialController extends Controller
             EventoUso::create($validated);
 
             $extintor = Extintor::findOrFail($validated['extintor_id']);
-            $servicioEstatus = 'App\Services\EstatusExtintor';
-
-            if (class_exists($servicioEstatus)) {
-                $servicioEstatus::trasUso($extintor, $validated['tipo_descarga']);
-            } else {
-                // TODO Módulo 3 (Diego) - Respaldo en lo que se integra el servicio
-                $nuevoEstatus = $validated['tipo_descarga'] === 'total' ? 'Vacío' : 'Medio uso';
-                $extintor->update(['estatus' => $nuevoEstatus]);
-            }
+            
+            // Llama directo al servicio ahora que ya existe
+            EstatusExtintor::trasUso($extintor, $validated['tipo_descarga']);
         });
 
         return redirect()->back()->with('success', 'Uso del extintor registrado correctamente.');
