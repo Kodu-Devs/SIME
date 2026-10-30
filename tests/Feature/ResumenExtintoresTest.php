@@ -177,4 +177,51 @@ class ResumenExtintoresTest extends TestCase
         $this->assertCount(5, $this->resumen->proximaAgenda());
         $this->assertCount(3, $this->resumen->proximaAgenda(3));
     }
+        public function test_extintor_que_vence_hoy_no_es_vencido_pero_si_por_vencer(): void
+    {
+        $this->crearExtintor(
+            $this->crearUbicacionEnNuevoEdificio(),
+            ['fecha_vencimiento' => today()]
+        );
+
+        $this->assertSame(1, $this->resumen->total());
+        $this->assertSame(0, $this->resumen->vencidos());
+        $this->assertSame(1, $this->resumen->porVencer());
+        $this->assertSame(0, $this->resumen->vigentes());
+    }
+
+    public function test_extintor_que_vence_hoy_guardado_solo_con_fecha_cuenta_igual(): void
+    {
+        // Igual que el caso anterior, pero la fecha se guarda sin hora ("2026-10-30"),
+        // como podría venir de un seeder o de un formulario.
+        $this->crearExtintor(
+            $this->crearUbicacionEnNuevoEdificio(),
+            ['fecha_vencimiento' => today()->toDateString()]
+        );
+
+        $this->assertSame(0, $this->resumen->vencidos());
+        $this->assertSame(1, $this->resumen->porVencer());
+    }
+
+    public function test_extintor_en_baja_que_vence_en_3_dias_no_cuenta_en_ninguno(): void
+    {
+        $this->crearExtintor(
+            $this->crearUbicacionEnNuevoEdificio(),
+            ['estatus' => 'Baja', 'fecha_vencimiento' => today()->addDays(3)]
+        );
+
+        $this->assertSame(0, $this->resumen->total());
+        $this->assertSame(0, $this->resumen->vencidos());
+        $this->assertSame(0, $this->resumen->porVencer());
+        $this->assertSame(0, $this->resumen->vigentes());
+    }
+
+    public function test_por_vencer_incluye_el_dia_7_y_excluye_el_8(): void
+    {
+        $ubicacion = $this->crearUbicacionEnNuevoEdificio();
+        $this->crearExtintor($ubicacion, ['fecha_vencimiento' => today()->addDays(7)->toDateString()]);
+        $this->crearExtintor($ubicacion, ['fecha_vencimiento' => today()->addDays(8)->toDateString()]);
+
+        $this->assertSame(1, $this->resumen->porVencer());
+    }
 }
