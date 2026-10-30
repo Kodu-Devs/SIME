@@ -28,6 +28,15 @@ class EstatusExtintor
         $extintor = $mantenimiento->extintor;
 
         if ($extintor) {
+            // Regla: No mover fecha si el extintor está en Baja.
+            if ($extintor->estatus !== 'Baja') {
+                // Regla: Solo avanzar vencimiento si es Revisión o Relleno.
+                if (in_array($mantenimiento->tipo_mantenimiento, ['Revisión', 'Relleno de contenido'])) {
+                    $extintor->fecha_vencimiento = Extintor::calcularVencimiento($extintor->fecha_instalacion, 1);
+                    $extintor->save();
+                }
+            }
+
             self::cambiarA($extintor, 'Disponible');
         }
     }
