@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\DB;
 
 class RecomendacionService
 {
+    // Máximo de recomendaciones que caben en el diseño del Dashboard.
+    private const LIMITE = 3;
+
+    // Regla 4, pedida por el cliente. Se revisa el 9 de noviembre de 2026.
     private const TIPO_SUGERIDO = [
         'Cocina'      => 'Clase K',
         'Laboratorio' => 'CO2',
@@ -13,7 +17,12 @@ class RecomendacionService
     ];
 
     private const TIPO_POR_DEFECTO = 'PQS';
-    public function generar(int $limite = 5): array
+
+    // Las áreas exteriores no requieren extintor por sí mismas:
+    // solo se evalúan por sus ubicaciones (reglas 3 y 4).
+    private const AREA_EXTERIOR = 'Área exterior';
+
+    public function generar(int $limite = self::LIMITE): array
     {
         $filas = $this->conteoPorUbicacion();
 
@@ -23,10 +32,12 @@ class RecomendacionService
         $tipos       = [];
 
         foreach ($filas->groupBy('edificio_id') as $filasEdificio) {
-            $nombreEdificio = $filasEdificio->first()->edificio;
+            $primera        = $filasEdificio->first();
+            $nombreEdificio = $primera->edificio;
+            $esExterior     = $primera->tipo_instalacion === self::AREA_EXTERIOR;
 
             // Regla 1: edificio completo sin extintores
-            if ((int) $filasEdificio->sum('total') === 0) {
+            if (! $esExterior && (int) $filasEdificio->sum('total') === 0) {
                 $edificios[] = [
                     'tipo'    => 'edificio',
                     'mensaje' => "{$nombreEdificio}: no tiene extintores registrados.",
@@ -34,30 +45,38 @@ class RecomendacionService
                 continue;
             }
 
-            $filasConPiso = $filasEdificio->whereNotNull('piso_id');
+            $filasPorPiso = $filasEdificio->whereNotNull('piso_id')->groupBy('piso_id');
 
-            foreach ($filasConPiso->groupBy('piso_id') as $filasPiso) {
-                $nombrePiso = $filasPiso->first()->piso;
+            // Regla 2: pisos sin extintores, agrupados en un solo mensaje
+            if (! $esExterior) {
+                $pisosVacios = $filasPorPiso->filter(fn ($f) => (int) $f->sum('total') === 0);
 
-                // Regla 2: piso sin extintores
-                if ((int) $filasPiso->sum('total') === 0) {
+                if ($pisosVacios->isNotEmpty()) {
                     $pisos[] = [
                         'tipo'    => 'piso',
-                        'mensaje' => "{$nombreEdificio}: no tiene extintores registrados en {$nombrePiso}.",
+                        'mensaje' => $this->mensajePisos($nombreEdificio, $pisosVacios, $filasPorPiso->count()),
                     ];
+                }
+            }
+
+            foreach ($filasPorPiso as $filasPiso) {
+                $nombrePiso = $filasPiso->first()->piso;
+
+                // Si el piso ya salió como vacío, no se repiten sus ubicaciones
+                if (! $esExterior && (int) $filasPiso->sum('total') === 0) {
                     continue;
                 }
 
-                // Regla 3: ubicaciones sin ningún extintor Disponible
                 foreach ($filasPiso->whereNotNull('ubicacion_id') as $fila) {
-                                        if ((int) $fila->disponibles === 0) {
+                    // Regla 3: ubicación sin extintores o sin ninguno Disponible
+                    if ((int) $fila->disponibles === 0) {
                         $detalle = (int) $fila->total === 0
                             ? 'no tiene extintores registrados'
                             : 'no tiene ningún extintor disponible';
 
                         $ubicaciones[] = [
                             'tipo'    => 'ubicacion',
-                            'mensaje' => "{$fila->ubicacion} ({$nombreEdificio}, {$nombrePiso}): {$detalle}.",
+                            'mensaje' => "{$fila->ubicacion} ({$nombreEdificio}): {$detalle}.",
                         ];
                         continue;
                     }
@@ -75,19 +94,37 @@ class RecomendacionService
             }
         }
 
-        return collect($edificios)
-            ->concat($pisos)
-            ->concat($ubicaciones)
-            ->concat($tipos)
+        // Primero una de cada tipo (por gravedad), luego se completa con el resto
+        $listas = [$edificios, $pisos, $ubicaciones, $tipos];
+
+        $primeras = collect($listas)->map(fn ($lista) => $lista[0] ?? null)->filter();
+        $restantes = collect($listas)->flatMap(fn ($lista) => array_slice($lista, 1));
+
+        return $primeras
+            ->concat($restantes)
             ->take($limite)
             ->values()
             ->all();
     }
 
+    private function mensajePisos(string $edificio, $pisosVacios, int $totalPisos): string
+    {
+        if ($pisosVacios->count() === $totalPisos) {
+            $texto = $totalPisos === 1 ? 'en su único piso' : "en sus {$totalPisos} pisos";
+        } else {
+            $nombres = $pisosVacios->map(fn ($f) => $f->first()->piso)->values()->all();
+            $ultimo  = array_pop($nombres);
+            $texto   = 'en ' . ($nombres ? implode(', ', $nombres) . ' y ' : '') . $ultimo;
+        }
+
+        return "{$edificio}: no tiene extintores registrados {$texto}.";
+    }
+
     /**
-     * Una sola consulta: por cada ubicación de cada edificio, cuántos extintores tiene (sin contar Baja) y cuántos estsn disponibles.
+     * Una sola consulta: por cada ubicación, cuántos extintores tiene (sin Baja),
+     * cuántos están Disponibles y cuántos son del tipo sugerido para su área.
      */
-        private function conteoPorUbicacion()
+    private function conteoPorUbicacion()
     {
         $casosTipo = collect(self::TIPO_SUGERIDO)
             ->map(fn ($tipo, $area) => "when ubicaciones.tipo_area = '{$area}' then '{$tipo}'")
@@ -103,15 +140,15 @@ class RecomendacionService
                     ->where('extintores.estatus', '!=', 'Baja');
             })
             ->leftJoin('tipo_extintor', 'tipo_extintor.id', '=', 'extintores.tipoextintor_id')
-            ->where('instalaciones.tipo', 'Edificio')
             ->groupBy(
-                'instalaciones.id', 'instalaciones.nombre',
+                'instalaciones.id', 'instalaciones.nombre', 'instalaciones.tipo',
                 'pisos.id', 'pisos.nombre',
                 'ubicaciones.id', 'ubicaciones.nombre', 'ubicaciones.tipo_area'
             )
             ->selectRaw("
                 instalaciones.id as edificio_id,
                 instalaciones.nombre as edificio,
+                instalaciones.tipo as tipo_instalacion,
                 pisos.id as piso_id,
                 pisos.nombre as piso,
                 ubicaciones.id as ubicacion_id,

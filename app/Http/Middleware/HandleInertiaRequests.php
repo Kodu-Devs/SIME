@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\AlertaService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -34,6 +35,10 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'notificacion' =>
+            [
+                'notificaciones_no_leidas' => AlertaService::contarNoLeidas()
+            ]
         ];
     }
 }
