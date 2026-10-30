@@ -9,6 +9,8 @@ class EventoUso extends Model
 {
     use HasFactory;
 
+    public const TIPOS_MOTIVO = ['Conato', 'Simulacro', 'Capacitación', 'Otro'];
+    
     protected $table = 'evento_uso';
 
     protected $fillable = [
@@ -16,6 +18,7 @@ class EventoUso extends Model
         'user_id',
         'fecha',
         'motivo',
+        'tipo_motivo',
         'capacitacion_id',
         'tipo_descarga',
     ];
