@@ -19,7 +19,6 @@ class EventoUsoSeeder extends Seeder
 
         if (! $admin || ! $extintor) {
             $this->command->warn('EventoUsoSeeder omitido: Faltan usuarios o extintores.');
-
             return;
         }
 
@@ -27,14 +26,15 @@ class EventoUsoSeeder extends Seeder
         // updateOrCreate reasignaria los eventos existentes a otra capacitacion
         $capacitaciones = Capacitacion::withTrashed()->orderBy('id')->get();
 
+        // Le agregué el 'tipo_motivo' base a cada uno para que no quede nulo cuando no hay capacitación.
         $ejemplos = [
-            ['motivo' => 'Práctica de capacitación controlada', 'tipo_descarga' => 'parcial', 'offset_dias' => 1],
-            ['motivo' => 'Capacitación de brigada interna', 'tipo_descarga' => 'parcial', 'offset_dias' => 2],
-            ['motivo' => 'Simulacro de evacuación trimestral', 'tipo_descarga' => 'parcial', 'offset_dias' => 0],
-            ['motivo' => 'Conato de incendio controlado en prácticas', 'tipo_descarga' => 'parcial', 'offset_dias' => 3],
-            ['motivo' => 'Incendio real atendido en área de cocina', 'tipo_descarga' => 'total', 'offset_dias' => 1],
-            ['motivo' => 'Descarga accidental durante maniobras', 'tipo_descarga' => 'total', 'offset_dias' => 2],
-            ['motivo' => 'Uso en emergencia real imprevista', 'tipo_descarga' => 'total', 'offset_dias' => 0],
+            ['motivo' => 'Práctica de capacitación controlada', 'tipo_motivo' => 'Capacitación', 'tipo_descarga' => 'parcial', 'offset_dias' => 1],
+            ['motivo' => 'Capacitación de brigada interna', 'tipo_motivo' => 'Capacitación', 'tipo_descarga' => 'parcial', 'offset_dias' => 2],
+            ['motivo' => 'Simulacro de evacuación trimestral', 'tipo_motivo' => 'Simulacro', 'tipo_descarga' => 'parcial', 'offset_dias' => 0],
+            ['motivo' => 'Conato de incendio controlado en prácticas', 'tipo_motivo' => 'Conato', 'tipo_descarga' => 'parcial', 'offset_dias' => 3],
+            ['motivo' => 'Incendio real atendido en área de cocina', 'tipo_motivo' => 'Conato', 'tipo_descarga' => 'total', 'offset_dias' => 1],
+            ['motivo' => 'Descarga accidental durante maniobras', 'tipo_motivo' => 'Otro', 'tipo_descarga' => 'total', 'offset_dias' => 2],
+            ['motivo' => 'Uso en emergencia real imprevista', 'tipo_motivo' => 'Conato', 'tipo_descarga' => 'total', 'offset_dias' => 0],
         ];
 
         foreach ($ejemplos as $index => $ejemplo) {
@@ -46,6 +46,8 @@ class EventoUsoSeeder extends Seeder
                 $fechaUso = Carbon::now()->subDays(10 - $index);
             }
 
+            $tipoMotivoFinal = $capacitacion ? 'Capacitación' : $ejemplo['tipo_motivo'];
+
             EventoUso::updateOrCreate(
                 [
                     'extintor_id' => $extintor->id,
@@ -54,6 +56,7 @@ class EventoUsoSeeder extends Seeder
                 [
                     'user_id' => $admin->id,
                     'fecha' => $fechaUso,
+                    'tipo_motivo' => $tipoMotivoFinal, // Inyectamos la nueva columna
                     'tipo_descarga' => $ejemplo['tipo_descarga'],
                     'capacitacion_id' => $capacitacion ? $capacitacion->id : null,
                 ]
