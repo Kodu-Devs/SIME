@@ -80,4 +80,19 @@ class Extintor extends Model
 
         return $instalacion->copy()->addMonthsNoOverflow($meses + 1);
     }
+
+    // Estado del vencimiento para pintar colores en el front.
+    // Usa la MISMA regla que los scopes vencidos() y porVencer().
+    public function estadoVencimiento(): string
+    {
+        $vencimiento = Carbon::parse($this->fecha_vencimiento)->startOfDay();
+
+        if ($vencimiento->lt(today())) {
+            return 'vencido';      // venció ayer o antes
+        }
+        if ($vencimiento->lte(today()->addDays(config('sime.dias_por_vencer')))) {
+            return 'por_vencer';   // vence de hoy a 7 días (hoy cuenta como por vencer)
+        }
+        return 'vigente';
+    }
 }
