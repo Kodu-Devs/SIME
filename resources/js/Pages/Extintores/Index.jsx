@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import ExtintoresHeader from '@/Components/Extintores/ExtintoresHeader';
 import ExtintorFilterPills from '@/Components/Extintores/ExtintorFilterPills';
@@ -8,7 +8,8 @@ import ExtintoresTable from '@/Components/Extintores/ExtintoresTable';
 import ExtintorFormPanel from '@/Components/Extintores/ExtintorFormPanel';
 
 export default function Index(props) {
-    const auth = props.auth || { user: { name: 'Administrador', email: 'admin@tecnm.mx' } };
+    // Sesión obtenida mediante usePage de Inertia
+    const { auth } = usePage().props;
 
     // Datos recibidos desde ExtintorController
     const extintoresRaw = props.extintores?.data || (Array.isArray(props.extintores) ? props.extintores : []);
@@ -51,7 +52,7 @@ export default function Index(props) {
                 }
             }
 
-            // Evitar que se muestre "Piso N/A" si pudimos resolver el piso del catálogo
+            // Evitar que se muestre "Piso N/A" 
             const finalPiso = (ext.piso_numero && !String(ext.piso_numero).includes('N/A'))
                 ? `Piso ${ext.piso_numero}`
                 : pisoDetectado;
@@ -69,31 +70,41 @@ export default function Index(props) {
                 edificio: finalEdificio,
                 piso: finalPiso,
                 proximo_mantenimiento: ext.proximo_mantenimiento || 'Sin programar',
-                estado: ext.estatus || 'Disponible',
+                estado: ext.estado || ext.estatus || 'Disponible',
                 raw: ext
             };
         });
     }, [extintoresRaw, instalaciones]);
 
-    // Filtrado reactivo según la píldora seleccionada
+    // Filtrado reactivo alineado a las reglas del backend (Vigente, Por vencer, Vencido)
     const filteredExtintores = useMemo(() => {
         if (activeFilter === 'Todos') return normalizedExtintores;
 
         return normalizedExtintores.filter((ext) => {
             const estado = (ext.estado || '').toLowerCase();
-            if (activeFilter === 'Disponibles') {
-                return estado.includes('dispon') || estado.includes('operativ');
+            const filtro = activeFilter.toLowerCase();
+
+            // Vigentes / Disponibles
+            if (filtro.includes('dispon') || filtro.includes('vigent')) {
+                return estado.includes('vigent') || estado.includes('dispon') || estado.includes('operativ');
             }
-            if (activeFilter === 'Medio uso') {
-                return estado.includes('medio') || estado.includes('mantenim');
+
+            // Por vencer / Próximos / Medio uso
+            if (filtro.includes('vencer') || filtro.includes('proxim') || filtro.includes('medio')) {
+                return estado.includes('por vencer') || estado.includes('vencer') || estado.includes('medio') || estado.includes('mantenim');
             }
-            if (activeFilter === 'Vacíos') {
-                return estado.includes('vac') || estado.includes('vencid');
+
+            // Vencidos / Vacíos
+            if (filtro.includes('vencid') || filtro.includes('vaci') || filtro.includes('vací')) {
+                return estado.includes('vencid') || estado.includes('vac');
             }
-            if (activeFilter === 'Fuera de servicio') {
+
+            // Fuera de servicio / Baja
+            if (filtro.includes('servicio') || filtro.includes('baja')) {
                 return estado.includes('baja') || estado.includes('fuera');
             }
-            return estado === activeFilter.toLowerCase();
+
+            return estado === filtro;
         });
     }, [normalizedExtintores, activeFilter]);
 
