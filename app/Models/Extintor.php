@@ -72,13 +72,13 @@ class Extintor extends Model
             ->whereDate('fecha_vencimiento', '<=', today()->addDays(config('sime.dias_por_vencer')));
     }
 
-    public static function calcularVencimiento($instalacion): Carbon
+    public static function calcularVencimiento($instalacion, int $periodosExtra = 0): Carbon
     {
         $instalacion = Carbon::parse($instalacion)->startOfDay();
 
         $meses = (int) $instalacion->diffInMonths(today());
 
-        return $instalacion->copy()->addMonthsNoOverflow($meses + 1);
+        return $instalacion->copy()->addMonthsNoOverflow($meses + 1 + $periodosExtra);
     }
 
     // Estado del vencimiento para pintar colores en el front.
