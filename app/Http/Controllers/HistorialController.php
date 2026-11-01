@@ -149,6 +149,24 @@ class HistorialController extends Controller
     // Módulo 5 · Exportar: lo programa Sara
     public function exportar(Request $request)
     {
-        // TODO Sara: informe PDF / Excel
+        $validated = $request->validate([
+            'formato' => ['required', Rule::in(['pdf', 'excel'])],
+            'informe' => ['required', Rule::in(['usos', 'extintores'])],
+            'fecha_inicio' => ['required_if:informe,usos', 'nullable', 'date'],
+            'fecha_fin' => ['required_if:informe,usos', 'nullable', 'date', 'after_or_equal:fecha_inicio'],
+            'instalacion_id' => [
+                'nullable',
+                'required_with:piso_id',
+                Rule::exists('instalaciones', 'id')->where('tipo', 'Edificio'),
+            ],
+            'piso_id' => [
+                'nullable',
+                Rule::exists('pisos', 'id')->where('instalacion_id', $request->instalacion_id),
+            ],
+        ]);
+
+        // TEMPORAL (paso 1): solo devuelve lo validado para probar las reglas.
+        return response()->json($validated);
+
     }
 }
