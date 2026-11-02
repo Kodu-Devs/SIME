@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
+use App\Services\InformesHistorial;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 class HistorialController extends Controller
 {
     /**
@@ -147,7 +150,7 @@ class HistorialController extends Controller
     }
 
     // Módulo 5 · Exportar: lo programa Sara
-    public function exportar(Request $request)
+    public function exportar(Request $request, InformesHistorial $informes)
     {
         $validated = $request->validate([
             'formato' => ['required', Rule::in(['pdf', 'excel'])],
@@ -164,8 +167,15 @@ class HistorialController extends Controller
                 Rule::exists('pisos', 'id')->where('instalacion_id', $request->instalacion_id),
             ],
         ]);
+        if ($validated['informe'] === 'usos' && $validated['formato'] === 'pdf') {
+            $datos = $informes->usos($validated);
 
-        // TEMPORAL ya que solo devuelve lo validado para probar las reglas.
+            return Pdf::loadView('informes.usos', $datos)
+                ->setPaper('letter', 'landscape')
+                ->download($datos['encabezado']['folio'] . '.pdf');
+        }
+
+        // TEMPORAL: faltan el Excel y la lista de extintores.
         return response()->json($validated);
 
     }
