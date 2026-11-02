@@ -17,17 +17,20 @@ class AlertaService
      */
     public static function evaluarExtintor(Extintor $e)
     {
-        $fecha_vencimiento = Carbon::parse($e->fecha_vencimiento);
-        $fecha_hoy = today();
-        $limit = $fecha_hoy->copy()->addDays(7);
+        //Validar que el extintor no este en baja
+        if ($e->estatus == 'Baja') {
+            return;
+        }
+
+        $estado = $e->estadoVencimiento(); //Valida el estado del extintor
 
         //Validación y logica para extintores
-        if ($fecha_vencimiento->lessThan($fecha_hoy) && $e->estatus !== 'Baja') {
-            self::generar('extintor_id', $e->id, 'Urgente', 'Extintor vencido');
+        if ($estado == 'vencido') {
+            self::generar('extintor_id', $e->id, 'Urgente', 'vencido', 'Extintor vencido');
         } elseif ($e->estatus == 'Vacío' || $e->estatus == 'Fuera de servicio') {
-            self::generar('extintor_id', $e->id, 'Urgente', 'Extintor vacío o fuera de servicio');
-        } elseif ($fecha_vencimiento->betweenIncluded($fecha_hoy, $limit)) {
-            self::generar('extintor_id', $e->id, 'Próximo', 'Extintor por vencer');
+            self::generar('extintor_id', $e->id, 'Urgente', 'estatus', 'Extintor vacío o fuera de servicio');
+        } elseif ($estado == 'por_vencer') {
+            self::generar('extintor_id', $e->id, 'Próximo', 'por_vencer', 'Extintor por vencer');
         }
     }
 
@@ -46,12 +49,12 @@ class AlertaService
         //Validación y logica para mantenimientos
         $fecha_hoy = today();
         $fecha_programada = Carbon::parse($m->fecha_programada);
-        $limit = $fecha_hoy->copy()->addDays(7);
+        $limit = $fecha_hoy->copy()->addDays(config('sime.dias_por_vencer'));
 
         if ($fecha_programada->lessThan($fecha_hoy) && $m->fecha_realizada == null) {
-            self::generar('mantenimiento_id', $m->id, 'Urgente', 'Mantenimiento atrasado');
+            self::generar('mantenimiento_id', $m->id, 'Urgente', 'mantenimiento', 'Mantenimiento atrasado');
         } elseif ($fecha_programada->betweenIncluded($fecha_hoy, $limit)) {
-            self::generar('mantenimiento_id', $m->id, 'Próximo', 'Mantenimiento próximo');
+            self::generar('mantenimiento_id', $m->id, 'Próximo', 'mantenimiento', 'Mantenimiento próximo');
         }
     }
 
@@ -67,7 +70,7 @@ class AlertaService
 
         //Validación y logica para capacitaciones
         if ($fecha_hora->betweenIncluded($fecha_hoy, $limit)) {
-            self::generar('capacitacion_id', $c->id, 'Informativo', 'Capacitación próxima');
+            self::generar('capacitacion_id', $c->id, 'Informativo', 'capacitacion', 'Capacitación próxima');
         }
     }
 
@@ -75,17 +78,19 @@ class AlertaService
     /**
      * Método para generar una alerta
      */
-    public static function generar(string $campo, int $id, string $tipo, string $mensaje)
+    public static function generar(string $campo, int $id, string $tipo, string $categoria, string $mensaje)
     {
-        $exists = Alerta::where($campo, $id)->where('tipo', $tipo)->noLeidas()->exists();
+        //Filtro para duplicidad de $campo + misma categoria
+        $exists = Alerta::where($campo, $id)->where('categoria', $categoria)->noLeidas()->exists();
 
         if (!$exists) {
             $adminId = User::first()->id;
-            DB::transaction(function () use ($campo, $id, $adminId, $tipo, $mensaje) {
+            DB::transaction(function () use ($campo, $id, $adminId, $tipo, $categoria, $mensaje) {
                 Alerta::create([
                     $campo => $id,
                     'user_id' => $adminId,
                     'tipo' => $tipo,
+                    'categoria' => $categoria,
                     'mensaje' => $mensaje,
                     'fecha_generada' => now()->format('Y-m-d H:i:s'),
                     'leida' => false
@@ -98,9 +103,9 @@ class AlertaService
     /**
      * Método para cerrar una alerta
      */
-    public static function cerrarPara(string $campo, int $valor)
+    public static function cerrarPara(string $campo, int $valor, string $categoria = null)
     {
-        Alerta::where($campo, $valor)->noLeidas()->update(['leida' => true]);
+        Alerta::where($campo, $valor)->where('categoria', $categoria)->noLeidas()->update(['leida' => true]);
     }
 
 
