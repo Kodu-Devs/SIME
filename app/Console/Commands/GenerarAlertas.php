@@ -21,20 +21,26 @@ class GenerarAlertas extends Command
     {
         $this->info("Se ha iniciado el proceso de generación de alertas");
 
+        //Consulta de extintores
+        $vencidos = Extintor::vencidos()->get();
+        $porVencer = Extintor::porVencer()->get();
+        $estatus = Extintor::whereIn('estatus', ['Vacío', 'Fuera de servicio'])->get();
+
         //Generar y actualizar alertas para extintores
-        $extintores = Extintor::with('tipoextintor', 'ubicacion')->get();
+        $extintores = $vencidos->concat($porVencer)->concat($estatus);
         foreach ($extintores as $e) {
             AlertaService::evaluarExtintor($e);
         }
 
+
         //Generar y actualizar alertas para mantenimientos
-        $mantenimiento = Mantenimiento::with('extintor')->get();
+        $mantenimiento = Mantenimiento::where('fecha_realizada', NULL)->get();
         foreach ($mantenimiento as $m) {
             AlertaService::evaluarMantenimiento($m);
         }
 
         //Generar y actualizar alertas para capacitaciones
-        $capacitaciones = Capacitacion::with('ubicacion')->get();
+        $capacitaciones = Capacitacion::whereDate('fecha_hora', '>=', today())->get();
         foreach ($capacitaciones as $c) {
             AlertaService::evaluarCapacitacion($c);
         }
