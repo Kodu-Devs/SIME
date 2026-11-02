@@ -44,12 +44,14 @@ class InformesHistorial
             'descripcion' => $uso->motivo,
         ])->all();
 
+                $ahora = now(); // Zona horaria pendiente de confirmar con Majo (hoy: UTC)
         return [
             'encabezado' => [
                 'periodo' => Carbon::parse($filtros['fecha_inicio'])->format('d/m/Y')
                     . ' al ' . Carbon::parse($filtros['fecha_fin'])->format('d/m/Y'),
                 'area' => $this->area($filtros),
-                'folio' => 'INF-USO-' . now()->format('Ymd-Hi'),
+                'folio' => 'INF-USO-' . $ahora->format('Ymd-Hi'),
+                'generado' => $ahora->format('d/m/Y H:i'),
             ],
             'filas' => $filas,
             'resumen' => [
