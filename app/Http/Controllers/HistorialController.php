@@ -165,7 +165,7 @@ class HistorialController extends Controller
             ],
         ]);
 
-        // TEMPORAL (paso 1): solo devuelve lo validado para probar las reglas.
+        // TEMPORAL ya que solo devuelve lo validado para probar las reglas.
         return response()->json($validated);
 
     }
