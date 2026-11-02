@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-export default function AgendaSidePanel({ combos = {} }) {
-    // Pestaña activa ('mantenimiento' | 'capacitacion')
+export default function AgendaSidePanel({
+    combos = {},
+    eventoSeleccionado = null,
+}) {
     const [activeTab, setActiveTab] = useState("mantenimiento");
 
-    // 1. Extintores para capacitación enviados por AgendaController
     const extintoresCapacitacion =
         combos?.extintores_capacitacion?.length > 0
             ? combos.extintores_capacitacion
@@ -13,7 +14,6 @@ export default function AgendaSidePanel({ combos = {} }) {
                   { id: 2, etiqueta_inventario: "E-N1-03-Medio uso" },
               ];
 
-    // 2. Extintores para mantenimiento enviados por AgendaController
     const extintoresMantenimiento =
         combos?.extintores_mantenimiento?.length > 0
             ? combos.extintores_mantenimiento
@@ -30,7 +30,6 @@ export default function AgendaSidePanel({ combos = {} }) {
                   },
               ];
 
-    // 3. Aplanar el árbol de ubicaciones para el <select> de Lugar en Capacitación
     const obtenerListaUbicaciones = () => {
         const arbol = combos?.ubicaciones || [];
         const lista = [];
@@ -57,40 +56,102 @@ export default function AgendaSidePanel({ combos = {} }) {
 
     const ubicacionesPlanas = obtenerListaUbicaciones();
 
-    // Estado del extintor seleccionado en el menú desplegable
     const [extintorSeleccionadoId, setExtintorSeleccionadoId] = useState(
         extintoresMantenimiento[0]?.id || "",
     );
 
-    // Buscar el objeto exacto del extintor seleccionado en el arreglo
+    const [formMantenimiento, setFormMantenimiento] = useState({
+        tipo: "",
+        fecha_programada: "",
+        hora_programada: "",
+        descripcion: "",
+    });
+
+    const [formCapacitacion, setFormCapacitacion] = useState({
+        nombre: "",
+        fecha: "",
+        hora: "",
+        ubicacion_id: "",
+    });
+
+    // Rellenar campos automáticamente al seleccionar un evento
+    useEffect(() => {
+        if (!eventoSeleccionado) return;
+
+        const fechaStr = String(eventoSeleccionado.fecha || "");
+        const [fechaParte = "", horaParteCompleta = ""] =
+            fechaStr.split(/[ T]/);
+        const horaParte = horaParteCompleta
+            ? horaParteCompleta.slice(0, 5)
+            : "";
+
+        if (eventoSeleccionado.clase === "mantenimiento") {
+            setActiveTab("mantenimiento");
+
+            let extEncontrado = extintoresMantenimiento.find(
+                (e) => Number(e.id) === Number(eventoSeleccionado.extintor_id),
+            );
+            if (!extEncontrado && eventoSeleccionado.titulo) {
+                extEncontrado = extintoresMantenimiento.find((e) =>
+                    eventoSeleccionado.titulo.includes(e.etiqueta_inventario),
+                );
+            }
+            if (extEncontrado) {
+                setExtintorSeleccionadoId(extEncontrado.id);
+            }
+
+            let tipoServicio = eventoSeleccionado.tipo || "";
+            if (!tipoServicio && eventoSeleccionado.titulo) {
+                const partes = eventoSeleccionado.titulo.split("-ITJMM");
+                tipoServicio =
+                    partes[0]?.split("-")[0] || eventoSeleccionado.titulo;
+            }
+
+            setFormMantenimiento({
+                tipo: tipoServicio,
+                fecha_programada: fechaParte.slice(0, 10),
+                hora_programada: horaParte,
+                descripcion: eventoSeleccionado.descripcion || "",
+            });
+        } else if (eventoSeleccionado.clase === "capacitacion") {
+            setActiveTab("capacitacion");
+
+            const nombreLimpio =
+                eventoSeleccionado.nombre ||
+                String(eventoSeleccionado.titulo || "").replace(
+                    /^Capacitaci[oó]n:\s*/i,
+                    "",
+                );
+
+            setFormCapacitacion({
+                nombre: nombreLimpio,
+                fecha: fechaParte.slice(0, 10),
+                hora: horaParte,
+                ubicacion_id: eventoSeleccionado.ubicacion_id || "",
+            });
+        }
+    }, [eventoSeleccionado]);
+
     const extintorSeleccionado =
         extintoresMantenimiento.find(
             (ext) => ext.id.toString() === extintorSeleccionadoId.toString(),
         ) || extintoresMantenimiento[0];
 
-    // EXTRACCIÓN DINÁMICA: Actualiza la ubicación y el tipo según el extintor elegido
-    const textoUbicacion = extintorSeleccionado?.ubicacion_nombre
-        ? `${extintorSeleccionado.ubicacion_nombre} - Piso ${extintorSeleccionado.piso_numero ?? "N/A"}`
-        : extintorSeleccionado?.ubicacion?.nombre
-          ? `${extintorSeleccionado.ubicacion.nombre}`
-          : "Ubicación no asignada";
+    const textoUbicacion = extintorSeleccionado?.edificio
+        ? `${extintorSeleccionado.edificio} - ${extintorSeleccionado.piso_nombre} (${extintorSeleccionado.ubicacion_nombre})`
+        : "Ubicación no asignada";
 
     const textoTipo =
-        extintorSeleccionado?.tipo_nombre ||
-        extintorSeleccionado?.tipo_extintor?.nombre ||
-        extintorSeleccionado?.tipo ||
-        "Polvo químico seco";
+        extintorSeleccionado?.tipoextintor_nombre || "Polvo químico seco";
 
     return (
-        <aside className="w-80 bg-white border border-neutro-300 rounded-xl p-5 flex flex-col gap-4 shadow-sm font-sans shrink-0">
-            {/* Título dinámico */}
+        <aside className="w-80 bg-white border border-neutro-300 rounded-xl p-4 flex flex-col gap-3.5 shadow-sm font-sans shrink-0">
             <h2 className="text-titulo-2 text-neutro-900">
                 {activeTab === "capacitacion"
                     ? "Nueva Capacitación"
                     : "Programar Mantenimiento"}
             </h2>
 
-            {/* Pestañas */}
             <div className="flex bg-neutro-100 p-1 rounded-lg">
                 <button
                     type="button"
@@ -118,7 +179,6 @@ export default function AgendaSidePanel({ combos = {} }) {
             </div>
 
             {activeTab === "capacitacion" ? (
-                /* ---------- FORMULARIO: CAPACITACIÓN ---------- */
                 <form className="flex flex-col gap-3">
                     <div className="flex flex-col gap-1">
                         <label className="text-etiqueta text-neutro-900">
@@ -127,6 +187,13 @@ export default function AgendaSidePanel({ combos = {} }) {
                         <input
                             type="text"
                             name="nombre"
+                            value={formCapacitacion.nombre}
+                            onChange={(e) =>
+                                setFormCapacitacion({
+                                    ...formCapacitacion,
+                                    nombre: e.target.value,
+                                })
+                            }
                             className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
                         />
                     </div>
@@ -139,6 +206,13 @@ export default function AgendaSidePanel({ combos = {} }) {
                             <input
                                 type="date"
                                 name="fecha"
+                                value={formCapacitacion.fecha}
+                                onChange={(e) =>
+                                    setFormCapacitacion({
+                                        ...formCapacitacion,
+                                        fecha: e.target.value,
+                                    })
+                                }
                                 className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
                             />
                         </div>
@@ -149,12 +223,18 @@ export default function AgendaSidePanel({ combos = {} }) {
                             <input
                                 type="time"
                                 name="hora"
+                                value={formCapacitacion.hora}
+                                onChange={(e) =>
+                                    setFormCapacitacion({
+                                        ...formCapacitacion,
+                                        hora: e.target.value,
+                                    })
+                                }
                                 className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
                             />
                         </div>
                     </div>
 
-                    {/* Campo Lugar */}
                     <div className="flex flex-col gap-1">
                         <label className="text-etiqueta text-neutro-900">
                             Lugar
@@ -162,7 +242,13 @@ export default function AgendaSidePanel({ combos = {} }) {
                         {ubicacionesPlanas.length > 0 ? (
                             <select
                                 name="ubicacion_id"
-                                defaultValue=""
+                                value={formCapacitacion.ubicacion_id}
+                                onChange={(e) =>
+                                    setFormCapacitacion({
+                                        ...formCapacitacion,
+                                        ubicacion_id: e.target.value,
+                                    })
+                                }
                                 className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
                             >
                                 <option value="" disabled></option>
@@ -176,6 +262,13 @@ export default function AgendaSidePanel({ combos = {} }) {
                             <input
                                 type="text"
                                 name="ubicacion_id"
+                                value={formCapacitacion.ubicacion_id}
+                                onChange={(e) =>
+                                    setFormCapacitacion({
+                                        ...formCapacitacion,
+                                        ubicacion_id: e.target.value,
+                                    })
+                                }
                                 className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
                             />
                         )}
@@ -186,7 +279,7 @@ export default function AgendaSidePanel({ combos = {} }) {
                             Extintores para la práctica
                         </span>
 
-                        <div className="max-h-28 overflow-y-auto flex flex-col gap-1.5 pr-1">
+                        <div className="max-h-24 overflow-y-auto flex flex-col gap-1.5 pr-1">
                             {extintoresCapacitacion.map((extintor) => (
                                 <label
                                     key={extintor.id}
@@ -202,7 +295,7 @@ export default function AgendaSidePanel({ combos = {} }) {
                         </div>
                     </div>
 
-                    <div className="flex justify-end mt-2">
+                    <div className="flex justify-end mt-1">
                         <button
                             type="button"
                             className="bg-primario-700 hover:bg-primario-900 text-white text-etiqueta px-5 py-2 rounded-lg transition"
@@ -212,17 +305,24 @@ export default function AgendaSidePanel({ combos = {} }) {
                     </div>
                 </form>
             ) : (
-                /* ---------- FORMULARIO: MANTENIMIENTO ---------- */
-                <form className="flex flex-col gap-3">
-                    {/* Selector integrado en la pastilla de folio + Pastilla de estatus */}
-                    <div className="flex items-center gap-2">
+                <form className="flex flex-col gap-2.5">
+                    <div className="flex flex-col gap-1.5">
+                        <div className="flex items-center justify-between">
+                            <span className="text-etiqueta text-neutro-900">
+                                Seleccionar Extintor
+                            </span>
+                            <span className="bg-acento-500 text-neutro-900 text-[11px] font-bold px-2.5 py-0.5 rounded-md">
+                                {extintorSeleccionado?.estatus || "Pendiente"}
+                            </span>
+                        </div>
+
                         <select
                             name="extintor_id"
                             value={extintorSeleccionadoId}
                             onChange={(e) =>
                                 setExtintorSeleccionadoId(e.target.value)
                             }
-                            className="flex-1 bg-neutro-100 border border-neutro-300 text-neutro-900 text-xs font-semibold pl-2.5 pr-7 py-1.5 rounded-md focus:border-primario-700 focus:ring-0 truncate cursor-pointer"
+                            className="w-full bg-neutro-100 border border-neutro-300 text-neutro-900 text-xs font-semibold px-3 py-1.5 rounded-md focus:border-primario-700 focus:ring-0 cursor-pointer"
                         >
                             {extintoresMantenimiento.map((ext) => (
                                 <option key={ext.id} value={ext.id}>
@@ -230,19 +330,16 @@ export default function AgendaSidePanel({ combos = {} }) {
                                 </option>
                             ))}
                         </select>
-
-                        <span className="bg-acento-500 text-neutro-900 text-xs font-semibold px-3 py-1.5 rounded-md shrink-0">
-                            {extintorSeleccionado?.estatus || "Pendiente"}
-                        </span>
                     </div>
 
-                    {/* RECUADRO INFORMATIVO DINÁMICO: Se actualiza al cambiar el extintor */}
                     <div className="flex flex-col gap-1">
                         <span className="text-etiqueta text-neutro-900">
                             Datos del extintor
                         </span>
-                        <div className="border border-neutro-300 rounded-lg p-2.5 text-xs text-neutro-600 flex flex-col gap-0.5">
-                            <span>{textoUbicacion}</span>
+                        <div className="border border-neutro-300 rounded-lg p-2 text-xs text-neutro-600 flex flex-col gap-0.5">
+                            <span className="font-medium text-neutro-900">
+                                {textoUbicacion}
+                            </span>
                             <span>Tipo: {textoTipo}</span>
                         </div>
                     </div>
@@ -259,6 +356,13 @@ export default function AgendaSidePanel({ combos = {} }) {
                             <input
                                 type="text"
                                 name="tipo"
+                                value={formMantenimiento.tipo}
+                                onChange={(e) =>
+                                    setFormMantenimiento({
+                                        ...formMantenimiento,
+                                        tipo: e.target.value,
+                                    })
+                                }
                                 className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
                             />
                         </div>
@@ -271,7 +375,14 @@ export default function AgendaSidePanel({ combos = {} }) {
                                 <input
                                     type="date"
                                     name="fecha_programada"
-                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                    value={formMantenimiento.fecha_programada}
+                                    onChange={(e) =>
+                                        setFormMantenimiento({
+                                            ...formMantenimiento,
+                                            fecha_programada: e.target.value,
+                                        })
+                                    }
+                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-center text-neutro-900 focus:border-primario-700 focus:ring-0"
                                 />
                             </div>
                             <div className="flex flex-col gap-1">
@@ -281,7 +392,14 @@ export default function AgendaSidePanel({ combos = {} }) {
                                 <input
                                     type="time"
                                     name="hora_programada"
-                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                    value={formMantenimiento.hora_programada}
+                                    onChange={(e) =>
+                                        setFormMantenimiento({
+                                            ...formMantenimiento,
+                                            hora_programada: e.target.value,
+                                        })
+                                    }
+                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-center text-neutro-900 focus:border-primario-700 focus:ring-0"
                                 />
                             </div>
                         </div>
@@ -293,12 +411,19 @@ export default function AgendaSidePanel({ combos = {} }) {
                             <textarea
                                 rows="2"
                                 name="descripcion"
+                                value={formMantenimiento.descripcion}
+                                onChange={(e) =>
+                                    setFormMantenimiento({
+                                        ...formMantenimiento,
+                                        descripcion: e.target.value,
+                                    })
+                                }
                                 className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 resize-none focus:border-primario-700 focus:ring-0"
                             ></textarea>
                         </div>
                     </div>
 
-                    <div className="mt-2">
+                    <div className="mt-1">
                         <button
                             type="button"
                             className="w-full bg-primario-700 hover:bg-primario-900 text-white text-etiqueta py-2 rounded-lg transition"

@@ -1,167 +1,140 @@
 import React, { useState } from "react";
-import { Head, usePage, router } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import PublicLayout from "@/Layouts/PublicLayout";
+import { Head, router, usePage } from "@inertiajs/react";
 import CalendarGrid from "@/Components/Agenda/CalendarGrid";
 import AgendaSidePanel from "@/Components/Agenda/AgendaSidePanel";
 
-export default function Index(props) {
+export default function Index({ eventos = [], mesActual, combos = {} }) {
     const { auth } = usePage().props;
     const isAdmin = Boolean(auth?.user);
-    const Layout = isAdmin ? AdminLayout : PublicLayout;
 
-    // Props que vienen desde AgendaController
-    const eventos = props.eventos || [];
-    const mesActual = props.mesActual || "2026-10";
-    const combos = props.combos || {};
-
-    // Filtro superior: 'todos' | 'mantenimiento' | 'capacitacion'
     const [filtro, setFiltro] = useState("todos");
+    const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
 
-    // Filtrar los eventos que se le pasan al CalendarGrid
-    const eventosFiltrados = eventos.filter((evento) => {
-        if (filtro === "todos") return true;
-        return evento.clase === filtro;
+    const eventosFiltrados = eventos.filter((ev) => {
+        if (filtro === "mantenimientos") return ev.clase === "mantenimiento";
+        if (filtro === "capacitaciones") return ev.clase === "capacitacion";
+        return true;
     });
 
-    // Formatear el título del mes (ej. "2026-10" -> "Octubre 2026")
-    const nombresMeses = [
-        "Enero",
-        "Febrero",
-        "Marzo",
-        "Abril",
-        "Mayo",
-        "Junio",
-        "Julio",
-        "Agosto",
-        "Septiembre",
-        "Octubre",
-        "Noviembre",
-        "Diciembre",
-    ];
-    const [anioStr, mesStr] = mesActual.split("-");
-    const nombreMes = nombresMeses[parseInt(mesStr, 10) - 1] || "Octubre";
-
-    // Cambiar de mes pidiendo los datos a AgendaController
     const cambiarMes = (direccion) => {
-        let anio = parseInt(anioStr, 10);
-        let mes = parseInt(mesStr, 10) + direccion;
-
-        if (mes < 1) {
-            mes = 12;
-            anio -= 1;
-        } else if (mes > 12) {
-            mes = 1;
-            anio += 1;
-        }
-
-        const nuevoMes = `${anio}-${String(mes).padStart(2, "0")}`;
-        router.get(
-            window.location.pathname,
-            { mes: nuevoMes },
-            { preserveState: true },
-        );
+        const [anio, mes] = (mesActual || "2026-10").split("-").map(Number);
+        const fecha = new Date(anio, mes - 1 + direccion, 1);
+        const nuevoMes = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}`;
+        setEventoSeleccionado(null);
+        router.get("/agenda", { mes: nuevoMes }, { preserveState: true });
     };
 
-    return (
-        <Layout>
-            <Head title="Agenda - SIME" />
+    const formatearNombreMes = (mesStr) => {
+        if (!mesStr) return "";
+        const [anio, mes] = mesStr.split("-").map(Number);
+        const fecha = new Date(anio, mes - 1, 1);
+        const nombre = fecha.toLocaleDateString("es-MX", {
+            month: "long",
+            year: "numeric",
+        });
+        const limpio = nombre.replace(" de ", " ");
+        return limpio.charAt(0).toUpperCase() + limpio.slice(1);
+    };
 
-            <div className="flex flex-col gap-6 font-sans">
-                {/* CABECERA Y CONTROLES SUPERIORES (Corregido según Figma) */}
-                <div className="flex flex-col gap-3">
-                    <div>
-                        <h1 className="text-titulo-1 text-neutro-900">
-                            Agenda
-                        </h1>
-                        <p className="text-sm text-neutro-600">
-                            Mantenimientos y capacitaciones
-                        </p>
-                    </div>
+    const Contenido = (
+        <div className="py-4 px-6 w-full">
+            <Head title="Agenda" />
 
-                    <div className="flex flex-wrap items-end justify-between gap-4 mt-1">
-                        {/* Botones de filtro (Alineados a la izquierda, estilo píldora) */}
-                        <div className="flex gap-3">
-                            <button
-                                type="button"
-                                onClick={() => setFiltro("todos")}
-                                className={`px-4 py-1 text-xs font-semibold rounded-full border transition ${
-                                    filtro === "todos"
-                                        ? "bg-neutro-900 text-white border-neutro-900"
-                                        : "bg-transparent text-neutro-600 border-neutro-300 hover:border-neutro-400"
-                                }`}
-                            >
-                                Todos
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setFiltro("mantenimiento")}
-                                className={`flex items-center gap-2 px-4 py-1 text-xs font-semibold rounded-full border transition ${
-                                    filtro === "mantenimiento"
-                                        ? "bg-neutro-100 text-neutro-900 border-neutro-400"
-                                        : "bg-transparent text-neutro-600 border-neutro-300 hover:border-neutro-400"
-                                }`}
-                            >
-                                <span className="w-1.5 h-1.5 rounded-full bg-neutro-900"></span>
-                                Mantenimientos
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setFiltro("capacitacion")}
-                                className={`flex items-center gap-2 px-4 py-1 text-xs font-semibold rounded-full border transition ${
-                                    filtro === "capacitacion"
-                                        ? "bg-neutro-100 text-neutro-900 border-acento-500"
-                                        : "bg-transparent text-neutro-600 border-neutro-300 hover:border-neutro-400"
-                                }`}
-                            >
-                                <span className="w-1.5 h-1.5 rounded-full bg-acento-500"></span>
-                                Capacitaciones
-                            </button>
-                        </div>
+            <div className="mb-3">
+                <h1 className="text-2xl font-bold text-neutro-900">Agenda</h1>
+                <p className="text-xs text-neutro-600">
+                    Mantenimientos y capacitaciones
+                </p>
+            </div>
 
-                        {/* Navegador de mes (Alineado a la derecha, sin caja de fondo) */}
-                        <div className="flex items-center gap-2 text-sm font-bold">
-                            <button
-                                type="button"
-                                onClick={() => cambiarMes(-1)}
-                                className="text-primario-700 hover:text-primario-900 px-1 transition"
-                            >
-                                &lt;
-                            </button>
-                            <span className="min-w-[100px] text-center text-neutro-900">
-                                {nombreMes} {anioStr}
-                            </span>
-                            <button
-                                type="button"
-                                onClick={() => cambiarMes(1)}
-                                className="text-primario-700 hover:text-primario-900 px-1 transition"
-                            >
-                                &gt;
-                            </button>
-                        </div>
-                    </div>
+            {/* Barra de filtros y selector de mes */}
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={() => setFiltro("todos")}
+                        className={`px-3.5 py-1 rounded-full text-xs font-semibold transition ${
+                            filtro === "todos"
+                                ? "bg-neutro-900 text-white"
+                                : "bg-white border border-neutro-300 text-neutro-600 hover:bg-neutro-100"
+                        }`}
+                    >
+                        Todos
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setFiltro("mantenimientos")}
+                        className={`px-3.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 transition ${
+                            filtro === "mantenimientos"
+                                ? "bg-neutro-900 text-white"
+                                : "bg-white border border-neutro-300 text-neutro-600 hover:bg-neutro-100"
+                        }`}
+                    >
+                        <span className="w-2 h-2 rounded-full bg-neutro-900 inline-block"></span>
+                        Mantenimientos
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setFiltro("capacitaciones")}
+                        className={`px-3.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 transition ${
+                            filtro === "capacitaciones"
+                                ? "bg-neutro-900 text-white"
+                                : "bg-white border border-neutro-300 text-neutro-600 hover:bg-neutro-100"
+                        }`}
+                    >
+                        <span className="w-2 h-2 rounded-full bg-[#1b9e85] inline-block"></span>
+                        Capacitaciones
+                    </button>
                 </div>
 
-                {/* CONTENIDO PRINCIPAL */}
-                {isAdmin ? (
-                    <div className="flex flex-col lg:flex-row gap-6 items-start">
-                        <div className="flex-1 w-full">
-                            <CalendarGrid
-                                eventos={eventosFiltrados}
-                                mesActual={mesActual}
-                            />
-                        </div>
-                        <AgendaSidePanel combos={combos} />
-                    </div>
-                ) : (
-                    <div className="w-full">
-                        <CalendarGrid
-                            eventos={eventosFiltrados}
-                            mesActual={mesActual}
-                        />
-                    </div>
+                <div className="flex items-center gap-3 text-sm font-semibold text-neutro-900">
+                    <button
+                        type="button"
+                        onClick={() => cambiarMes(-1)}
+                        className="text-primario-700 hover:text-primario-900 px-1.5 py-0.5"
+                    >
+                        &lt;
+                    </button>
+                    <span className="w-36 text-center">
+                        {formatearNombreMes(mesActual)}
+                    </span>
+                    <button
+                        type="button"
+                        onClick={() => cambiarMes(1)}
+                        className="text-primario-700 hover:text-primario-900 px-1.5 py-0.5"
+                    >
+                        &gt;
+                    </button>
+                </div>
+            </div>
+
+            {/* Contenedor principal: El calendario toma todo el espacio flexible (flex-1) */}
+            <div className="flex items-start gap-4">
+                <div className="flex-1 min-w-0">
+                    <CalendarGrid
+                        eventos={eventosFiltrados}
+                        mesActual={mesActual}
+                        eventoSeleccionado={eventoSeleccionado}
+                        onSelectEvento={setEventoSeleccionado}
+                    />
+                </div>
+
+                {isAdmin && (
+                    <AgendaSidePanel
+                        combos={combos}
+                        eventoSeleccionado={eventoSeleccionado}
+                        onClearSeleccion={() => setEventoSeleccionado(null)}
+                    />
                 )}
             </div>
-        </Layout>
+        </div>
+    );
+
+    return isAdmin ? (
+        <AdminLayout>{Contenido}</AdminLayout>
+    ) : (
+        <PublicLayout>{Contenido}</PublicLayout>
     );
 }
