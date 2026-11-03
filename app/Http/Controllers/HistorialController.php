@@ -197,8 +197,5 @@ class HistorialController extends Controller
 
             return Excel::download(new InformeExtintoresExport($datos), $nombre . '.xlsx');
         }
-
-        // TEMPORAL: falta la lista de extintores.
-        return response()->json($validated);
     }
 }
