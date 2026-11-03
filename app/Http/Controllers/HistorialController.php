@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
+use App\Exports\InformeUsosExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 use App\Services\InformesHistorial;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -149,7 +152,7 @@ class HistorialController extends Controller
         return redirect()->back()->with('success', 'Uso del extintor registrado correctamente.');
     }
 
-    // Módulo 5 · Exportar: lo programa Sara
+        // Módulo 5 · Exportar: lo programa Sara
     public function exportar(Request $request, InformesHistorial $informes)
     {
         $validated = $request->validate([
@@ -167,16 +170,21 @@ class HistorialController extends Controller
                 Rule::exists('pisos', 'id')->where('instalacion_id', $request->instalacion_id),
             ],
         ]);
-        if ($validated['informe'] === 'usos' && $validated['formato'] === 'pdf') {
-            $datos = $informes->usos($validated);
 
-            return Pdf::loadView('informes.usos', $datos)
-                ->setPaper('letter', 'landscape')
-                ->download($datos['encabezado']['folio'] . '.pdf');
+        if ($validated['informe'] === 'usos') {
+            $datos = $informes->usos($validated);
+            $nombre = $datos['encabezado']['folio'];
+
+            if ($validated['formato'] === 'pdf') {
+                return Pdf::loadView('informes.usos', $datos)
+                    ->setPaper('letter', 'landscape')
+                    ->download($nombre . '.pdf');
+            }
+
+            return Excel::download(new InformeUsosExport($datos), $nombre . '.xlsx');
         }
 
-        // TEMPORAL: faltan el Excel y la lista de extintores.
+        // TEMPORAL: falta la lista de extintores.
         return response()->json($validated);
-
     }
 }
