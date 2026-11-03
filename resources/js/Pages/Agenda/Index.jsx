@@ -12,6 +12,18 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
     const [filtro, setFiltro] = useState("todos");
     const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
 
+    const manejarSeleccionEvento = (ev) => {
+        if (
+            eventoSeleccionado &&
+            eventoSeleccionado.id === ev.id &&
+            eventoSeleccionado.clase === ev.clase
+        ) {
+            setEventoSeleccionado(null);
+        } else {
+            setEventoSeleccionado(ev);
+        }
+    };
+
     const eventosFiltrados = eventos.filter((ev) => {
         if (filtro === "mantenimientos") return ev.clase === "mantenimiento";
         if (filtro === "capacitaciones") return ev.clase === "capacitacion";
@@ -55,10 +67,10 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
                     <button
                         type="button"
                         onClick={() => setFiltro("todos")}
-                        className={`px-3.5 py-1 rounded-full text-xs font-semibold transition ${
+                        className={`px-3.5 py-1 rounded-full text-xs font-semibold border transition ${
                             filtro === "todos"
-                                ? "bg-neutro-900 text-white"
-                                : "bg-white border border-neutro-300 text-neutro-600 hover:bg-neutro-100"
+                                ? "bg-neutro-900 text-white border-transparent"
+                                : "bg-white border-neutro-300 text-neutro-600 hover:bg-neutro-100"
                         }`}
                     >
                         Todos
@@ -66,10 +78,10 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
                     <button
                         type="button"
                         onClick={() => setFiltro("mantenimientos")}
-                        className={`px-3.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 transition ${
+                        className={`px-3.5 py-1 rounded-full text-xs font-semibold border flex items-center gap-1.5 transition ${
                             filtro === "mantenimientos"
-                                ? "bg-neutro-900 text-white"
-                                : "bg-white border border-neutro-300 text-neutro-600 hover:bg-neutro-100"
+                                ? "bg-neutro-900 text-white border-transparent"
+                                : "bg-white border-neutro-300 text-neutro-600 hover:bg-neutro-100"
                         }`}
                     >
                         <span className="w-2 h-2 rounded-full bg-neutro-900 inline-block"></span>
@@ -78,10 +90,10 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
                     <button
                         type="button"
                         onClick={() => setFiltro("capacitaciones")}
-                        className={`px-3.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 transition ${
+                        className={`px-3.5 py-1 rounded-full text-xs font-semibold border flex items-center gap-1.5 transition ${
                             filtro === "capacitaciones"
-                                ? "bg-neutro-900 text-white"
-                                : "bg-white border border-neutro-300 text-neutro-600 hover:bg-neutro-100"
+                                ? "bg-neutro-900 text-white border-transparent"
+                                : "bg-white border-neutro-300 text-neutro-600 hover:bg-neutro-100"
                         }`}
                     >
                         <span className="w-2 h-2 rounded-full bg-[#1b9e85] inline-block"></span>
@@ -117,7 +129,7 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
                         eventos={eventosFiltrados}
                         mesActual={mesActual}
                         eventoSeleccionado={eventoSeleccionado}
-                        onSelectEvento={setEventoSeleccionado}
+                        onSelectEvento={manejarSeleccionEvento}
                     />
                 </div>
 
