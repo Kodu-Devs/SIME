@@ -64,8 +64,14 @@ class AlertaService
         $limit = $fecha_hoy->copy()->addDays(config('sime.dias_por_vencer'));
 
         if ($fecha_programada->lessThan($fecha_hoy) && $m->fecha_realizada == null) {
+            //Cerrar alertas para mantenimientos proximos
+            Alerta::where('mantenimiento_id', $m->id)->where('categoria', 'mantenimiento')->where('tipo', 'Próximo')->noLeidas()->update(['leida' => true]);
+
             self::generar('mantenimiento_id', $m->id, 'Urgente', 'mantenimiento', 'Mantenimiento atrasado');
         } elseif ($fecha_programada->betweenIncluded($fecha_hoy, $limit)) {
+            //Cerrar alertas para mantenimientos Urgentes
+            Alerta::where('mantenimiento_id', $m->id)->where('categoria', 'mantenimiento')->where('tipo', 'Urgente')->noLeidas()->update(['leida' => true]);
+
             self::generar('mantenimiento_id', $m->id, 'Próximo', 'mantenimiento', 'Mantenimiento próximo');
         }
     }
