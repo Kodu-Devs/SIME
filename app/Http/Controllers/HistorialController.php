@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\EventoUso;
 use App\Models\Mantenimiento;
 use App\Models\Extintor;
+use App\Exports\InformeExtintoresExport;
 use App\Services\EstatusExtintor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 use App\Services\InformesHistorial;
 use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class HistorialController extends Controller
 {
@@ -182,6 +184,18 @@ class HistorialController extends Controller
             }
 
             return Excel::download(new InformeUsosExport($datos), $nombre . '.xlsx');
+        }
+        if ($validated['informe'] === 'extintores') {
+            $datos = $informes->extintores($validated);
+            $nombre = $datos['encabezado']['folio'];
+
+            if ($validated['formato'] === 'pdf') {
+                return Pdf::loadView('informes.extintores', $datos)
+                    ->setPaper('letter', 'landscape')
+                    ->download($nombre . '.pdf');
+            }
+
+            return Excel::download(new InformeExtintoresExport($datos), $nombre . '.xlsx');
         }
 
         // TEMPORAL: falta la lista de extintores.

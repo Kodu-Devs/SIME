@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Services;
-
+use App\Models\Extintor;
 use App\Models\EventoUso;
 use App\Models\Instalacion;
 use App\Models\Piso;
@@ -60,6 +60,72 @@ class InformesHistorial
                 'parcial' => $usos->where('tipo_descarga', 'parcial')->count(),
                 'extintores' => $usos->pluck('extintor_id')->unique()->count(),
             ],
+        ];
+    }
+        /**
+     * Informe de lista de extintores: inventario activo (sin Baja).
+     * Las fechas del modal se ignoran; solo aplican edificio y piso.
+     */
+    public function extintores(array $filtros): array
+    {
+        $ahora = now();
+
+        $extintores = Extintor::with(['tipoExtintor', 'ubicacion.piso.instalacion'])
+            ->withMax(
+                ['mantenimientos as ultimo_mantenimiento' => fn ($q) => $q->whereNotNull('fecha_realizada')],
+                'fecha_realizada'
+            )
+            ->where('estatus', '!=', 'Baja')
+            ->when($filtros['instalacion_id'] ?? null, function ($query, $instalacionId) {
+                $query->whereHas('ubicacion.piso', fn ($q) => $q->where('instalacion_id', $instalacionId));
+            })
+            ->when($filtros['piso_id'] ?? null, function ($query, $pisoId) {
+                $query->whereHas('ubicacion', fn ($q) => $q->where('piso_id', $pisoId));
+            })
+            ->orderBy('etiqueta_inventario')
+            ->get();
+
+        $filas = $extintores->map(fn ($e) => [
+            'id' => $e->etiqueta_inventario,
+            'tipo' => $e->tipoExtintor->nombre,
+            'capacidad' => $e->capacidad,
+            'edificio' => $e->ubicacion?->piso?->instalacion?->nombre,
+            'piso' => $e->ubicacion?->piso?->nombre,
+            'ubicacion' => $e->ubicacion?->nombre,
+            'estatus' => $e->estatus,
+            'ultimo_mantenimiento' => $e->ultimo_mantenimiento
+                ? Carbon::parse($e->ultimo_mantenimiento)->format('d/m/Y')
+                : 'Sin registro',
+            'proxima_revision' => $e->fecha_vencimiento
+                ? Carbon::parse($e->fecha_vencimiento)->format('d/m/Y')
+                : '—',
+        ])->all();
+
+        $porEstatus = collect(Extintor::ESTATUS)
+            ->reject(fn ($estatus) => $estatus === 'Baja')
+            ->mapWithKeys(fn ($estatus) => [$estatus => $extintores->where('estatus', $estatus)->count()])
+            ->all();
+
+        $porTipo = $extintores->groupBy('tipoextintor_id')
+            ->map(fn ($grupo) => [
+                'tipo' => $grupo->first()->tipoExtintor->nombre,
+                'clase_fuego' => $grupo->first()->tipoExtintor->clase_fuego,
+                'cantidad' => $grupo->count(),
+            ])
+            ->sortBy('tipo')
+            ->values()
+            ->all();
+
+        return [
+            'encabezado' => [
+                'inventario' => 'Inventario al ' . $ahora->format('d/m/Y'),
+                'area' => $this->area($filtros),
+                'folio' => 'INF-EXT-' . $ahora->format('Ymd-Hi'),
+                'generado' => $ahora->format('d/m/Y H:i'),
+            ],
+            'filas' => $filas,
+            'resumen' => ['total' => $extintores->count(), 'por_estatus' => $porEstatus],
+            'por_tipo' => $porTipo,
         ];
     }
 
