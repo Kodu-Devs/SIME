@@ -7,9 +7,9 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class InformeExtintoresExport implements FromArray, WithTitle, ShouldAutoSize, WithStyles
-{
+class InformeExtintoresExport implements FromArray, WithTitle, ShouldAutoSize, WithStyles, WithStrictNullComparison{
     private const COLUMNAS = [
         'ID', 'Tipo', 'Capacidad', 'Edificio / Área', 'Piso',
         'Ubicación', 'Estatus', 'Último mantenimiento', 'Próxima revisión',
