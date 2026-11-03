@@ -73,7 +73,7 @@ class EventoUsoSeeder extends Seeder
     private function extintoresConEstatus(string $estatus)
     {
         return Extintor::where('estatus', $estatus)
-            ->where('etiqueta_inventario', 'not like', 'DEMO-%')
+            ->where('etiqueta_inventario', 'not like', '%-9900%')
             ->orderBy('id')
             ->take(3)
             ->get()
