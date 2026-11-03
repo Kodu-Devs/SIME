@@ -43,6 +43,7 @@ class AgendaController extends Controller
                         'id' => $dm->id,
                         'clase' => 'mantenimiento',
                         'titulo' => $dm->tipo . '-' . ($dm->extintor->etiqueta_inventario),
+                        'descripcion' => $dm->descripcion, //Campo a petición de observaciones
                         'fecha' => $dm->fecha_programada->format('Y-m-d H:i:s'),
                         'realizado' => !is_null($dm->fecha_realizada)
                     ];
@@ -58,6 +59,7 @@ class AgendaController extends Controller
                     'id' => $dc->id,
                     'clase' => 'capacitacion',
                     'titulo' => 'Capacitacion: ' . $dc->nombre,
+                    'ubicacion_id' => $dc->ubicacion_id, //Requerido para el combo de ubicaciones
                     'fecha' => $dc->fecha_hora->format('Y-m-d H:i:s'),
                     'realizado' => $dc->fecha_hora->isPast()
                 ];
