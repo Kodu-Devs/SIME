@@ -7,9 +7,9 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class InformeUsosExport implements FromArray, WithTitle, ShouldAutoSize, WithStyles
-{
+class InformeExtintoresExport implements FromArray, WithTitle, ShouldAutoSize, WithStyles, WithStrictNullComparison{
     // Fila donde empieza la tabla (encabezados de columnas).
     private const FILA_TABLA = 10;
 
@@ -65,7 +65,6 @@ class InformeUsosExport implements FromArray, WithTitle, ShouldAutoSize, WithSty
 
         // Filtros en los encabezados (se puede filtrar por tipo de motivo) y fila fija.
         $sheet->setAutoFilter('A' . self::FILA_TABLA . ':I' . $ultima);
-        $sheet->freezePane('A' . (self::FILA_TABLA + 1));
 
         return [
             1 => ['font' => ['bold' => true, 'size' => 14]],
