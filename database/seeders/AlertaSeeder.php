@@ -46,11 +46,11 @@ class AlertaSeeder extends Seeder
         // Columnas reales de extintores: 'tipoextintor_id' y 'fecha_vencimiento'.
         // 'fecha_instalacion' y 'capacidad' son NOT NULL, por eso se incluyen.
         $extVencido = Extintor::firstOrCreate(
-            ['etiqueta_inventario' => 'DEMO-VENCIDO'],
+            ['etiqueta_inventario' => 'ITJMM-62007-5100-99001'],
             [
                 'tipoextintor_id' => $tipoId,
                 'ubicacion_id' => $ubicacionId,
-                'estatus' => 'Disponible',
+                'estatus' => 'Medio uso',
                 'fecha_instalacion' => $vencimientoVencido->copy()->subMonthsNoOverflow(6)->toDateString(),
                 'fecha_vencimiento' => $vencimientoVencido->toDateString(),
                 'capacidad' => '9 kg',
@@ -58,7 +58,7 @@ class AlertaSeeder extends Seeder
         );
 
         $extVacio = Extintor::firstOrCreate(
-            ['etiqueta_inventario' => 'DEMO-VACIO'],
+            ['etiqueta_inventario' => 'ITJMM-62007-5100-99002'],
             [
                 'tipoextintor_id' => $tipoId,
                 'ubicacion_id' => $ubicacionId,
@@ -70,7 +70,7 @@ class AlertaSeeder extends Seeder
         );
 
         $extPorVencer = Extintor::firstOrCreate(
-            ['etiqueta_inventario' => 'DEMO-POR-VENCER'],
+            ['etiqueta_inventario' => 'ITJMM-62007-5100-99003'],
             [
                 'tipoextintor_id' => $tipoId,
                 'ubicacion_id' => $ubicacionId,
