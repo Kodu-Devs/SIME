@@ -9,8 +9,8 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class InformeExtintoresExport implements FromArray, WithTitle, ShouldAutoSize, WithStyles, WithStrictNullComparison{
-    // Fila donde empieza la tabla (encabezados de columnas).
+class InformeUsosExport implements FromArray, WithTitle, ShouldAutoSize, WithStyles, WithStrictNullComparison
+{    // Fila donde empieza la tabla (encabezados de columnas).
     private const FILA_TABLA = 10;
 
     private const COLUMNAS = [
