@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Head, usePage } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import ExtintoresHeader from '@/Components/Extintores/ExtintoresHeader';
@@ -7,8 +7,9 @@ import ExtintorFilterPills from '@/Components/Extintores/ExtintorFilterPills';
 import ExtintoresTable from '@/Components/Extintores/ExtintoresTable';
 import ExtintorFormPanel from '@/Components/Extintores/ExtintorFormPanel';
 
+const ITEMS_PER_PAGE = 5; // Mantiene la altura fija dentro de la pantalla sin scroll
+
 export default function Index(props) {
-    // Sesión obtenida mediante usePage de Inertia
     const { auth } = usePage().props;
 
     // Datos recibidos desde ExtintorController
@@ -22,17 +23,23 @@ export default function Index(props) {
     const [selectedExtintor, setSelectedExtintor] = useState(null);
     const [activeFilter, setActiveFilter] = useState('Todos');
     const [isMobileFormOpen, setIsMobileFormOpen] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
 
-    // Normalización: cruza la ubicación con el árbol de instalaciones para resolver Edificio y Piso reales
+    // Si el usuario cambia el filtro, regresar a la página 1
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [activeFilter]);
+
+    // Normalización: cruza la ubicación con el árbol de instalaciones
     const normalizedExtintores = useMemo(() => {
         return extintoresRaw.map((ext) => {
             const areaNombre = ext.ubicacion_nombre || ext.area_nombre || '';
             const ubicacionId = ext.ubicacion_id || ext.raw?.ubicacion_id;
+            const tipoId = ext.tipoextintor_id || ext.raw?.tipoextintor_id;
 
             let edificioDetectado = ext.instalacion_nombre || '';
             let pisoDetectado = '';
 
-            // Búsqueda en el árbol de instalaciones
             if (instalaciones.length > 0 && areaNombre) {
                 for (const inst of instalaciones) {
                     for (const p of (inst.pisos || [])) {
@@ -52,31 +59,35 @@ export default function Index(props) {
                 }
             }
 
-            // Evitar que se muestre "Piso N/A" 
             const finalPiso = (ext.piso_numero && !String(ext.piso_numero).includes('N/A'))
                 ? `Piso ${ext.piso_numero}`
                 : pisoDetectado;
 
             const finalEdificio = edificioDetectado || '';
 
+            const tipoObj = tipos.find(t => t.id === tipoId);
+            const unidad = tipoObj?.unidad === 'l' ? 'L' : 'kg';
+            const capacidadLimpia = String(ext.capacidad_raw || ext.capacidad || '').replace(/[^0-9.]/g, '');
+
             return {
                 id: ext.id,
-                codigo: ext.etiqueta_inventario,
-                tipo: ext.tipo_nombre,
-                tipoextintor_id: ext.tipoextintor_id,
-                capacidad: `${String(ext.capacidad).replace(/[^0-9.]/g, '')} kg`,
-                capacidad_raw: ext.capacidad,
+                codigo: ext.etiqueta_inventario || ext.codigo,
+                tipo: ext.tipo_nombre || ext.tipo || 'No definido',
+                tipoextintor_id: tipoId,
+                capacidad: capacidadLimpia ? `${capacidadLimpia} ${unidad}` : 'N/A',
+                capacidad_raw: ext.capacidad_raw || ext.capacidad,
                 area_nombre: areaNombre,
+                ubicacion_id: ubicacionId,
                 edificio: finalEdificio,
                 piso: finalPiso,
                 proximo_mantenimiento: ext.proximo_mantenimiento || 'Sin programar',
-                estado: ext.estado || ext.estatus || 'Disponible',
-                raw: ext
+                estado: ext.estado ?? ext.estatus ?? 'Disponible',
+                raw: ext.raw || ext
             };
         });
-    }, [extintoresRaw, instalaciones]);
+    }, [extintoresRaw, instalaciones, tipos]);
 
-    // Filtrado reactivo alineado a las reglas del backend (Vigente, Por vencer, Vencido)
+    // Filtrado reactivo
     const filteredExtintores = useMemo(() => {
         if (activeFilter === 'Todos') return normalizedExtintores;
 
@@ -84,29 +95,28 @@ export default function Index(props) {
             const estado = (ext.estado || '').toLowerCase();
             const filtro = activeFilter.toLowerCase();
 
-            // Vigentes / Disponibles
             if (filtro.includes('dispon') || filtro.includes('vigent')) {
                 return estado.includes('vigent') || estado.includes('dispon') || estado.includes('operativ');
             }
-
-            // Por vencer / Próximos / Medio uso
             if (filtro.includes('vencer') || filtro.includes('proxim') || filtro.includes('medio')) {
                 return estado.includes('por vencer') || estado.includes('vencer') || estado.includes('medio') || estado.includes('mantenim');
             }
-
-            // Vencidos / Vacíos
             if (filtro.includes('vencid') || filtro.includes('vaci') || filtro.includes('vací')) {
                 return estado.includes('vencid') || estado.includes('vac');
             }
-
-            // Fuera de servicio / Baja
             if (filtro.includes('servicio') || filtro.includes('baja')) {
                 return estado.includes('baja') || estado.includes('fuera');
             }
-
             return estado === filtro;
         });
     }, [normalizedExtintores, activeFilter]);
+
+    // Paginación
+    const totalPages = Math.ceil(filteredExtintores.length / ITEMS_PER_PAGE) || 1;
+    const paginatedExtintores = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        return filteredExtintores.slice(start, start + ITEMS_PER_PAGE);
+    }, [filteredExtintores, currentPage]);
 
     // Manejadores de eventos
     const handleSelectExtintor = (extintor) => {
@@ -126,12 +136,60 @@ export default function Index(props) {
         setIsMobileFormOpen(true);
     };
 
+    // Paginación con el nuevo formato
+    const renderPagination = () => {
+        if (totalPages <= 1) return null;
+
+        return (
+            <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-neutral-200 sm:px-6 rounded-b-xl shadow-sm mt-1">
+                <div className="text-xs text-neutral-500">
+                    Página <span className="font-semibold text-neutral-700">{currentPage}</span> de{' '}
+                    <span className="font-semibold text-neutral-700">{totalPages}</span>
+                </div>
+
+                <div className="inline-flex items-center gap-1">
+                    <button
+                        type="button"
+                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className="p-1.5 rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                        <ChevronLeft className="w-4 h-4" />
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                            key={page}
+                            type="button"
+                            onClick={() => setCurrentPage(page)}
+                            className={`w-7 h-7 text-xs font-semibold rounded-lg transition-colors ${currentPage === page
+                                    ? 'bg-[#C0262D] text-white shadow-sm'
+                                    : 'border border-neutral-200 text-neutral-700 hover:bg-neutral-50'
+                                }`}
+                        >
+                            {page}
+                        </button>
+                    ))}
+
+                    <button
+                        type="button"
+                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className="p-1.5 rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                        <ChevronRight className="w-4 h-4" />
+                    </button>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <AdminLayout auth={auth} user={auth?.user}>
             <Head title="Extintores - SIME" />
 
-            <div className="font-['Manrope'] pb-12">
-                {/* 1. Encabezado del módulo */}
+            <div className="font-['Manrope'] pb-6">
+                {/* 1. Encabezado */}
                 <ExtintoresHeader onAddNew={handleAddNew} />
 
                 {/* 2. Barra de píldoras de filtrado */}
@@ -140,7 +198,7 @@ export default function Index(props) {
                     onFilterChange={setActiveFilter}
                 />
 
-                {/* 3. VISTA MÓVIL (Tarjetas o Formulario) */}
+                {/* 3. Vista móvil */}
                 <div className="block md:hidden">
                     {isMobileFormOpen ? (
                         <div>
@@ -163,22 +221,26 @@ export default function Index(props) {
                             />
                         </div>
                     ) : (
-                        <ExtintoresTable
-                            extintores={filteredExtintores}
-                            selectedExtintor={selectedExtintor}
-                            onSelectExtintor={handleSelectExtintor}
-                        />
+                        <div>
+                            <ExtintoresTable
+                                extintores={paginatedExtintores}
+                                selectedExtintor={selectedExtintor}
+                                onSelectExtintor={handleSelectExtintor}
+                            />
+                            {renderPagination()}
+                        </div>
                     )}
                 </div>
 
-                {/* 4. VISTA ESCRITORIO (Tabla a 8 columnas y Formulario a 4 columnas) */}
+                {/* 4. Vista escritorio */}
                 <div className="hidden md:grid grid-cols-12 gap-6 items-start">
                     <div className="col-span-8">
                         <ExtintoresTable
-                            extintores={filteredExtintores}
+                            extintores={paginatedExtintores}
                             selectedExtintor={selectedExtintor}
                             onSelectExtintor={handleSelectExtintor}
                         />
+                        {renderPagination()}
                     </div>
                     <div className="col-span-4 sticky top-6">
                         <ExtintorFormPanel
