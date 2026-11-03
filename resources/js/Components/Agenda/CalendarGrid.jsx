@@ -1,128 +1,106 @@
 import React from "react";
 
-export default function CalendarGrid(props) 
-{
-    const eventos = props.eventos;
-    const mesActual = props.mesActual;
-    //cabecera con los dias de la semana
-    const diasSemana = ['LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB', 'DOM'];
-    
-    //funcion para calcular dias del mes
-    const obtenerDiasDelMes = function() {
-        let anio = 2026;
-        let mes = 10;
+const DIAS_SEMANA = ["LUN", "MAR", "MIÉ", "JUE", "VIE", "SAB", "DOM"];
 
-        if (mesActual){
-            let partes = mesActual.split('-');
-            anio = partes[0];
-            mes = partes[1];
-        }
+export default function CalendarGrid({
+    eventos = [],
+    mesActual,
+    eventoSeleccionado,
+    onSelectEvento,
+}) {
+    const [anio, mes] = (mesActual || "2026-10").split("-").map(Number);
 
-        let primerDiaDelMes = new Date(anio, mes - 1, 1).getDay();
-        let inicioOffset = 0;
+    const primerDiaSemana = (new Date(anio, mes - 1, 1).getDay() + 6) % 7;
+    const totalDiasMes = new Date(anio, mes, 0).getDate();
 
-        if (primerDiaDelMes === 0) {
-            inicioOffset = 6;
-        }
-        else{
-            inicioOffset = primerDiaDelMes - 1;
-        }
+    const totalCeldas = Math.ceil((primerDiaSemana + totalDiasMes) / 7) * 7;
+    const celdas = Array.from({ length: totalCeldas }, (_, idx) => {
+        const numeroDia = idx - primerDiaSemana + 1;
+        if (numeroDia < 1) return { tipo: "previo", dia: null };
+        if (numeroDia > totalDiasMes) return { tipo: "posterior", dia: null };
+        return { tipo: "actual", dia: numeroDia };
+    });
 
-        let totalDias = new Date(anio, mes, 0).getDate();
-        let dias = [];
-
-        //replicacion de los espacios vacios que hay de lun-jue
-        for (let i = 0; i < inicioOffset; i++){
-            dias.push({
-                numero: '',
-                fechaCompleta: null,
-                esVacio: true
-            });
-        }
-
-        //los dias del mes del 1 al 31
-        for (let dia = 1; dia <= totalDias; dia++) {
-            let mesStr = String(mes);
-            if (mesStr.length < 2) {
-                mesStr = '0' + mesStr;
-            }
-
-            let diaStr = String(dia);
-            if (diaStr.length < 2) {
-                diaStr = '0' + diaStr;
-            }
-
-            let fecha = anio + '-' + mesStr + '-' + diaStr;
-            dias.push({
-                numero: dia,
-                fechaCompleta: fecha,
-                esVacio: false
-            });
-        }
-        return dias;
+    const obtenerEventosDelDia = (dia) => {
+        if (!dia) return [];
+        const fechaBuscada = `${anio}-${String(mes).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+        return eventos.filter((ev) =>
+            String(ev.fecha).startsWith(fechaBuscada),
+        );
     };
 
-    let diasDelMes = obtenerDiasDelMes();
-
     return (
-       <div className="bg-white rounded-lg shadow border border-neutro-100 overflow-hidden w-full">
-      
-      {/* CABECERA DE LA SEMANA */}
-      <div className="grid grid-cols-7 bg-neutro-50 border-b border-neutro-100 text-center font-semibold text-neutro-600 text-sm py-3">
-        {diasSemana.map(function(dia, index) {
-          return <div key={index}>{dia}</div>;
-        })}
-      </div>
-
-      {/* CUADRICULA DEL CALENDARIO */}
-      <div className="grid grid-cols-7 bg-neutro-100 gap-px">
-        {diasDelMes.map(function(diaItem, index) {
-          
-          // Buscamos si hay eventos en este dia
-          let eventosDelDia = [];
-          if (diaItem.fechaCompleta) {
-            for (let e = 0; e < eventos.length; e++) {
-              let eventoActual = eventos[e];
-              if (eventoActual.fecha && eventoActual.fecha.startsWith(diaItem.fechaCompleta)) {
-                eventosDelDia.push(eventoActual);
-              }
-            }
-          }
-
-          return (
-            <div
-              key={index}
-              className="min-h-[100px] bg-white p-2 flex flex-col justify-between"
-            >
-              {/* NUMERO DEL DIA */}
-              <div className="text-right">
-                <span className="text-sm font-medium text-neutro-900">
-                  {diaItem.numero}
-                </span>
-              </div>
-
-              {/* EVENTOS DEL DIA */}
-              <div className="space-y-1 mt-1">
-                {eventosDelDia.map(function(evento) {
-                  let colorFondo = 'bg-acento-500';
-                  if (evento.clase === 'mantenimiento') {
-                    colorFondo = 'bg-neutro-900 border-l-4 border-primario-500';
-                  }
-
-                  return (
+        <div className="bg-white border border-neutro-300 rounded-xl overflow-hidden shadow-sm w-full">
+            <div className="grid grid-cols-7 border-b border-neutro-300 bg-white">
+                {DIAS_SEMANA.map((dia) => (
                     <div
-                      key={evento.id}
-                      className={'text-xs px-2 py-1 rounded text-white truncate ' + colorFondo}
+                        key={dia}
+                        className="py-2 px-3 text-xs font-semibold text-neutro-600 uppercase tracking-wider border-r last:border-r-0 border-neutro-200"
                     >
-                      {evento.titulo}
+                        {dia}
                     </div>
-                  );
-                })}
-              </div>
+                ))}
             </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+
+            <div className="grid grid-cols-7">
+                {celdas.map((celda, index) => {
+                    const eventosDia = obtenerEventosDelDia(celda.dia);
+                    const esPosterior = celda.tipo === "posterior";
+
+                    return (
+                        <div
+                            key={index}
+                            // h-24 otorga mayor altura y longitud a todo el calendario
+                            className={`h-24 p-1.5 border-b border-r border-neutro-200 flex flex-col transition ${
+                                esPosterior ? "bg-neutro-200/70" : "bg-white"
+                            }`}
+                        >
+                            {celda.dia ? (
+                                <>
+                                    <span className="text-xs font-semibold text-neutro-900 leading-none mb-1 ml-0.5">
+                                        {celda.dia}
+                                    </span>
+
+                                    <div className="flex flex-col gap-1 overflow-y-auto max-h-16 pr-0.5">
+                                        {eventosDia.map((ev) => {
+                                            const esMantenimiento =
+                                                ev.clase === "mantenimiento";
+                                            const estaSeleccionado =
+                                                eventoSeleccionado?.id ===
+                                                    ev.id &&
+                                                eventoSeleccionado?.clase ===
+                                                    ev.clase;
+
+                                            return (
+                                                <button
+                                                    key={`${ev.clase}-${ev.id}`}
+                                                    type="button"
+                                                    onClick={() =>
+                                                        onSelectEvento &&
+                                                        onSelectEvento(ev)
+                                                    }
+                                                    title={ev.titulo}
+                                                    className={`w-full text-left text-[11px] font-medium px-1.5 py-1 rounded truncate transition cursor-pointer ${
+                                                        esMantenimiento
+                                                            ? "bg-neutro-900 text-white border-l-2 border-primario-700"
+                                                            : "bg-[#1b9e85] text-white"
+                                                    } ${
+                                                        estaSeleccionado
+                                                            ? "ring-1 ring-primario-700 ring-offset-1"
+                                                            : "hover:opacity-90"
+                                                    }`}
+                                                >
+                                                    {ev.titulo}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </>
+                            ) : null}
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
 }
