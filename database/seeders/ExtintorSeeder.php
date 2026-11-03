@@ -17,6 +17,14 @@ class ExtintorSeeder extends Seeder
 
     private const FK_UBICACION_PISO = 'piso_id';
 
+    // Cada extintor se revisa cada mes: fecha_vencimiento es la fecha límite
+    // de la siguiente revisión, contada desde fecha_instalacion.
+    // Posición (0-based) de la fila entre las que se crean. Solo para los que
+    // no están en Baja. Los vencidos van en filas que no son Disponible.
+    private const VENCIDOS = [3, 7, 10];
+
+    private const POR_VENCER = [2, 6, 11];
+
     private const PLAN = [
         ['vigente', 'Disponible'],
         ['vigente', 'Disponible'],
@@ -43,7 +51,8 @@ class ExtintorSeeder extends Seeder
         $faker = FakerFactory::create('es_MX');
         $faker->seed(2026);
 
-        $hoy = Carbon::now();
+        $ahora = Carbon::now();
+        $hoy = $ahora->copy()->startOfDay();
 
         $creados = 0;
         $existentes = 0;
@@ -82,14 +91,14 @@ class ExtintorSeeder extends Seeder
 
             $piso = $instalacion
                 ? Piso::where(self::FK_PISO_INSTALACION, $instalacion->getKey())
-                ->where('nombre', $fila['piso'])
-                ->first()
+                    ->where('nombre', $fila['piso'])
+                    ->first()
                 : null;
 
             $ubicacion = $piso
                 ? Ubicacion::where(self::FK_UBICACION_PISO, $piso->getKey())
-                ->where('nombre', $fila['ubicacion'])
-                ->first()
+                    ->where('nombre', $fila['ubicacion'])
+                    ->first()
                 : null;
 
             if (! $ubicacion) {
@@ -99,11 +108,22 @@ class ExtintorSeeder extends Seeder
             }
 
             [$escenario, $estatus] = self::PLAN[$indice % count(self::PLAN)];
+            $orden = $indice;
             $indice++;
 
-            [$fechaInstalacion, $fechaVencimiento] = $this->generarFechas($escenario, $hoy, $faker);
+            if ($estatus === 'Baja') {
+                // Los Baja no piden revisión: se quedan con sus fechas de siempre.
+                [$fechaInstalacion, $fechaVencimiento] = $this->fechasBaja($escenario, $ahora, $faker);
+            } else {
+                $escenario = in_array($orden, self::VENCIDOS, true)
+                    ? 'vencido'
+                    : (in_array($orden, self::POR_VENCER, true) ? 'por_vencer' : 'vigente');
 
-            if ($fechaVencimiento->lt($hoy) && $estatus === 'Disponible') {
+                [$fechaInstalacion, $fechaVencimiento] = $this->fechasMensuales($escenario, $ahora, $hoy, $faker);
+            }
+
+            // Un vencido no puede estar Disponible (seguro por si cambian las listas).
+            if ($fechaVencimiento->lt($ahora) && $estatus === 'Disponible') {
                 $estatus = 'Medio uso';
             }
 
@@ -128,7 +148,65 @@ class ExtintorSeeder extends Seeder
         );
     }
 
-    private function generarFechas(string $escenario, Carbon $hoy, $faker): array
+    /**
+     * Fechas con la regla mensual. Se elige primero el día en que cae el
+     * vencimiento (relativo a hoy) y se calcula la instalación hacia atrás, así
+     * el vencimiento siempre cae el mismo día del mes que la instalación.
+     */
+    private function fechasMensuales(string $escenario, Carbon $ahora, Carbon $hoy, $faker): array
+    {
+        $meses = $faker->numberBetween(3, 10);
+
+        $objetivo = match ($escenario) {
+            // Fin del periodo en curso, entre 8 y 24 días (no entra a "por vencer").
+            'vigente' => $this->diaSeguro($hoy->copy()->addDays($faker->numberBetween(8, 24)), false),
+            // Fin del periodo en curso, dentro de los próximos 7 días.
+            'por_vencer' => $this->diaSeguro($hoy->copy()->addDays($faker->numberBetween(1, 3)), false),
+            // Fin del periodo ANTERIOR: ya pasó y nadie revisó el equipo.
+            'vencido' => $this->diaSeguro($hoy->copy()->subDays($faker->numberBetween(3, 20)), true),
+        };
+
+        $instalacion = $objetivo->copy()->subMonthsNoOverflow($meses)->setTime(10, 0);
+        $vencimiento = $this->finDePeriodo($instalacion, $ahora, $escenario === 'vencido');
+
+        return [$instalacion, $vencimiento];
+    }
+
+    /**
+     * Fin del periodo mensual en curso, contado desde la instalación.
+     * Con $anterior = true regresa el fin del periodo anterior (ya pasó).
+     * Se usa un ciclo y no diffInMonths(), que en Carbon 3 devuelve decimales.
+     */
+    private function finDePeriodo(Carbon $instalacion, Carbon $ahora, bool $anterior = false): Carbon
+    {
+        $meses = 1;
+
+        while ($instalacion->copy()->addMonthsNoOverflow($meses)->lte($ahora)) {
+            $meses++;
+        }
+
+        return $instalacion->copy()->addMonthsNoOverflow($anterior ? $meses - 1 : $meses);
+    }
+
+    /**
+     * Los días 29, 30 y 31 no existen en todos los meses y correrían el
+     * vencimiento unos días. Se usa un día seguro (máximo 28).
+     */
+    private function diaSeguro(Carbon $fecha, bool $haciaAtras): Carbon
+    {
+        if ($fecha->day <= 28) {
+            return $fecha->copy();
+        }
+
+        return $haciaAtras
+            ? $fecha->copy()->day(28)
+            : $fecha->copy()->addMonthsNoOverflow(1)->startOfMonth();
+    }
+
+    /**
+     * Fechas de siempre, solo para los extintores en Baja.
+     */
+    private function fechasBaja(string $escenario, Carbon $hoy, $faker): array
     {
         $vencimiento = match ($escenario) {
             'vigente'    => $hoy->copy()->addDays($faker->numberBetween(60, 360)),

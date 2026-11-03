@@ -5,26 +5,27 @@ export default function PublicLayout({
     stats = { total: 31, vigentes: 27, edificios: 6 },
 }) {
     const publicNav = [
-        { name: "Mapa", route: "publico.mapa" },
-        { name: "Agenda", route: "publico.agenda" },
-        { name: "Historial de Usos", route: "publico.historial" },
+        { name: "Mapa", route: "mapa.index", active: "mapa.*" },
+        { name: "Agenda", route: "agenda.index", active: "agenda.*" },
+        {
+            name: "Aprende más",
+            route: "historial.index",
+            active: "historial.*",
+        },
     ];
-
     return (
         <div className="min-h-screen bg-neutro-50 text-neutro-900 flex flex-col">
             {/* Banner Superior de Emergencia 911 */}
-            <div className="bg-primario-700 text-white px-4 py-2 text-xs sm:text-etiqueta flex justify-between items-center">
+            <div className="bg-primario-900 text-white px-4 py-2 text-xs sm:text-etiqueta flex justify-between items-center">
                 <span>En caso de incendio: Evacúa y llama</span>
                 <span className="font-bold">Emergencias 911</span>
             </div>
 
             {/* Header de Navegación Pública */}
             <header className="bg-white border-b border-neutro-100 px-4 md:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <span className="text-titulo-2 font-bold text-sime-navy">
-                        SIME
-                    </span>
-                    <span className="ml-3 text-xs text-neutro-600">
+                <div className="flex items-center gap-2">
+                    <span className="bg-[url('/img/Logo.png')] bg-contain bg-center bg-no-repeat w-10 h-10 "></span>
+                    <span className="border-l border-neutro-100 pl-3 text-xs text-neutro-600">
                         TecNM Campus Lagos de Moreno
                     </span>
                 </div>
@@ -34,10 +35,10 @@ export default function PublicLayout({
                         <Link
                             key={item.name}
                             href={route(item.route)}
-                            className={`px-3 py-1.5 rounded-lg text-etiqueta transition ${
+                            className={`px-3 py-1.5 text-etiqueta transition delay-50 duration-400 ${
                                 route().current(item.route)
-                                    ? "bg-primario-100 text-primario-700"
-                                    : "text-neutro-600 hover:text-neutro-900"
+                                    ? "rounded-b-sm border-b-2 border-primario-900 bg-gradient-to-t from-primario-500/20 via-primario-100/40 to-white text-neutro-900 "
+                                    : "hover:rounded-b-sm hover:border-b-2 hover:border-primario-900/50 hover:bg-gradient-to-t hover:from-primario-500/5 hover:via-primario-100/20 text-neutro-300 hover:text-neutro-900"
                             }`}
                         >
                             {item.name}

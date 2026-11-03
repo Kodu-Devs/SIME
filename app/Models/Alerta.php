@@ -10,6 +10,9 @@ class Alerta extends Model
 {
     use HasFactory;
 
+    // Categorías oficiales: de qué trata la alerta (tipo dice qué tan grave es)
+    public const CATEGORIAS = ['vencido', 'por_vencer', 'estatus', 'mantenimiento', 'capacitacion'];
+
     protected $table = 'alertas';
 
     protected $fillable = [
@@ -18,6 +21,7 @@ class Alerta extends Model
         'capacitacion_id',
         'user_id',
         'tipo',
+        'categoria',
         'mensaje',
         'fecha_generada',
         'leida'
@@ -52,7 +56,7 @@ class Alerta extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // Local Scope para filtrar alertas no leídas 
+    // Local Scope para filtrar alertas no leídas
     public function scopeNoLeidas(Builder $query)
     {
         return $query->where('leida', false);
