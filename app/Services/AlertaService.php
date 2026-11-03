@@ -25,12 +25,23 @@ class AlertaService
         $estado = $e->estadoVencimiento(); //Valida el estado del extintor
 
         //Validación y logica para extintores
+        //Bloque vencimiento
         if ($estado == 'vencido') {
             self::generar('extintor_id', $e->id, 'Urgente', 'vencido', 'Extintor vencido');
-        } elseif ($e->estatus == 'Vacío' || $e->estatus == 'Fuera de servicio') {
-            self::generar('extintor_id', $e->id, 'Urgente', 'estatus', 'Extintor vacío o fuera de servicio');
+            self::cerrarPara('extintor_id', $e->id, 'por_vencer'); //Cierra alertas anteriores sobre por_vencer
         } elseif ($estado == 'por_vencer') {
             self::generar('extintor_id', $e->id, 'Próximo', 'por_vencer', 'Extintor por vencer');
+        } elseif ($estado == 'vigente') {
+            self::cerrarPara('extintor_id', $e->id, 'vencido'); //Cerrar alertas anteriores al estar vigente
+            self::cerrarPara('extintor_id', $e->id, 'por_vencer');
+        }
+
+
+        //Bloque estatus
+        if ($e->estatus == 'Vacío' || $e->estatus == 'Fuera de servicio') {
+            self::generar('extintor_id', $e->id, 'Urgente', 'estatus', 'Extintor vacío o fuera de servicio');
+        } else {
+            self::cerrarPara('extintor_id', $e->id, 'estatus'); //Si esta disponible o medio uso
         }
     }
 
@@ -42,13 +53,13 @@ class AlertaService
     {
         //Validar si ya tiene fecha realizada para cerrar
         if ($m->fecha_realizada !== null) {
-            self::cerrarPara('mantenimiento_id', $m->id);
+            self::cerrarPara('mantenimiento_id', $m->id, 'mantenimiento');
             return;
         }
 
         //Validación y logica para mantenimientos
         $fecha_hoy = today();
-        $fecha_programada = Carbon::parse($m->fecha_programada);
+        $fecha_programada = Carbon::parse($m->fecha_programada)->startOfDay();
         $limit = $fecha_hoy->copy()->addDays(config('sime.dias_por_vencer'));
 
         if ($fecha_programada->lessThan($fecha_hoy) && $m->fecha_realizada == null) {
@@ -64,7 +75,7 @@ class AlertaService
      */
     public static function evaluarCapacitacion(Capacitacion $c)
     {
-        $fecha_hora = Carbon::parse($c->fecha_hora);
+        $fecha_hora = Carbon::parse($c->fecha_hora)->startOfDay();
         $fecha_hoy = today();
         $limit = $fecha_hoy->copy()->addDays(3);
 
@@ -103,9 +114,11 @@ class AlertaService
     /**
      * Método para cerrar una alerta
      */
-    public static function cerrarPara(string $campo, int $valor, string $categoria = null)
+    public static function cerrarPara(string $campo, int $valor, ?string $categoria = null)
     {
-        Alerta::where($campo, $valor)->where('categoria', $categoria)->noLeidas()->update(['leida' => true]);
+        DB::transaction(function () use ($campo, $valor, $categoria) {
+            Alerta::where($campo, $valor)->when($categoria, fn($q) => $q->where('categoria', $categoria))->noLeidas()->update(['leida' => true]);
+        });
     }
 
 
