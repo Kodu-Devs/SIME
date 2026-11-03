@@ -27,9 +27,10 @@ class AlertaService
         //Validación y logica para extintores
         //Bloque vencimiento
         if ($estado == 'vencido') {
-            self::generar('extintor_id', $e->id, 'Urgente', 'vencido', 'Extintor vencido');
             self::cerrarPara('extintor_id', $e->id, 'por_vencer'); //Cierra alertas anteriores sobre por_vencer
+            self::generar('extintor_id', $e->id, 'Urgente', 'vencido', 'Extintor vencido');
         } elseif ($estado == 'por_vencer') {
+            self::cerrarPara('extintor_id', $e->id, 'vencido'); //Cierra el vencido si se reprogramo
             self::generar('extintor_id', $e->id, 'Próximo', 'por_vencer', 'Extintor por vencer');
         } elseif ($estado == 'vigente') {
             self::cerrarPara('extintor_id', $e->id, 'vencido'); //Cerrar alertas anteriores al estar vigente
@@ -181,6 +182,6 @@ class AlertaService
                     'fecha_generada' => $a->fecha_generada->format('Y-m-d H:i:s')
                 ];
             });
-        return ['noLeidas' => $noLeidas, 'por_tipo' => $porTipo, 'recientes' => $recientes];
+        return ['no_leidas' => $noLeidas, 'por_tipo' => $porTipo, 'recientes' => $recientes];
     }
 }
