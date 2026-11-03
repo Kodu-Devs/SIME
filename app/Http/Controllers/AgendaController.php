@@ -58,6 +58,7 @@ class AgendaController extends Controller
                     'id' => $dc->id,
                     'clase' => 'capacitacion',
                     'titulo' => 'Capacitacion: ' . $dc->nombre,
+                    'ubicacion_id' => $dc->ubicacion->id,
                     'fecha' => $dc->fecha_hora->format('Y-m-d H:i:s'),
                     'realizado' => $dc->fecha_hora->isPast()
                 ];
@@ -145,6 +146,8 @@ class AgendaController extends Controller
 
         DB::transaction(function () use ($v, $mantenimiento) {
             $mantenimiento->update($v);
+
+            //TODO Ramon: Agregar parametro 'mantenimiento'
             AlertaService::cerrarPara('mantenimiento_id', $mantenimiento->id);
         });
         return back()->with('success', 'Mantenimiento actualizado correctamente.');
@@ -161,6 +164,9 @@ class AgendaController extends Controller
 
         DB::transaction(function () use ($v, $capacitacion) {
             $capacitacion->update($v);
+
+
+            //TODO Ramon: Agregar parametro 'capacitacion'
             AlertaService::cerrarPara('capacitacion_id', $capacitacion->id);
         });
         return back()->with('success', 'Capacitación actualizada correctamente.');
@@ -181,6 +187,8 @@ class AgendaController extends Controller
                 'fecha_realizada' => now()->format('Y-m-d H:i:s')
             ]);
             EstatusExtintor::trasMantenimiento($mantenimiento);
+
+            //TODO Ramon: Agregar parametro 'mantenimiento'
             AlertaService::cerrarPara('mantenimiento_id', $mantenimiento->id);
         });
         return back()->with('success', 'Mantenimiento registrado correctamente.');
@@ -199,6 +207,8 @@ class AgendaController extends Controller
 
         DB::transaction(function () use ($mantenimiento) {
             $mantenimiento->delete();
+
+            //TODO Ramon: Agregar parametro 'mantenimiento'
             AlertaService::cerrarPara('mantenimiento_id', $mantenimiento->id);
         });
 
@@ -215,6 +225,8 @@ class AgendaController extends Controller
 
         DB::transaction(function () use ($capacitacion) {
             $capacitacion->delete();
+
+            //TODO Ramon: Agregar parametro 'capacitacion'
             AlertaService::cerrarPara('capacitacion_id', $capacitacion->id);
         });
 
