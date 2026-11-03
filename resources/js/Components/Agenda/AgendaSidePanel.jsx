@@ -76,8 +76,24 @@ export default function AgendaSidePanel({
 
     // Rellenar campos automáticamente al seleccionar un evento
     useEffect(() => {
-        if (!eventoSeleccionado) return;
+        if (!eventoSeleccionado) {
+            setExtintorSeleccionadoId(extintoresMantenimiento[0]?.id || "");
+            setFormMantenimiento({
+                tipo: "",
+                fecha_programada: "",
+                hora_programada: "",
+                descripcion: "",
+            });
+            setFormCapacitacion({
+                nombre: "",
+                fecha: "",
+                hora: "",
+                ubicacion_id: "",
+            });
+            return;
+        }
 
+        // ESTAS TRES LÍNEAS ERAN LAS QUE FALTABAN:
         const fechaStr = String(eventoSeleccionado.fecha || "");
         const [fechaParte = "", horaParteCompleta = ""] =
             fechaStr.split(/[ T]/);

@@ -13,8 +13,9 @@ export default function CalendarGrid({
     const primerDiaSemana = (new Date(anio, mes - 1, 1).getDay() + 6) % 7;
     const totalDiasMes = new Date(anio, mes, 0).getDate();
 
-    const totalCeldas = Math.ceil((primerDiaSemana + totalDiasMes) / 7) * 7;
-    const celdas = Array.from({ length: totalCeldas }, (_, idx) => {
+    // 42 celdas fijas garantizan siempre 6 filas, eliminando los brincos de diseño al cambiar de mes
+    const TOTAL_CELDAS = 42;
+    const celdas = Array.from({ length: TOTAL_CELDAS }, (_, idx) => {
         const numeroDia = idx - primerDiaSemana + 1;
         if (numeroDia < 1) return { tipo: "previo", dia: null };
         if (numeroDia > totalDiasMes) return { tipo: "posterior", dia: null };
@@ -47,12 +48,25 @@ export default function CalendarGrid({
                     const eventosDia = obtenerEventosDelDia(celda.dia);
                     const esPosterior = celda.tipo === "posterior";
 
+                    // Verificamos si este día contiene el evento que está seleccionado actualmente
+                    const tieneEventoSeleccionado =
+                        eventoSeleccionado &&
+                        eventosDia.some(
+                            (ev) =>
+                                ev.id === eventoSeleccionado.id &&
+                                ev.clase === eventoSeleccionado.clase,
+                        );
+
                     return (
                         <div
                             key={index}
-                            // h-24 otorga mayor altura y longitud a todo el calendario
-                            className={`h-24 p-1.5 border-b border-r border-neutro-200 flex flex-col transition ${
-                                esPosterior ? "bg-neutro-200/70" : "bg-white"
+                            // Si tiene el evento seleccionado aplicamos el Neutro/100, de lo contrario un hover con Neutro/50
+                            className={`h-24 p-1.5 border-b border-r border-neutro-200 flex flex-col transition-colors duration-200 ${
+                                esPosterior
+                                    ? "bg-neutro-200/70"
+                                    : tieneEventoSeleccionado
+                                      ? "bg-primario-100"
+                                      : "bg-white hover:bg-primario-100/40"
                             }`}
                         >
                             {celda.dia ? (
@@ -80,16 +94,29 @@ export default function CalendarGrid({
                                                         onSelectEvento(ev)
                                                     }
                                                     title={ev.titulo}
-                                                    className={`w-full text-left text-[11px] font-medium px-1.5 py-1 rounded truncate transition cursor-pointer ${
-                                                        esMantenimiento
-                                                            ? "bg-neutro-900 text-white border-l-2 border-primario-700"
-                                                            : "bg-[#1b9e85] text-white"
+                                                    // Alternamos entre texto expandido (si está seleccionado) o cortado (truncate)
+                                                    className={`w-full text-left text-[11px] px-1.5 py-1 rounded transition-all cursor-pointer ${
+                                                        estaSeleccionado
+                                                            ? "whitespace-normal break-words leading-tight"
+                                                            : "truncate"
                                                     } ${
                                                         estaSeleccionado
-                                                            ? "ring-1 ring-primario-700 ring-offset-1"
-                                                            : "hover:opacity-90"
+                                                            ? "bg-primario-500 text-white ring-2 ring-primario-700 font-bold shadow-md scale-[0.98]"
+                                                            : esMantenimiento // <-- Aquí conserva el negro si es mantenimiento
+                                                              ? "bg-neutro-900 text-white border-l-2 border-primario-700"
+                                                              : "bg-[#1b9e85] text-white" // <-- O el verde si es capacitación
+                                                    } ${
+                                                        !estaSeleccionado &&
+                                                        eventoSeleccionado
+                                                            ? "opacity-50 hover:opacity-85 font-medium" // <-- Aquí aplica el difuminado
+                                                            : !estaSeleccionado
+                                                              ? "font-medium hover:opacity-90"
+                                                              : ""
                                                     }`}
                                                 >
+                                                    {estaSeleccionado
+                                                        ? "● "
+                                                        : ""}
                                                     {ev.titulo}
                                                 </button>
                                             );
