@@ -37,6 +37,7 @@ export default function PanelAgenda({ eventos = [] }) {
             ) : (
                 <ul className="space-y-4">
                     {eventos.map((evento) => {
+                        const { dia, mes } = partesFecha(evento.fecha);
                         return (
                             <li
                                 key={`${evento.clase}-${evento.id}`}
