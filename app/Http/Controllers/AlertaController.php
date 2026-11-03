@@ -13,32 +13,44 @@ class AlertaController extends Controller
      */
     public function index()
     {
-        $alertas = Alerta::with(['extintor', 'mantenimieto', 'capacitacion'])
-            ->noLeidas()
-            ->orderBy('fecha_generada', 'desc')
-            ->get()->map(function ($a) {
-                //Recuperacion de datos para cada categoria y referencia
-                $cat = 'Desconocida';
-                $ref = 'No referencia';
+        $alertas = Alerta::with([
+            'extintor.ubicacion.piso.instalacion',
+            'mantenimiento.extintor.ubicacion.piso.instalacion',
+            'capacitacion.ubicacion.piso.instalacion'
+        ])->noLeidas()->orderBy('fecha_generada', 'desc')->get()
+            ->map(function ($a) {
+                $ubicacion = 'Desconocido';
+                $piso = 'Desconocido';
+                $instalacion = 'Desconocida';
+                $ref = 'n/a';
 
                 if ($a->extintor_id) {
-                    $cat = 'Extintores';
-                    $ref = $a->extintor->etiqueta_inventario;
+                    $ubicacion = $a->extintor->ubicacion->nombre;
+                    $piso = $a->extintor->ubicacion->piso->nombre;
+                    $instalacion = $a->extintor->ubicacion->piso->instalacion->nombre;
+                    $ref = 'Extintor' . $a->extintor->etiqueta_inventario;
                 } elseif ($a->mantenimiento_id) {
-                    $cat = 'Mantenimientos';
-                    $ref = $a->mantenimiento->tipo . ' (' . ($a->mantenimiento->extintor->etiqueta_inventario) . ')';
+                    $ubicacion = $a->mantenimiento->extintor->ubicacion->nombre;
+                    $piso = $a->mantenimiento->extintor->ubicacion->piso->nombre;
+                    $instalacion = $a->mantenimiento->extintor->ubicacion->piso->instalacion->nombre;
+                    $ref = 'Mantenimiento' . $a->mantenimiento->tipo . '(' . $a->mantenimiento->extintor->etiqueta_inventario . ')';
                 } elseif ($a->capacitacion_id) {
-                    $cat = 'Capacitaciones';
-                    $ref = $a->capacitaciones->nombre;
+                    $ubicacion = $a->capacitacion->ubicacion->nombre;
+                    $piso = $a->capacitacion->ubicacion->piso->nombre;
+                    $instalacion = $a->capacitacion->ubicacion->piso->instalacion->nombre;
+                    $ref = 'Capacitacion' . $a->capacitacion->nombre;
                 }
+
+                $datos_ubicacion = $ubicacion . ' ' . $instalacion . ' ' . $piso;
 
                 return [
                     'id' => $a->id,
                     'tipo' => $a->tipo,
-                    'categoria' => $cat,
+                    'categoria' => $a->categoria,
                     'mensaje' => $a->mensaje,
-                    'fecha' => $a->fecha_generada,
-                    'referencia' => $ref
+                    'ubicacion' => $datos_ubicacion,
+                    'referencia' => $ref,
+                    'fecha_generada' => $a->fecha_generada->format('Y-m-d H:i:s')
                 ];
             })->groupBy(['tipo', 'categoria']);
 
