@@ -2,8 +2,9 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
 import TarjetaMetrica from "@/Components/Dashboard/TarjetaMetrica";
 import BannerAlerta from "@/Components/Dashboard/BannerAlerta";
+import PanelAgenda from "@/Components/Dashboard/PanelAgenda";
 
-export default function Dashboard({ tarjetas, alerta_vencido }) {
+export default function Dashboard({ tarjetas, alerta_vencido, agenda }) {
     return (
         <AuthenticatedLayout
             header={
@@ -49,6 +50,9 @@ export default function Dashboard({ tarjetas, alerta_vencido }) {
                             piso={alerta_vencido.piso}
                         />
                     )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <PanelAgenda eventos={agenda} />
+                    </div>
                 </div>
             </div>
         </AuthenticatedLayout>
