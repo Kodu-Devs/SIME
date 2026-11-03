@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Capacitacion extends Model
 {
+    use HasFactory;
+
     // Baja logica para no perder los eventos de uso ligados a la capacitacion
     use SoftDeletes;
 
