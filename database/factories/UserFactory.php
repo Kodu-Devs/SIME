@@ -43,4 +43,13 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    public function estres(): static
+    {      
+        return $this->state(fn (array $attributes) => [
+            'name' => 'ESTRES-Usuario ' . fake()->unique()->numberBetween(1, 1000),
+            'email' => 'estres-' . fake()->unique()->numberBetween(1, 1000) . '@sime.test',
+            'email_verified_at' => now(),
+        ]);
+    }
 }

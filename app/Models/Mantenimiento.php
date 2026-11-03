@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Mantenimiento extends Model
 {
-    // Baja logica para conservar el historial de mantenimientos del extintor
-    use SoftDeletes;
+    // Habilitar fábricas y baja lógica para conservar el historial
+    use HasFactory, SoftDeletes;
 
     protected $table = 'mantenimientos';
 
