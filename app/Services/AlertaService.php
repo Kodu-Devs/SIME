@@ -116,4 +116,58 @@ class AlertaService
     {
         return Alerta::noLeidas()->count();
     }
+
+
+    /**
+     * Método para resumenCampana
+     */
+    public static function resumenCampana()
+    {
+        $query = Alerta::noLeidas();
+
+        $noLeidas = (clone $query)->count(); //Contar las no leidas
+        $porTipo = (clone $query)->selectRaw('tipo, count(*) as total')->groupBy('tipo')->pluck('total', 'tipo'); //Contar por tipo de alerta
+
+        $recientes = (clone $query)->with([
+            'extintor.ubicacion.piso.instalacion',
+            'mantenimiento.extintor.ubicacion.piso.instalacion',
+            'capacitacion.ubicacion.piso.instalacion'
+        ])->orderBy('fecha_generada', 'desc')->orderBy('id', 'desc')->take(5)
+            ->get()->map(function ($a) {
+                $ubicacion = 'Desconocido';
+                $piso = 'Desconocido';
+                $instalacion = 'Desconocida';
+                $ref = 'n/a';
+
+                if ($a->extintor_id) {
+                    $ubicacion = $a->extintor->ubicacion->nombre;
+                    $piso = $a->extintor->ubicacion->piso->nombre;
+                    $instalacion = $a->extintor->ubicacion->piso->instalacion->nombre;
+                    $ref = 'Extintor' . ' ' . $a->extintor->etiqueta_inventario;
+                } elseif ($a->mantenimiento_id) {
+                    $ubicacion = $a->mantenimiento->extintor->ubicacion->nombre;
+                    $piso = $a->mantenimiento->extintor->ubicacion->piso->nombre;
+                    $instalacion = $a->mantenimiento->extintor->ubicacion->piso->instalacion->nombre;
+                    $ref = 'Mantenimiento' . ' ' . $a->mantenimiento->tipo . ' (' . $a->mantenimiento->extintor->etiqueta_inventario . ')';
+                } elseif ($a->capacitacion_id) {
+                    $ubicacion = $a->capacitacion->ubicacion->nombre;
+                    $piso = $a->capacitacion->ubicacion->piso->nombre;
+                    $instalacion = $a->capacitacion->ubicacion->piso->instalacion->nombre;
+                    $ref = 'Capacitacion' . ' ' . $a->capacitacion->nombre;
+                }
+
+                $datos_ubicacion = $ubicacion . ' ' . $instalacion . ' ' . $piso;
+
+                return [
+                    'id' => $a->id,
+                    'tipo' => $a->tipo,
+                    'categoria' => $a->categoria,
+                    'mensaje' => $a->mensaje,
+                    'ubicacion' => $datos_ubicacion,
+                    'referencia' => $ref,
+                    'fecha_generada' => $a->fecha_generada->format('Y-m-d H:i:s')
+                ];
+            });
+        return ['noLeidas' => $noLeidas, 'por_tipo' => $porTipo, 'recientes' => $recientes];
+    }
 }

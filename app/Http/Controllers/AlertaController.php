@@ -28,17 +28,17 @@ class AlertaController extends Controller
                     $ubicacion = $a->extintor->ubicacion->nombre;
                     $piso = $a->extintor->ubicacion->piso->nombre;
                     $instalacion = $a->extintor->ubicacion->piso->instalacion->nombre;
-                    $ref = 'Extintor' . $a->extintor->etiqueta_inventario;
+                    $ref = 'Extintor' . ' ' . $a->extintor->etiqueta_inventario;
                 } elseif ($a->mantenimiento_id) {
                     $ubicacion = $a->mantenimiento->extintor->ubicacion->nombre;
                     $piso = $a->mantenimiento->extintor->ubicacion->piso->nombre;
                     $instalacion = $a->mantenimiento->extintor->ubicacion->piso->instalacion->nombre;
-                    $ref = 'Mantenimiento' . $a->mantenimiento->tipo . '(' . $a->mantenimiento->extintor->etiqueta_inventario . ')';
+                    $ref = 'Mantenimiento' . ' ' . $a->mantenimiento->tipo . ' (' . $a->mantenimiento->extintor->etiqueta_inventario . ')';
                 } elseif ($a->capacitacion_id) {
                     $ubicacion = $a->capacitacion->ubicacion->nombre;
                     $piso = $a->capacitacion->ubicacion->piso->nombre;
                     $instalacion = $a->capacitacion->ubicacion->piso->instalacion->nombre;
-                    $ref = 'Capacitacion' . $a->capacitacion->nombre;
+                    $ref = 'Capacitacion' . ' ' . $a->capacitacion->nombre;
                 }
 
                 $datos_ubicacion = $ubicacion . ' ' . $instalacion . ' ' . $piso;
