@@ -46,17 +46,11 @@ class UserFactory extends Factory
 
     public function estres(): static
     {      
-        return $this->state(function (array $attributes) {
-            // Consecutivo (no aleatorio) para no chocar con el correo único ni topar en 1000.
-            static $numero = null;
-            $numero ??= User::withTrashed()->where('email', 'like', 'estres-%')->count();
-            $numero++;
-
-            return [
-                'name' => "ESTRES-Usuario {$numero}",
-                'email' => "estres-{$numero}@sime.test",
-                'email_verified_at' => now(),
-            ];
-        });
+        // Sufijo aleatorio para no chocar por sí solo; EstresUserSeeder lo reemplaza con un consecutivo.
+        return $this->state(fn (array $attributes) => [
+            'name' => 'ESTRES-Usuario '.Str::random(6),
+            'email' => 'estres-'.Str::lower(Str::random(10)).'@sime.test',
+            'email_verified_at' => now(),
+        ]);
     }
 }
