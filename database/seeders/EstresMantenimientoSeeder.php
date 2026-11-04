@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 
 class EstresMantenimientoSeeder extends Seeder
 {
-    private const CANTIDAD = 300; // Volumen alto para la prueba de estrés
+    private const CANTIDAD = 3000; // Volumen alto para la prueba de estrés
 
     /**
      * Run the database seeds.
