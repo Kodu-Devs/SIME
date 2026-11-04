@@ -32,16 +32,10 @@ class EstresAlertaSeeder extends Seeder
             return;
         }
 
-        $hoy = today()->toDateString();
-        $limite = today()->addDays(7)->toDateString();
-
         // Extintores agrupados por el escenario que justifica cada categoría.
-        $vencidos = Extintor::where('estatus', '!=', 'Baja')
-            ->whereDate('fecha_vencimiento', '<', $hoy)
-            ->pluck('etiqueta_inventario', 'id');
-        $porVencer = Extintor::where('estatus', '!=', 'Baja')
-            ->whereBetween('fecha_vencimiento', [$hoy, $limite])
-            ->pluck('etiqueta_inventario', 'id');
+        // Vencido y por vencer, siempre con los scopes del modelo (regla del 29/10).
+        $vencidos = Extintor::vencidos()->pluck('etiqueta_inventario', 'id');
+        $porVencer = Extintor::porVencer()->pluck('etiqueta_inventario', 'id');
         $conEstatus = Extintor::whereIn('estatus', ['Vacío', 'Fuera de servicio'])
             ->pluck('etiqueta_inventario', 'id');
         $cualquiera = Extintor::pluck('etiqueta_inventario', 'id');

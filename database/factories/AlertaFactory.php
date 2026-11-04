@@ -73,24 +73,32 @@ class AlertaFactory extends Factory
             'mantenimiento_id' => null,
             'capacitacion_id' => null,
             'categoria' => 'estatus',
-            'tipo' => fake()->randomElement(['Urgente', 'Próximo']),
+            'tipo' => 'Urgente',
             'mensaje' => "ESTRES-{$etiqueta} Extintor vacío o fuera de servicio",
         ]);
     }
 
     /**
      * Alerta de mantenimiento: apunta solo a un mantenimiento.
+     * El tipo y el mensaje se eligen juntos para que siempre coincidan.
      */
     public function mantenimiento(int $mantenimientoId): static
     {
-        return $this->state(fn (): array => [
-            'extintor_id' => null,
-            'mantenimiento_id' => $mantenimientoId,
-            'capacitacion_id' => null,
-            'categoria' => 'mantenimiento',
-            'tipo' => fake()->randomElement(['Urgente', 'Próximo']),
-            'mensaje' => 'ESTRES-Mantenimiento '.fake()->randomElement(['atrasado', 'próximo']),
-        ]);
+        return $this->state(function () use ($mantenimientoId): array {
+            [$tipo, $texto] = fake()->randomElement([
+                ['Urgente', 'atrasado'],
+                ['Próximo', 'próximo'],
+            ]);
+
+            return [
+                'extintor_id' => null,
+                'mantenimiento_id' => $mantenimientoId,
+                'capacitacion_id' => null,
+                'categoria' => 'mantenimiento',
+                'tipo' => $tipo,
+                'mensaje' => "ESTRES-Mantenimiento {$texto}",
+            ];
+        });
     }
 
     /**
@@ -103,7 +111,7 @@ class AlertaFactory extends Factory
             'mantenimiento_id' => null,
             'capacitacion_id' => $capacitacionId,
             'categoria' => 'capacitacion',
-            'tipo' => fake()->randomElement(['Informativo', 'Próximo']),
+            'tipo' => 'Informativo',
             'mensaje' => 'ESTRES-Capacitación próxima',
         ]);
     }
