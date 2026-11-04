@@ -32,13 +32,8 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'auth' => [
-                'user' => $request->user(),
-            ],
-            'notificacion' =>
-            [
-                'notificaciones_no_leidas' => AlertaService::contarNoLeidas()
-            ]
+            'auth' => ['user' => $request->user(),],
+            'alertas' => fn() => $request->user() ? AlertaService::resumenCampana() : null
         ];
     }
 }
