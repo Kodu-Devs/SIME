@@ -25,22 +25,31 @@ class GenerarAlertas extends Command
         $vencidos = Extintor::vencidos()->get();
         $porVencer = Extintor::porVencer()->get();
         $estatus = Extintor::whereIn('estatus', ['Vacío', 'Fuera de servicio'])->get();
+        $conAlertas = Extintor::whereHas('alertas', fn($q) => $q->noLeidas()->get()); //Extintores con alertas vigentes y no leidas
 
         //Generar y actualizar alertas para extintores
-        $extintores = $vencidos->concat($porVencer)->concat($estatus);
+        $extintores = $vencidos->concat($porVencer)->concat($estatus)->concat($conAlertas)->unique('id');
         foreach ($extintores as $e) {
             AlertaService::evaluarExtintor($e);
         }
 
 
         //Generar y actualizar alertas para mantenimientos
-        $mantenimiento = Mantenimiento::where('fecha_realizada', NULL)->get();
+        $mantenimientoPendientes = Mantenimiento::where('fecha_realizada', NULL)->get();
+        $mantenimientoConAlertas = Mantenimiento::whereHas('alertas', fn($q) => $q->noLeidas()->get()); //Mantenimientos con alertas vigentes y no leidas
+
+        $mantenimiento = $mantenimientoPendientes->concat($mantenimientoConAlertas)->unique('id');
+
         foreach ($mantenimiento as $m) {
             AlertaService::evaluarMantenimiento($m);
         }
 
         //Generar y actualizar alertas para capacitaciones
-        $capacitaciones = Capacitacion::whereDate('fecha_hora', '>=', today())->get();
+        $capacitacionesPendientes = Capacitacion::whereDate('fecha_hora', '>=', today())->get();
+        $capacitacionesConAlertas = Capacitacion::whereHas('alertas', fn($q) => $q->noLeidas()->get()); //Capacitaciones con alertas vigentes y no leidas
+
+        $capacitaciones = $capacitacionesPendientes->concat($capacitacionesConAlertas)->unique('id');
+
         foreach ($capacitaciones as $c) {
             AlertaService::evaluarCapacitacion($c);
         }
