@@ -1,6 +1,7 @@
 import { Link, usePage } from "@inertiajs/react";
 import { useState } from "react";
 import Dropdown from "@/Components/Dropdown";
+import BarraBusqueda from "@/Components/BarraBusqueda";
 import {
     LayoutDashboard,
     Map,
@@ -67,7 +68,7 @@ export default function AdminLayout({ children }) {
                         <img
                             src="/img/Logo_h.png"
                             alt="Logo SIME"
-                            className="w-24 h-12 object-contain"
+                            className="w-24 h-12 object-contain brightness-150"
                         />
                     </Link>
                 </div>
@@ -101,15 +102,7 @@ export default function AdminLayout({ children }) {
                 {/* HEADER SUPERIOR */}
                 <header className="h-16 bg-white border-b border-neutro-100 px-4 md:px-8 flex items-center justify-between gap-4">
                     {/* Buscador Global con ícono de Lupa */}
-                    <div className="flex-1 max-w-md relative">
-                        <Search className="w-4 h-4 text-neutro-300 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                        <input
-                            type="search"
-                            placeholder="Buscar extintor por código o ubicación"
-                            className="w-full rounded-lg border-neutro-100 bg-neutro-50 pl-10 pr-4 py-2 text-etiqueta text-neutro-900 placeholder-neutro-300 focus:border-acento-500 focus:ring-acento-500"
-                        />
-                    </div>
-
+                    <BarraBusqueda />
                     {/* Acciones Derecha: Campana de Notificaciones + Menú Administrador */}
                     <div className="flex items-center gap-3 relative">
                         <button
