@@ -24,6 +24,11 @@ class Mantenimiento extends Model
         return $this->belongsTo(Extintor::class, 'extintor_id');
     }
 
+    public function alertas()
+    {
+        return $this->hasMany(Alerta::class, 'mantenimiento_id');
+    }
+
     public function scopePendientes($query)
     {
         return $query->whereNull('fecha_realizada');

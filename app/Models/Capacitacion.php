@@ -23,6 +23,11 @@ class Capacitacion extends Model
         return $this->belongsTo(Ubicacion::class, 'ubicacion_id');
     }
 
+    public function alertas()
+    {
+        return $this->hasMany(Alerta::class, 'capacitacion_id');
+    }
+
     public function eventosUso()
     {
         return $this->hasMany(EventoUso::class, 'capacitacion_id');
