@@ -42,13 +42,13 @@ class EstresUbicacionSeeder extends Seeder
                     'nombre'         => $nombrePiso,
                 ]);
 
-                Ubicacion::factory()
-                    ->count(self::UBICACIONES_POR_PISO)
-                    ->create([
+                for ($u = 1; $u <= self::UBICACIONES_POR_PISO; $u++) {
+                    Ubicacion::factory()->create([
                         'piso_id'   => $piso->getKey(),
-                        'nombre'    => "ESTRES-Edificio {$i} - Piso {$p} - Zona " . fake()->unique()->numerify('###'),
+                        'nombre'    => "ESTRES-Edificio {$i} - Piso {$p} - Zona {$u}",
                         'tipo_area' => $tiposArea[array_rand($tiposArea)],
                     ]);
+                }
             }
         }
 

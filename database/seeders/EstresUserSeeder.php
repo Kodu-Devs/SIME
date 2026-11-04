@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class EstresUserSeeder extends Seeder
 {
-    private const CANTIDAD = 100; // Puedes ajustar el volumen alto deseado
+    private const CANTIDAD = 1000; // Puedes ajustar el volumen alto deseado
 
     /**
      * Run the database seeds.

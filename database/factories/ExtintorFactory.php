@@ -50,7 +50,9 @@ class ExtintorFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             // Utiliza la configuración de días por vencer del sistema o 7 por defecto
-            $dias = config('sime.dias_por_vencer', 7);
+            // Máximo 3 días: diaSeguro() puede correr la fecha al día 1 del mes siguiente
+            // y con 7 el extintor podría salirse de la ventana de por vencer.
+            $dias = min(config('sime.dias_por_vencer', 7), 3);
             $objetivo = $this->diaSeguro(today()->addDays($this->faker->numberBetween(1, $dias)), false);
             $instalacion = $objetivo->copy()->subMonthsNoOverflow($this->faker->numberBetween(3, 10));
 
