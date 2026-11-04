@@ -65,8 +65,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/historial/usos', [HistorialController::class, 'storeUso'])->name('historial.usos.store');
     Route::get('/historial/exportar', [HistorialController::class, 'exportar'])->name('historial.exportar');
 
-       // Alertas 
+    // Alertas
     Route::prefix('alertas')->name('alertas.')->group(function () {
+        Route::get('/', [AlertaController::class, 'index'])->name('index');
         Route::patch('/leer-todas', [AlertaController::class, 'leerTodas'])->name('leerTodas');
         Route::patch('/{alerta}/leer', [AlertaController::class, 'leer'])->name('leer');
     });
