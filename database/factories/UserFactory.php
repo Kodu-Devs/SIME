@@ -46,9 +46,10 @@ class UserFactory extends Factory
 
     public function estres(): static
     {      
+        // Sufijo aleatorio para no chocar por sí solo; EstresUserSeeder lo reemplaza con un consecutivo.
         return $this->state(fn (array $attributes) => [
-            'name' => 'ESTRES-Usuario ' . fake()->unique()->numberBetween(1, 1000),
-            'email' => 'estres-' . fake()->unique()->numberBetween(1, 1000) . '@sime.test',
+            'name' => 'ESTRES-Usuario '.Str::random(6),
+            'email' => 'estres-'.Str::lower(Str::random(10)).'@sime.test',
             'email_verified_at' => now(),
         ]);
     }

@@ -168,6 +168,7 @@ class EstresAlertaSeeder extends Seeder
 
         $id = $pool->keys()->random();
 
-        return [$id, (string) $pool[$id]];
+        // La etiqueta ya puede traer ESTRES-; la factory lo antepone, así que no se duplica.
+        return [$id, preg_replace('/^ESTRES-/', '', (string) $pool[$id])];
     }
 }
