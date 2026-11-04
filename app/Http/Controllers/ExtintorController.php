@@ -139,4 +139,14 @@ class ExtintorController extends Controller
         return redirect()->route('extintores.index')
             ->with('success', "El extintor {$extintor->etiqueta_inventario} se actualizó correctamente.");
     }
+
+    public function baja(Extintor $extintor)
+      {
+          $extintor->update([
+              'estatus' => 'Baja'
+          ]);
+  
+          return redirect()->route('extintores.index')
+              ->with('success', "El extintor {$extintor->etiqueta_inventario} ha sido dado de baja.");
+      }
 }
