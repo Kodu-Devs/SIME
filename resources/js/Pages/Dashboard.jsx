@@ -3,8 +3,14 @@ import { Head } from "@inertiajs/react";
 import TarjetaMetrica from "@/Components/Dashboard/TarjetaMetrica";
 import BannerAlerta from "@/Components/Dashboard/BannerAlerta";
 import PanelAgenda from "@/Components/Dashboard/PanelAgenda";
+import PanelRecomendaciones from "@/Components/Dashboard/PanelRecomendaciones";
 
-export default function Dashboard({ tarjetas, alerta_vencido, agenda }) {
+export default function Dashboard({
+    tarjetas,
+    alerta_vencido,
+    agenda,
+    recomendaciones = [],
+}) {
     return (
         <AuthenticatedLayout
             header={
@@ -52,6 +58,10 @@ export default function Dashboard({ tarjetas, alerta_vencido, agenda }) {
                     )}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <PanelAgenda eventos={agenda} />
+
+                        <PanelRecomendaciones
+                            recomendaciones={recomendaciones}
+                        />
                     </div>
                 </div>
             </div>
