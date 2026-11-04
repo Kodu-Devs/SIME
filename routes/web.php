@@ -47,20 +47,30 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/extintores/{extintor}', [ExtintorController::class, 'update'])->name('extintores.update');
     Route::patch('/extintores/{extintor}/baja', [ExtintorController::class, 'baja'])->name('extintores.baja');
 
-    // Módulo 4: Agenda (Escritura)
-    Route::post('/agenda/mantenimientos', [AgendaController::class, 'storeMantenimiento'])->name('agenda.mantenimientos.store');
-    Route::put('/agenda/mantenimientos/{mantenimiento}', [AgendaController::class, 'updateMantenimiento'])->name('agenda.mantenimientos.update');
-    Route::patch('/agenda/mantenimientos/{mantenimiento}/realizar', [AgendaController::class, 'realizar'])->name('agenda.mantenimientos.realizar');
-    Route::delete('/agenda/mantenimientos/{mantenimiento}', [AgendaController::class, 'destroyMantenimiento'])->name('agenda.mantenimientos.destroy');
-    // (Faltarían aquí las rutas equivalentes para capacitaciones según la guía)
+   // Módulo 4: Agenda (Escritura)
+    Route::prefix('agenda')->name('agenda.')->group(function () {
+        // Mantenimientos
+        Route::post('/mantenimientos', [AgendaController::class, 'storeMantenimiento'])->name('mantenimientos.store');
+        Route::put('/mantenimientos/{mantenimiento}', [AgendaController::class, 'updateMantenimiento'])->name('mantenimientos.update');
+        Route::patch('/mantenimientos/{mantenimiento}/realizarMantenimiento', [AgendaController::class, 'realizarMantenimiento'])->name('mantenimientos.realizarMantenimiento');
+        Route::delete('/mantenimientos/{mantenimiento}', [AgendaController::class, 'destroyMantenimiento'])->name('mantenimientos.destroy');
+
+        // Capacitaciones
+        Route::post('/capacitaciones', [AgendaController::class, 'storeCapacitacion'])->name('capacitaciones.store');
+        Route::put('/capacitaciones/{capacitacion}', [AgendaController::class, 'updateCapacitacion'])->name('capacitaciones.update');
+        Route::delete('/capacitaciones/{capacitacion}', [AgendaController::class, 'destroyCapacitacion'])->name('capacitaciones.destroy');
+    });
 
     // Módulo 5: Historial (Escritura)
     Route::post('/historial/usos', [HistorialController::class, 'storeUso'])->name('historial.usos.store');
     Route::get('/historial/exportar', [HistorialController::class, 'exportar'])->name('historial.exportar');
 
-    // Alertas 
-    Route::get('/alertas', [AlertaController::class, 'index'])->name('alertas.index');
-    Route::post('/alertas/{alerta}/leer', [AlertaController::class, 'marcarLeida'])->name('alertas.leer');
+    // Alertas
+    Route::prefix('alertas')->name('alertas.')->group(function () {
+        Route::get('/', [AlertaController::class, 'index'])->name('index');
+        Route::patch('/leer-todas', [AlertaController::class, 'leerTodas'])->name('leerTodas');
+        Route::patch('/{alerta}/leer', [AlertaController::class, 'leer'])->name('leer');
+    });
 
     // Rutas de Perfil (Generadas por Breeze) 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
