@@ -127,7 +127,7 @@ class HistorialController extends Controller
                 }),
             ],
             'tipo_descarga' => ['required', Rule::in(['total', 'parcial'])],
-            'fecha' => ['required', 'date', 'before_or_equal:today'],
+            'fecha' => ['required', 'date', 'before_or_equal:now'],
             'tipo_motivo' => ['required', Rule::in(EventoUso::TIPOS_MOTIVO)],
             'motivo' => ['required', 'string', 'max:500'],
             'capacitacion_id' => ['nullable', 'exists:capacitaciones,id'],
