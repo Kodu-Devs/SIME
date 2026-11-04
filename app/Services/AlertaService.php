@@ -66,12 +66,10 @@ class AlertaService
         if ($fecha_programada->lessThan($fecha_hoy) && $m->fecha_realizada == null) {
             //Cerrar alertas para mantenimientos proximos
             Alerta::where('mantenimiento_id', $m->id)->where('categoria', 'mantenimiento')->where('tipo', 'Próximo')->noLeidas()->update(['leida' => true]);
-
             self::generar('mantenimiento_id', $m->id, 'Urgente', 'mantenimiento', 'Mantenimiento atrasado');
         } elseif ($fecha_programada->betweenIncluded($fecha_hoy, $limit)) {
             //Cerrar alertas para mantenimientos Urgentes
             Alerta::where('mantenimiento_id', $m->id)->where('categoria', 'mantenimiento')->where('tipo', 'Urgente')->noLeidas()->update(['leida' => true]);
-
             self::generar('mantenimiento_id', $m->id, 'Próximo', 'mantenimiento', 'Mantenimiento próximo');
         }
     }
@@ -89,6 +87,9 @@ class AlertaService
         //Validación y logica para capacitaciones
         if ($fecha_hora->betweenIncluded($fecha_hoy, $limit)) {
             self::generar('capacitacion_id', $c->id, 'Informativo', 'capacitacion', 'Capacitación próxima');
+        } else {
+            //Si pasó la fecha o se reprograma
+            self::cerrarPara('capacitacion_id', $c->id, 'capacitacion');
         }
     }
 

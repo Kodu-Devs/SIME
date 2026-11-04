@@ -25,7 +25,7 @@ class GenerarAlertas extends Command
         $vencidos = Extintor::vencidos()->get();
         $porVencer = Extintor::porVencer()->get();
         $estatus = Extintor::whereIn('estatus', ['Vacío', 'Fuera de servicio'])->get();
-        $conAlertas = Extintor::whereHas('alertas', fn($q) => $q->noLeidas()->get()); //Extintores con alertas vigentes y no leidas
+        $conAlertas = Extintor::whereHas('alertas', fn($q) => $q->noLeidas())->get(); //Extintores con alertas vigentes y no leidas
 
         //Generar y actualizar alertas para extintores
         $extintores = $vencidos->concat($porVencer)->concat($estatus)->concat($conAlertas)->unique('id');
@@ -36,7 +36,7 @@ class GenerarAlertas extends Command
 
         //Generar y actualizar alertas para mantenimientos
         $mantenimientoPendientes = Mantenimiento::where('fecha_realizada', NULL)->get();
-        $mantenimientoConAlertas = Mantenimiento::whereHas('alertas', fn($q) => $q->noLeidas()->get()); //Mantenimientos con alertas vigentes y no leidas
+        $mantenimientoConAlertas = Mantenimiento::whereHas('alertas', fn($q) => $q->noLeidas())->get(); //Mantenimientos con alertas vigentes y no leidas
 
         $mantenimiento = $mantenimientoPendientes->concat($mantenimientoConAlertas)->unique('id');
 
@@ -45,10 +45,10 @@ class GenerarAlertas extends Command
         }
 
         //Generar y actualizar alertas para capacitaciones
-        $capacitacionesPendientes = Capacitacion::whereDate('fecha_hora', '>=', today())->get();
-        $capacitacionesConAlertas = Capacitacion::whereHas('alertas', fn($q) => $q->noLeidas()->get()); //Capacitaciones con alertas vigentes y no leidas
+        $capacitacionesFuturas = Capacitacion::whereDate('fecha_hora', '>=', today())->get();
+        $capacitacionesConAlertas = Capacitacion::whereHas('alertas', fn($q) => $q->noLeidas())->get(); //Capacitaciones con alertas vigentes y no leidas
 
-        $capacitaciones = $capacitacionesPendientes->concat($capacitacionesConAlertas)->unique('id');
+        $capacitaciones = $capacitacionesFuturas->concat($capacitacionesConAlertas)->unique('id');
 
         foreach ($capacitaciones as $c) {
             AlertaService::evaluarCapacitacion($c);
