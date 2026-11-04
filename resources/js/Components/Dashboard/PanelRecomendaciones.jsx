@@ -13,7 +13,6 @@ export default function PanelRecomendaciones({ recomendaciones = [] }) {
                     Todo en orden: no hay recomendaciones por ahora.
                 </p>
             ) : (
-                // Lista de chips verdes
                 <div className="space-y-3">
                     {recomendaciones.map((r, i) => (
                         <div
