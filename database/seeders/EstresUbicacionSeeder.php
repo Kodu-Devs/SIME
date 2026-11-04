@@ -32,6 +32,10 @@ class EstresUbicacionSeeder extends Seeder
             // Si es Área exterior se crea 1 solo nivel ('Nivel único'), si es Edificio se crean varios pisos
             $numPisos = $tipoInst === 'Área exterior' ? 1 : self::PISOS_POR_EDIFICIO;
 
+            // El nivel único concentra las ubicaciones que tendrían los pisos de un edificio,
+            // así cada instalación aporta lo mismo y el total es siempre CANTIDAD x 30.
+            $ubicacionesPorPiso = self::UBICACIONES_POR_PISO * self::PISOS_POR_EDIFICIO / $numPisos;
+
             for ($p = 1; $p <= $numPisos; $p++) {
                 $nombrePiso = $tipoInst === 'Área exterior' 
                     ? 'Nivel único' 
@@ -42,7 +46,7 @@ class EstresUbicacionSeeder extends Seeder
                     'nombre'         => $nombrePiso,
                 ]);
 
-                for ($u = 1; $u <= self::UBICACIONES_POR_PISO; $u++) {
+                for ($u = 1; $u <= $ubicacionesPorPiso; $u++) {
                     Ubicacion::factory()->create([
                         'piso_id'   => $piso->getKey(),
                         'nombre'    => "ESTRES-Edificio {$i} - Piso {$p} - Zona {$u}",
