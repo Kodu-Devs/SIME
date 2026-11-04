@@ -2,6 +2,12 @@
 
 use App\Models\User;
 
+test('registration screen returns 404 not found', function () {
+    $response = $this->get('/register');
+
+    $response->assertStatus(404);
+});
+
 test('login screen can be rendered', function () {
     $response = $this->get('/login');
 

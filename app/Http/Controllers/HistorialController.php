@@ -5,12 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\EventoUso;
 use App\Models\Mantenimiento;
 use App\Models\Extintor;
+use App\Exports\InformeExtintoresExport;
 use App\Services\EstatusExtintor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+
+use App\Exports\InformeUsosExport;
+use Maatwebsite\Excel\Facades\Excel;
+
+use App\Services\InformesHistorial;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class HistorialController extends Controller
 {
@@ -119,7 +127,7 @@ class HistorialController extends Controller
                 }),
             ],
             'tipo_descarga' => ['required', Rule::in(['total', 'parcial'])],
-            'fecha' => ['required', 'date', 'before_or_equal:today'],
+            'fecha' => ['required', 'date', 'before_or_equal:now'],
             'tipo_motivo' => ['required', Rule::in(EventoUso::TIPOS_MOTIVO)],
             'motivo' => ['required', 'string', 'max:500'],
             'capacitacion_id' => ['nullable', 'exists:capacitaciones,id'],
@@ -146,9 +154,48 @@ class HistorialController extends Controller
         return redirect()->back()->with('success', 'Uso del extintor registrado correctamente.');
     }
 
-    // Módulo 5 · Exportar: lo programa Sara
-    public function exportar(Request $request)
+        // Módulo 5 · Exportar: lo programa Sara
+    public function exportar(Request $request, InformesHistorial $informes)
     {
-        // TODO Sara: informe PDF / Excel
+        $validated = $request->validate([
+            'formato' => ['required', Rule::in(['pdf', 'excel'])],
+            'informe' => ['required', Rule::in(['usos', 'extintores'])],
+            'fecha_inicio' => ['required_if:informe,usos', 'nullable', 'date'],
+            'fecha_fin' => ['required_if:informe,usos', 'nullable', 'date', 'after_or_equal:fecha_inicio'],
+            'instalacion_id' => [
+                'nullable',
+                'required_with:piso_id',
+                Rule::exists('instalaciones', 'id')->where('tipo', 'Edificio'),
+            ],
+            'piso_id' => [
+                'nullable',
+                Rule::exists('pisos', 'id')->where('instalacion_id', $request->instalacion_id),
+            ],
+        ]);
+
+        if ($validated['informe'] === 'usos') {
+            $datos = $informes->usos($validated);
+            $nombre = $datos['encabezado']['folio'];
+
+            if ($validated['formato'] === 'pdf') {
+                return Pdf::loadView('informes.usos', $datos)
+                    ->setPaper('letter', 'landscape')
+                    ->download($nombre . '.pdf');
+            }
+
+            return Excel::download(new InformeUsosExport($datos), $nombre . '.xlsx');
+        }
+        if ($validated['informe'] === 'extintores') {
+            $datos = $informes->extintores($validated);
+            $nombre = $datos['encabezado']['folio'];
+
+            if ($validated['formato'] === 'pdf') {
+                return Pdf::loadView('informes.extintores', $datos)
+                    ->setPaper('letter', 'landscape')
+                    ->download($nombre . '.pdf');
+            }
+
+            return Excel::download(new InformeExtintoresExport($datos), $nombre . '.xlsx');
+        }
     }
 }
