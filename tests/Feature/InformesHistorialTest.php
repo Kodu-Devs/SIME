@@ -149,4 +149,27 @@ class InformesHistorialTest extends TestCase
 
         $this->assertSame(1, $datos['resumen']['eventos']);
     }
+        // ---------- Combos del modal ----------
+
+    public function test_edificios_trae_solo_edificios_con_sus_pisos(): void
+    {
+        $edificioB = $this->crearEdificio('Edificio B');
+        $edificioA = $this->crearEdificio('Edificio A');
+        $this->crearPiso($edificioA, 'Planta baja');
+        $this->crearPiso($edificioA, 'Nivel 1');
+        $this->crearPiso($edificioB, 'Planta baja');
+
+        // No es un edificio: no debe aparecer en el combo.
+        $almacen = $this->crearEdificio('Almacén', 'Área');
+        $this->crearPiso($almacen, 'Nivel único');
+
+        $edificios = $this->servicio()->edificios();
+
+        // Salen ordenados por nombre y sin el almacén.
+        $this->assertSame(['Edificio A', 'Edificio B'], $edificios->pluck('nombre')->all());
+
+        // Cada edificio trae sus propios pisos.
+        $this->assertSame(['Planta baja', 'Nivel 1'], $edificios->first()->pisos->pluck('nombre')->all());
+        $this->assertCount(1, $edificios->last()->pisos);
+    }
 }

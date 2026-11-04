@@ -7,6 +7,7 @@ use App\Models\Instalacion;
 use App\Models\Piso;
 use Carbon\Carbon;
 
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 /**
  * Arma los datos de los informes del Historial (los usan el PDF y el Excel).
  */
@@ -17,6 +18,14 @@ class InformesHistorial
      *
      * @param  array  $filtros  fecha_inicio, fecha_fin, instalacion_id (opcional), piso_id (opcional)
      */
+        /** Edificios con sus pisos, para los combos del modal de exportar. */
+    public function edificios(): EloquentCollection
+    {
+        return Instalacion::where('tipo', 'Edificio')
+            ->with(['pisos' => fn ($q) => $q->select('id', 'instalacion_id', 'nombre')->orderBy('id')])
+            ->orderBy('nombre')
+            ->get(['id', 'nombre']);
+    }
     public function usos(array $filtros): array
     {
         // Incluye extintores en Baja: son historia (decisión de la guía).
