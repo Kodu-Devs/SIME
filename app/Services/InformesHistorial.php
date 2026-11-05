@@ -18,10 +18,10 @@ class InformesHistorial
      *
      * @param  array  $filtros  fecha_inicio, fecha_fin, instalacion_id (opcional), piso_id (opcional)
      */
-        /** Edificios con sus pisos, para los combos del modal de exportar. */
+    /* Instalaciones con pisos (edificios y áreas), para los combos del modal de exportar. */
     public function edificios(): EloquentCollection
     {
-        return Instalacion::where('tipo', 'Edificio')
+        return Instalacion::whereHas('pisos')
             ->with(['pisos' => fn ($q) => $q->select('id', 'instalacion_id', 'nombre')->orderBy('id')])
             ->orderBy('nombre')
             ->get(['id', 'nombre']);

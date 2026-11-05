@@ -23,8 +23,7 @@ class HistorialIndexTest extends TestCase
     {
         $edificio = $this->crearEdificio('Edificio A');
         $this->crearPiso($edificio, 'Planta baja');
-        $this->crearEdificio('Almacén', 'Área'); // no es edificio: no debe llegar
-
+        $this->crearEdificio('Glorieta', 'Área'); // sin pisos: no debe llegar
         $this->actingAs(User::factory()->create())
             ->get('/historial')
             ->assertOk()
