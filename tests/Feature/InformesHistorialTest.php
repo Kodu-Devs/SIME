@@ -151,7 +151,7 @@ class InformesHistorialTest extends TestCase
     }
         // ---------- Combos del modal ----------
 
-    public function test_edificios_trae_solo_edificios_con_sus_pisos(): void
+        public function test_edificios_trae_las_instalaciones_con_pisos_y_sus_pisos(): void
     {
         $edificioB = $this->crearEdificio('Edificio B');
         $edificioA = $this->crearEdificio('Edificio A');
@@ -159,17 +159,32 @@ class InformesHistorialTest extends TestCase
         $this->crearPiso($edificioA, 'Nivel 1');
         $this->crearPiso($edificioB, 'Planta baja');
 
-        // No es un edificio: no debe aparecer en el combo.
+        // Un área con piso también se puede elegir.
         $almacen = $this->crearEdificio('Almacén', 'Área');
         $this->crearPiso($almacen, 'Nivel único');
 
+        // Un área exterior sin pisos no debe salir.
+        $this->crearEdificio('Glorieta', 'Área');
+
         $edificios = $this->servicio()->edificios();
 
-        // Salen ordenados por nombre y sin el almacén.
-        $this->assertSame(['Edificio A', 'Edificio B'], $edificios->pluck('nombre')->all());
+        $this->assertSame(['Almacén', 'Edificio A', 'Edificio B'], $edificios->pluck('nombre')->all());
+        $this->assertSame(
+            ['Planta baja', 'Nivel 1'],
+            $edificios->firstWhere('nombre', 'Edificio A')->pisos->pluck('nombre')->all()
+        );
+        $this->assertCount(1, $edificios->firstWhere('nombre', 'Almacén')->pisos);
+    }
 
-        // Cada edificio trae sus propios pisos.
-        $this->assertSame(['Planta baja', 'Nivel 1'], $edificios->first()->pisos->pluck('nombre')->all());
-        $this->assertCount(1, $edificios->last()->pisos);
+    public function test_la_lista_filtra_por_un_area_que_no_es_edificio(): void
+    {
+        $almacen = $this->crearEdificio('Almacén', 'Área');
+        $this->crearExtintor($this->crearUbicacion($this->crearPiso($almacen, 'Nivel único')));
+        $this->crearExtintor($this->crearUbicacionEnNuevoEdificio('Edificio A'));
+
+        $datos = $this->servicio()->extintores(['instalacion_id' => $almacen]);
+
+        $this->assertSame(1, $datos['resumen']['total']);
+        $this->assertSame('Almacén', $datos['encabezado']['area']);
     }
 }

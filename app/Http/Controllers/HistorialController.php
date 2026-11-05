@@ -166,7 +166,7 @@ class HistorialController extends Controller
             'instalacion_id' => [
                 'nullable',
                 'required_with:piso_id',
-                Rule::exists('instalaciones', 'id')->where('tipo', 'Edificio'),
+                Rule::exists('instalaciones', 'id'),
             ],
             'piso_id' => [
                 'nullable',

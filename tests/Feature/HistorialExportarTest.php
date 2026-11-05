@@ -214,4 +214,38 @@ class HistorialExportarTest extends TestCase
             ]))
             ->assertSessionHasErrors(['piso_id']);
     }
+        public function test_la_lista_de_extintores_acepta_un_area_que_no_es_edificio(): void
+    {
+        $almacen = $this->crearEdificio('Almacén', 'Área');
+        $piso = $this->crearPiso($almacen, 'Nivel único');
+        $this->crearExtintor($this->crearUbicacion($piso));
+
+        $this->actingAs(User::factory()->create())
+            ->get($this->url([
+                'formato'        => 'pdf',
+                'informe'        => 'extintores',
+                'instalacion_id' => $almacen,
+                'piso_id'        => $piso,
+            ]))
+            ->assertOk()
+            ->assertDownload('INF-EXT-20261102-2039.pdf');
+    }
+
+    public function test_el_informe_de_usos_acepta_un_area_que_no_es_edificio(): void
+    {
+        $almacen = $this->crearEdificio('Almacén', 'Área');
+        $piso = $this->crearPiso($almacen, 'Nivel único');
+        $this->crearUso($this->crearExtintor($this->crearUbicacion($piso)));
+
+        $this->actingAs(User::factory()->create())
+            ->get($this->url([
+                'formato'        => 'excel',
+                'informe'        => 'usos',
+                'fecha_inicio'   => '2026-11-01',
+                'fecha_fin'      => '2026-11-02',
+                'instalacion_id' => $almacen,
+            ]))
+            ->assertOk()
+            ->assertDownload('INF-USO-20261102-2039.xlsx');
+    }
 }
