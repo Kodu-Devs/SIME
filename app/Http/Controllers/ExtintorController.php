@@ -16,28 +16,30 @@ class ExtintorController extends Controller
     {
         // Se filtran los extintores dados de baja para que no aparezcan en la tabla activa
         $extintores = Extintor::where('estatus', '!=', 'Baja')
-            ->with(['ubicacion.piso', 'tipoExtintor', 'mantenimientos'])
+            ->with(['ubicacion.piso', 'tipoExtintor', 'mantenimientos']) // Aquí está el with() que te pidieron revisar
             ->paginate(10)
             ->through(fn ($extintor) => [
                 'id' => $extintor->id,
                 'etiqueta_inventario' => $extintor->etiqueta_inventario,
                 'estatus' => $extintor->estatus,
-                // Estado de vigencia calculado por el modelo (#71) para píldoras y badges
-                'estado' => method_exists($extintor, 'estadoVencimiento') 
-                            ? $extintor->estadoVencimiento() 
-                            : $extintor->estatus,
+                // Directo al método como solicitó el frontend
+                'estado' => $extintor->estadoVencimiento(),
                 'capacidad' => $extintor->capacidad,
                 'tipo_nombre' => $extintor->tipoExtintor?->nombre ?? 'No definido',
                 'ubicacion_nombre' => $extintor->ubicacion?->nombre ?? 'Sin ubicación',
                 'piso_numero' => $extintor->ubicacion?->piso?->numero ?? 'N/A',
                 'tipoextintor_id' => $extintor->tipoextintor_id,
                 'ubicacion_id' => $extintor->ubicacion_id,
-                // Extrae la fecha del mantenimiento pendiente más próximo o la de vencimiento
+                // Campo 1: Solo el mantenimiento pendiente de la agenda
                 'proximo_mantenimiento' => $extintor->mantenimientos
                     ->whereNull('fecha_realizada')
                     ->sortBy('fecha_programada')
                     ->first()?->fecha_programada?->format('d/m/y') 
-                    ?? ($extintor->fecha_vencimiento ? Carbon::parse($extintor->fecha_vencimiento)->format('d/m/y') : 'Sin programar'),
+                    ?? 'Sin programar',
+                // Campo 2: La fecha de vencimiento real (revisión)
+                'proxima_revision' => $extintor->fecha_vencimiento 
+                    ? Carbon::parse($extintor->fecha_vencimiento)->format('d/m/y') 
+                    : 'Sin programar',
                 // Objeto raw con datos originales para precargar el formulario en edición
                 'raw' => [
                     'id' => $extintor->id,
