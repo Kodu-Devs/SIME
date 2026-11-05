@@ -29,24 +29,28 @@ export default function Dashboard({
                                 titulo="Extintores"
                                 valor={tarjetas.total_extintores}
                                 detalle={`En ${tarjetas.total_edificios} edificios`}
+                                colorTexto="text-neutro-900"
                             />
 
                             <TarjetaMetrica
                                 titulo="Vigentes"
                                 valor={tarjetas.vigentes}
                                 detalle="al día"
+                                colorTexto="text-acento-500"
                             />
 
                             <TarjetaMetrica
                                 titulo="Por vencer"
                                 valor={tarjetas.por_vencer}
                                 detalle="proximos 7 días"
+                                colorTexto="text-sime-warning"
                             />
 
                             <TarjetaMetrica
                                 titulo="Vencidos"
                                 valor={tarjetas.vencidos}
                                 detalle="Requiere atencion"
+                                colorTexto="text-primario-500"
                             />
                         </div>
                         {alerta_vencido && (
