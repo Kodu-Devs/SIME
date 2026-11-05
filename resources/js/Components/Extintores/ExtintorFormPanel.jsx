@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
-// Helpers para manejo seguro de fechas locales
 const getToday = () => {
     const now = new Date();
     const y = now.getFullYear();
@@ -27,19 +26,18 @@ export default function ExtintorFormPanel({
     selectedExtintor = null,
     tipos = [],
     instalaciones = [],
-    capacidades_kg = ['4.5', '6', '9'],
-    capacidades_l = ['6', '9'],
+    capacidades_kg = [],
+    capacidades_l = [],
     onClearSelection
 }) {
     const isEditing = Boolean(selectedExtintor);
 
-    // Estados para la cascada: Edificio -> Piso
     const [selectedInstalacionId, setSelectedInstalacionId] = useState('');
     const [selectedPisoId, setSelectedPisoId] = useState('');
 
     const todayDate = getToday();
 
-    const { data, setData, post, put, patch, processing, reset, errors, clearErrors } = useForm({
+    const { data, setData, post, put, patch, processing, errors, clearErrors } = useForm({
         tipoextintor_id: '',
         ubicacion_id: '',
         capacidad: '',
@@ -47,33 +45,36 @@ export default function ExtintorFormPanel({
         fecha_vencimiento: addOneMonth(todayDate),
     });
 
-    // 1. Obtener pisos disponibles según el edificio
+    const tipoSeleccionado = useMemo(() => {
+        return tipos.find((t) => String(t.id) === String(data.tipoextintor_id));
+    }, [tipos, data.tipoextintor_id]);
+
+    const esLitros = useMemo(() => {
+        const u = (tipoSeleccionado?.unidad || '').toLowerCase().trim();
+        return u === 'l' || u === 'litro' || u === 'litros';
+    }, [tipoSeleccionado]);
+
+    const listaCapacidades = useMemo(() => {
+        return esLitros ? capacidades_l : capacidades_kg;
+    }, [esLitros, capacidades_l, capacidades_kg]);
+
     const pisosDisponibles = useMemo(() => {
         if (!selectedInstalacionId) return [];
         const inst = instalaciones.find((i) => String(i.id) === String(selectedInstalacionId));
         return inst?.pisos || [];
     }, [selectedInstalacionId, instalaciones]);
 
-    // 2. Obtener ubicaciones disponibles según el piso
     const ubicacionesDisponibles = useMemo(() => {
         if (!selectedPisoId) return [];
         const piso = pisosDisponibles.find((p) => String(p.id) === String(selectedPisoId));
         return piso?.ubicaciones || [];
     }, [selectedPisoId, pisosDisponibles]);
 
-    // 3. Capacidades según tipo seleccionado
-    const listaCapacidades = useMemo(() => {
-        const tipo = tipos.find((t) => String(t.id) === String(data.tipoextintor_id));
-        return (tipo && tipo.unidad === 'l') ? capacidades_l : capacidades_kg;
-    }, [data.tipoextintor_id, tipos, capacidades_kg, capacidades_l]);
-
-    // Autocompletado reactivo al seleccionar un registro de la tabla
     useEffect(() => {
         clearErrors();
 
         if (selectedExtintor) {
-            // Resolver Tipo por ID o por coincidencia de texto
-            let resolvedTipoId = selectedExtintor.raw?.tipoextintor_id || selectedExtintor.tipoextintor_id || '';
+            let resolvedTipoId = selectedExtintor.tipoextintor_id || selectedExtintor.raw?.tipoextintor_id || '';
             if (!resolvedTipoId && selectedExtintor.tipo) {
                 const foundTipo = tipos.find(t =>
                     (t.nombre || '').toLowerCase() === selectedExtintor.tipo.toLowerCase()
@@ -81,17 +82,17 @@ export default function ExtintorFormPanel({
                 if (foundTipo) resolvedTipoId = foundTipo.id;
             }
 
-            // Resolver Edificio, Piso y Ubicación navegando el árbol del catálogo
             let resolvedInstalacionId = '';
             let resolvedPisoId = '';
-            let resolvedUbicacionId = selectedExtintor.raw?.ubicacion_id || '';
+            let resolvedUbicacionId = selectedExtintor.ubicacion_id || selectedExtintor.raw?.ubicacion_id || '';
 
-            if (selectedExtintor.area_nombre) {
+            if (selectedExtintor.area_nombre || selectedExtintor.ubicacion_nombre) {
+                const areaBusqueda = (selectedExtintor.area_nombre || selectedExtintor.ubicacion_nombre || '').trim().toLowerCase();
                 for (const inst of instalaciones) {
                     for (const p of (inst.pisos || [])) {
                         for (const ub of (p.ubicaciones || [])) {
                             const matchId = resolvedUbicacionId && String(ub.id) === String(resolvedUbicacionId);
-                            const matchNombre = ub.nombre && ub.nombre.trim().toLowerCase() === selectedExtintor.area_nombre.trim().toLowerCase();
+                            const matchNombre = ub.nombre && ub.nombre.trim().toLowerCase() === areaBusqueda;
 
                             if (matchId || matchNombre) {
                                 resolvedInstalacionId = inst.id;
@@ -106,28 +107,25 @@ export default function ExtintorFormPanel({
                 }
             }
 
-            setSelectedInstalacionId(resolvedInstalacionId);
-            setSelectedPisoId(resolvedPisoId);
+            setSelectedInstalacionId(resolvedInstalacionId ? String(resolvedInstalacionId) : '');
+            setSelectedPisoId(resolvedPisoId ? String(resolvedPisoId) : '');
 
-            // Capacidad limpia (solo dígitos y punto decimal)
-            const rawCap = String(selectedExtintor.capacidad_raw || selectedExtintor.capacidad || '')
-                .replace(/[^0-9.]/g, '')
-                .trim();
+            let capActual = String(selectedExtintor.raw?.capacidad || selectedExtintor.capacidad || '').trim();
+            const rawFechaInst = selectedExtintor.raw?.fecha_instalacion;
+            const fechaInst = rawFechaInst ? rawFechaInst.split('T')[0] : getToday();
 
-            // En edición se toma el día de la modificación como instalación
-            const fechaInstalacionActual = getToday();
-            const fechaVencimientoActual = addOneMonth(fechaInstalacionActual);
+            const rawFechaVenc = selectedExtintor.raw?.fecha_vencimiento;
+            const fechaVenc = rawFechaVenc ? rawFechaVenc.split('T')[0] : addOneMonth(fechaInst);
 
             setData({
-                tipoextintor_id: resolvedTipoId,
-                ubicacion_id: resolvedUbicacionId,
-                capacidad: rawCap,
-                fecha_instalacion: fechaInstalacionActual,
-                fecha_vencimiento: fechaVencimientoActual,
+                tipoextintor_id: String(resolvedTipoId),
+                ubicacion_id: String(resolvedUbicacionId),
+                capacidad: capActual,
+                fecha_instalacion: fechaInst,
+                fecha_vencimiento: fechaVenc,
             });
         } else {
             const defaultToday = getToday();
-            reset();
             setSelectedInstalacionId('');
             setSelectedPisoId('');
             setData({
@@ -140,7 +138,14 @@ export default function ExtintorFormPanel({
         }
     }, [selectedExtintor, tipos, instalaciones]);
 
-    // Recalcular vencimiento al editar fecha de instalación
+    const handleTipoChange = (e) => {
+        setData((prev) => ({
+            ...prev,
+            tipoextintor_id: e.target.value,
+            capacidad: '',
+        }));
+    };
+
     const handleFechaInstalacionChange = (e) => {
         const nuevaFechaInst = e.target.value;
         const nuevaFechaVenc = addOneMonth(nuevaFechaInst);
@@ -151,20 +156,32 @@ export default function ExtintorFormPanel({
         }));
     };
 
+    const handleCancel = () => {
+        setSelectedInstalacionId('');
+        setSelectedPisoId('');
+        clearErrors();
+        const defaultToday = getToday();
+        setData({
+            tipoextintor_id: '',
+            ubicacion_id: '',
+            capacidad: '',
+            fecha_instalacion: defaultToday,
+            fecha_vencimiento: addOneMonth(defaultToday),
+        });
+        if (onClearSelection) onClearSelection();
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if (isEditing) {
             put(`/extintores/${selectedExtintor.id}`, {
                 preserveScroll: true,
-                onSuccess: () => onClearSelection(),
+                onSuccess: () => handleCancel(),
             });
         } else {
             post('/extintores', {
                 preserveScroll: true,
-                onSuccess: () => {
-                    reset();
-                    onClearSelection();
-                },
+                onSuccess: () => handleCancel(),
             });
         }
     };
@@ -174,19 +191,20 @@ export default function ExtintorFormPanel({
         if (confirm(`¿Confirmas la baja del extintor ${selectedExtintor.codigo}?`)) {
             patch(`/extintores/${selectedExtintor.id}/baja`, {
                 preserveScroll: true,
-                onSuccess: () => onClearSelection(),
+                onSuccess: () => handleCancel(),
             });
         }
     };
 
     return (
-        <div className="bg-white rounded-2xl border border-neutral-200/80 p-5 shadow-sm font-['Manrope']">
+        <div className="bg-white rounded-3xl border border-[#D7D4D4] p-6 shadow-xs font-['Manrope'] overflow-hidden">
+            {/* Header del Panel */}
             <div className="text-center">
-                <h3 className="font-bold text-neutral-900 text-base md:text-[15px]">
+                <h3 className="font-bold text-[#272222] text-[15px]">
                     {isEditing ? `Modificar ${selectedExtintor.codigo}` : 'Registro de un nuevo extintor'}
                 </h3>
                 <div className="mt-2 flex justify-center">
-                    <span className="inline-block bg-[#D3F5F2] text-[#127F79] text-xs md:text-[11px] font-medium px-3.5 py-1 rounded-full">
+                    <span className="inline-block bg-[#D6F4F2] text-[#1C9691] text-[11px] font-semibold px-4 py-1 rounded-full">
                         {isEditing
                             ? 'Modo de edición - hay un extintor seleccionado'
                             : 'Modo de creación - no hay extintor seleccionado'}
@@ -194,16 +212,17 @@ export default function ExtintorFormPanel({
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="mt-5 space-y-3.5 text-xs">
-                {/* Tipo de Extintor */}
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4 text-xs">
+                {/* Tipo */}
                 <div>
-                    <label className="block font-bold text-neutral-800 mb-1">Tipo</label>
+                    <label className="block font-bold text-[#272222] mb-1.5">Tipo</label>
                     <div className="relative">
                         <select
                             name="tipoextintor_id"
                             value={data.tipoextintor_id}
-                            onChange={(e) => setData('tipoextintor_id', e.target.value)}
-                            className="w-full bg-white bg-none border border-neutral-300 rounded-xl md:rounded-lg px-3 py-2 text-neutral-700 appearance-none focus:outline-none focus:border-[#C0262D] text-xs font-medium pr-8"
+                            onChange={handleTipoChange}
+                            required
+                            className="w-full bg-[#F1F0F0]/60 border border-[#D7D4D4] rounded-xl px-3.5 py-2.5 text-[#272222] [appearance:none] [-webkit-appearance:none] [-moz-appearance:none] bg-none focus:outline-hidden focus:border-[#C0262D] text-xs font-medium pr-9"
                         >
                             <option value="">[ Tipo ]</option>
                             {tipos.map((tipo) => (
@@ -212,45 +231,39 @@ export default function ExtintorFormPanel({
                                 </option>
                             ))}
                         </select>
-                        <ChevronDown className="w-4 h-4 text-neutral-400 absolute right-3 top-2.5 pointer-events-none" />
+                        <ChevronRight className="w-4 h-4 text-[#928586] absolute right-3 top-3 pointer-events-none" />
                     </div>
-                    {errors.tipoextintor_id && (
-                        <span className="text-[11px] text-red-500 mt-0.5 block">{errors.tipoextintor_id}</span>
-                    )}
                 </div>
 
                 {/* Capacidad */}
                 <div>
-                    <label className="block font-bold text-neutral-800 mb-1">Capacidad</label>
+                    <label className="block font-bold text-[#272222] mb-1.5">Capacidad</label>
                     <div className="relative">
                         <select
                             name="capacidad"
                             value={data.capacidad}
                             onChange={(e) => setData('capacidad', e.target.value)}
-                            className="w-full bg-white bg-none border border-neutral-300 rounded-xl md:rounded-lg px-3 py-2 text-neutral-700 appearance-none focus:outline-none focus:border-[#C0262D] text-xs font-medium pr-8"
+                            disabled={!data.tipoextintor_id}
+                            required
+                            className="w-full bg-[#F1F0F0]/60 border border-[#D7D4D4] rounded-xl px-3.5 py-2.5 text-[#272222] [appearance:none] [-webkit-appearance:none] [-moz-appearance:none] bg-none focus:outline-hidden focus:border-[#C0262D] text-xs font-medium pr-9 disabled:bg-[#D7D4D4]/30"
                         >
-                            <option value="">[ Capacidad ]</option>
-                            {listaCapacidades.map((cap) => {
-                                const cleanValue = String(cap).replace(/[^0-9.]/g, '').trim();
-                                const unit = tipos.find(t => String(t.id) === String(data.tipoextintor_id))?.unidad === 'l' ? 'L' : 'kg';
-                                return (
-                                    <option key={cap} value={cleanValue}>
-                                        {cleanValue} {unit}
-                                    </option>
-                                );
-                            })}
+                            <option value="">
+                                {data.tipoextintor_id ? '[ Capacidad ]' : 'Selecciona un tipo primero'}
+                            </option>
+                            {listaCapacidades.map((cap) => (
+                                <option key={cap} value={cap}>
+                                    {cap}
+                                </option>
+                            ))}
                         </select>
-                        <ChevronDown className="w-4 h-4 text-neutral-400 absolute right-3 top-2.5 pointer-events-none" />
+                        <ChevronRight className="w-4 h-4 text-[#928586] absolute right-3 top-3 pointer-events-none" />
                     </div>
-                    {errors.capacidad && (
-                        <span className="text-[11px] text-red-500 mt-0.5 block">{errors.capacidad}</span>
-                    )}
                 </div>
 
-                {/* Edificio y Piso en Cascada */}
+                {/* Edificio y Piso */}
                 <div className="grid grid-cols-2 gap-3">
                     <div>
-                        <label className="block font-bold text-neutral-800 mb-1">Edificio</label>
+                        <label className="block font-bold text-[#272222] mb-1.5">Edificio</label>
                         <div className="relative">
                             <select
                                 value={selectedInstalacionId}
@@ -259,7 +272,8 @@ export default function ExtintorFormPanel({
                                     setSelectedPisoId('');
                                     setData('ubicacion_id', '');
                                 }}
-                                className="w-full bg-white bg-none border border-neutral-300 rounded-xl md:rounded-lg px-3 py-2 text-neutral-700 appearance-none focus:outline-none focus:border-[#C0262D] text-xs font-medium pr-8"
+                                required
+                                className="w-full bg-[#F1F0F0]/60 border border-[#D7D4D4] rounded-xl px-3.5 py-2.5 text-[#272222] [appearance:none] [-webkit-appearance:none] [-moz-appearance:none] bg-none focus:outline-hidden focus:border-[#C0262D] text-xs font-medium pr-9"
                             >
                                 <option value="">[ Edificio ]</option>
                                 {instalaciones.map((inst) => (
@@ -268,12 +282,12 @@ export default function ExtintorFormPanel({
                                     </option>
                                 ))}
                             </select>
-                            <ChevronDown className="w-4 h-4 text-neutral-400 absolute right-3 top-2.5 pointer-events-none" />
+                            <ChevronRight className="w-4 h-4 text-[#928586] absolute right-3 top-3 pointer-events-none" />
                         </div>
                     </div>
 
                     <div>
-                        <label className="block font-bold text-neutral-800 mb-1">Piso</label>
+                        <label className="block font-bold text-[#272222] mb-1.5">Piso</label>
                         <div className="relative">
                             <select
                                 value={selectedPisoId}
@@ -282,7 +296,8 @@ export default function ExtintorFormPanel({
                                     setSelectedPisoId(e.target.value);
                                     setData('ubicacion_id', '');
                                 }}
-                                className="w-full bg-white bg-none border border-neutral-300 rounded-xl md:rounded-lg px-3 py-2 text-neutral-700 appearance-none focus:outline-none focus:border-[#C0262D] text-xs font-medium pr-8 disabled:bg-neutral-100"
+                                required
+                                className="w-full bg-[#F1F0F0]/60 border border-[#D7D4D4] rounded-xl px-3.5 py-2.5 text-[#272222] [appearance:none] [-webkit-appearance:none] [-moz-appearance:none] bg-none focus:outline-hidden focus:border-[#C0262D] text-xs font-medium pr-9 disabled:bg-[#D7D4D4]/30"
                             >
                                 <option value="">[ Piso ]</option>
                                 {pisosDisponibles.map((piso) => (
@@ -291,21 +306,22 @@ export default function ExtintorFormPanel({
                                     </option>
                                 ))}
                             </select>
-                            <ChevronDown className="w-4 h-4 text-neutral-400 absolute right-3 top-2.5 pointer-events-none" />
+                            <ChevronRight className="w-4 h-4 text-[#928586] absolute right-3 top-3 pointer-events-none" />
                         </div>
                     </div>
                 </div>
 
                 {/* Ubicación Exacta */}
                 <div>
-                    <label className="block font-bold text-neutral-800 mb-1">Ubicación Exacta</label>
+                    <label className="block font-bold text-[#272222] mb-1.5">Ubicación Exacta</label>
                     <div className="relative">
                         <select
                             name="ubicacion_id"
                             value={data.ubicacion_id}
                             disabled={!selectedPisoId}
                             onChange={(e) => setData('ubicacion_id', e.target.value)}
-                            className="w-full bg-white bg-none border border-neutral-300 rounded-xl md:rounded-lg px-3 py-2 text-neutral-700 appearance-none focus:outline-none focus:border-[#C0262D] text-xs font-medium pr-8 disabled:bg-neutral-100"
+                            required
+                            className="w-full bg-[#F1F0F0]/60 border border-[#D7D4D4] rounded-xl px-3.5 py-2.5 text-[#272222] [appearance:none] [-webkit-appearance:none] [-moz-appearance:none] bg-none focus:outline-hidden focus:border-[#C0262D] text-xs font-medium pr-9 disabled:bg-[#D7D4D4]/30"
                         >
                             <option value="">[ Selecciona Ubicación ]</option>
                             {ubicacionesDisponibles.map((ub) => (
@@ -314,60 +330,51 @@ export default function ExtintorFormPanel({
                                 </option>
                             ))}
                         </select>
-                        <ChevronDown className="w-4 h-4 text-neutral-400 absolute right-3 top-2.5 pointer-events-none" />
+                        <ChevronRight className="w-4 h-4 text-[#928586] absolute right-3 top-3 pointer-events-none" />
                     </div>
-                    {errors.ubicacion_id && (
-                        <span className="text-[11px] text-red-500 mt-0.5 block">{errors.ubicacion_id}</span>
-                    )}
                 </div>
 
-                {/* Fechas: Instalación editable y Vencimiento solo visual */}
-                <div className="grid grid-cols-2 gap-3 pt-1">
+                {/* Fechas: Instalación y Vencimiento */}
+                <div className="grid grid-cols-2 gap-3">
                     <div>
-                        <label className="block font-bold text-neutral-800 mb-1">Fecha Instalación</label>
+                        <label className="block font-bold text-[#272222] mb-1.5">Fecha de instalación</label>
                         <input
                             type="date"
                             name="fecha_instalacion"
                             value={data.fecha_instalacion}
+                            max={todayDate}
                             onChange={handleFechaInstalacionChange}
-                            className="w-full bg-white border border-neutral-300 rounded-xl md:rounded-lg px-3 py-2 text-neutral-700 text-xs font-medium focus:outline-none focus:border-[#C0262D]"
+                            required
+                            className="w-full bg-[#F1F0F0]/60 border border-[#D7D4D4] rounded-xl px-3.5 py-2.5 text-[#272222] text-xs font-medium focus:outline-hidden focus:border-[#C0262D]"
                         />
-                        {errors.fecha_instalacion && (
-                            <span className="text-[10px] text-red-500 mt-0.5 block">{errors.fecha_instalacion}</span>
-                        )}
                     </div>
                     <div>
-                        <label className="block font-bold text-neutral-800 mb-1">
-                            Fecha Vencimiento <span className="text-[10px] font-normal text-neutral-400"></span>
-                        </label>
+                        <label className="block font-bold text-[#272222] mb-1.5">Fecha de vencimiento</label>
                         <input
                             type="date"
                             name="fecha_vencimiento"
                             value={data.fecha_vencimiento}
                             readOnly
                             tabIndex={-1}
-                            className="w-full bg-neutral-100 border border-neutral-200 rounded-xl md:rounded-lg px-3 py-2 text-neutral-500 text-xs font-medium cursor-not-allowed select-none focus:outline-none"
+                            className="w-full bg-[#D7D4D4]/40 border border-[#D7D4D4] rounded-xl px-3.5 py-2.5 text-[#6D6162] text-xs font-medium cursor-not-allowed select-none focus:outline-hidden"
                         />
-                        {errors.fecha_vencimiento && (
-                            <span className="text-[10px] text-red-500 mt-0.5 block">{errors.fecha_vencimiento}</span>
-                        )}
                     </div>
                 </div>
 
                 {/* Botones de Acción */}
-                <div className="pt-4 flex items-center justify-between gap-3">
+                <div className="pt-3 flex items-center justify-between gap-3">
                     <button
                         type="button"
-                        onClick={isEditing ? handleBaja : onClearSelection}
+                        onClick={isEditing ? handleBaja : handleCancel}
                         disabled={processing}
-                        className="w-1/2 py-2.5 px-3 border border-[#C0262D] text-[#C0262D] font-bold rounded-xl md:rounded-lg text-xs hover:bg-[#FDEDED] transition-colors disabled:opacity-50"
+                        className="w-1/2 py-2.5 px-4 bg-white border border-[#C0262D] text-[#C0262D] font-bold rounded-xl text-xs hover:bg-[#FDEDED] transition-colors disabled:opacity-50"
                     >
                         {isEditing ? 'Dar de baja' : 'Cancelar'}
                     </button>
                     <button
                         type="submit"
                         disabled={processing}
-                        className="w-1/2 py-2.5 px-3 bg-[#8C1823] text-white font-bold rounded-xl md:rounded-lg text-xs hover:bg-[#73121B] transition-colors disabled:opacity-50"
+                        className="w-1/2 py-2.5 px-4 bg-[#F24C52] text-white font-bold rounded-xl text-xs hover:bg-[#C0262D] transition-colors shadow-xs disabled:opacity-50"
                     >
                         {isEditing ? 'Guardar cambios' : 'Confirmar registro'}
                     </button>
