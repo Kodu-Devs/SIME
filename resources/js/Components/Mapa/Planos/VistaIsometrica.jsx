@@ -480,7 +480,6 @@ const BaseE = () => (
 );
 
 // 2. CONFIGURACIÓN DE LOS EDIFICIOS
-// Cada nivel puede traer su propio `Componente`; si no lo trae, usa `ComponenteBase`.
 const CONFIG_EDIFICIOS = {
     "Edificio A": {
         viewBox: "0 -240 962 800",
