@@ -3,32 +3,20 @@ import React, { useState, useEffect } from "react";
 export default function AgendaSidePanel({
     combos = {},
     eventoSeleccionado = null,
+    onCancelMovil,
+    tabInicial = "mantenimiento",
 }) {
-    const [activeTab, setActiveTab] = useState("mantenimiento");
+    const [activeTab, setActiveTab] = useState(tabInicial);
 
     const extintoresCapacitacion =
         combos?.extintores_capacitacion?.length > 0
             ? combos.extintores_capacitacion
-            : [
-                  { id: 1, etiqueta_inventario: "C-P-02-Medio uso" },
-                  { id: 2, etiqueta_inventario: "E-N1-03-Medio uso" },
-              ];
+            : [];
 
     const extintoresMantenimiento =
         combos?.extintores_mantenimiento?.length > 0
             ? combos.extintores_mantenimiento
-            : [
-                  {
-                      id: 1,
-                      etiqueta_inventario: "ITJMM-62007-5100-00294",
-                      estatus: "Disponible",
-                  },
-                  {
-                      id: 2,
-                      etiqueta_inventario: "ITJMM-62007-5100-00308",
-                      estatus: "Pendiente",
-                  },
-              ];
+            : [];
 
     const obtenerListaUbicaciones = () => {
         const arbol = combos?.ubicaciones || [];
@@ -72,11 +60,12 @@ export default function AgendaSidePanel({
         fecha: "",
         hora: "",
         ubicacion_id: "",
+        extintores_ids: [],
     });
 
-    // Rellenar campos automáticamente al seleccionar un evento
     useEffect(() => {
         if (!eventoSeleccionado) {
+            setActiveTab(tabInicial);
             setExtintorSeleccionadoId(extintoresMantenimiento[0]?.id || "");
             setFormMantenimiento({
                 tipo: "",
@@ -89,11 +78,11 @@ export default function AgendaSidePanel({
                 fecha: "",
                 hora: "",
                 ubicacion_id: "",
+                extintores_ids: [],
             });
             return;
         }
 
-        // ESTAS TRES LÍNEAS ERAN LAS QUE FALTABAN:
         const fechaStr = String(eventoSeleccionado.fecha || "");
         const [fechaParte = "", horaParteCompleta = ""] =
             fechaStr.split(/[ T]/);
@@ -144,9 +133,10 @@ export default function AgendaSidePanel({
                 fecha: fechaParte.slice(0, 10),
                 hora: horaParte,
                 ubicacion_id: eventoSeleccionado.ubicacion_id || "",
+                extintores_ids: eventoSeleccionado.extintores_ids || [],
             });
         }
-    }, [eventoSeleccionado]);
+    }, [eventoSeleccionado, tabInicial]);
 
     const extintorSeleccionado =
         extintoresMantenimiento.find(
@@ -161,18 +151,29 @@ export default function AgendaSidePanel({
         extintorSeleccionado?.tipoextintor_nombre || "Polvo químico seco";
 
     return (
-        <aside className="w-80 bg-white border border-neutro-300 rounded-xl p-4 flex flex-col gap-3.5 shadow-sm font-sans shrink-0">
-            <h2 className="text-titulo-2 text-neutro-900">
-                {activeTab === "capacitacion"
-                    ? "Nueva Capacitación"
-                    : "Programar Mantenimiento"}
-            </h2>
+        <aside className="w-full lg:w-80 bg-white border border-neutro-300 rounded-xl p-4 md:p-5 flex flex-col gap-3.5 shadow-sm font-sans shrink-0">
+            <div className="flex items-center justify-between">
+                <h2 className="text-titulo-2 text-neutro-900">
+                    {activeTab === "capacitacion"
+                        ? eventoSeleccionado
+                            ? "Detalles de Capacitación"
+                            : "Nueva Capacitación"
+                        : eventoSeleccionado
+                          ? "Detalles de Mantenimiento"
+                          : "Programar Mantenimiento"}
+                </h2>
+                {eventoSeleccionado && (
+                    <span className="text-[11px] font-semibold bg-neutro-100 text-neutro-600 px-2 py-0.5 rounded-full">
+                        Edición
+                    </span>
+                )}
+            </div>
 
             <div className="flex bg-neutro-100 p-1 rounded-lg">
                 <button
                     type="button"
                     onClick={() => setActiveTab("mantenimiento")}
-                    className={`flex-1 py-1.5 text-etiqueta rounded-md transition ${
+                    className={`flex-1 py-1.5 text-[11px] md:text-xs font-semibold rounded-md transition ${
                         activeTab === "mantenimiento"
                             ? "bg-white text-neutro-900 shadow-sm"
                             : "text-neutro-600 hover:text-neutro-900"
@@ -184,7 +185,7 @@ export default function AgendaSidePanel({
                 <button
                     type="button"
                     onClick={() => setActiveTab("capacitacion")}
-                    className={`flex-1 py-1.5 text-etiqueta rounded-md transition ${
+                    className={`flex-1 py-1.5 text-[11px] md:text-xs font-semibold rounded-md transition ${
                         activeTab === "capacitacion"
                             ? "bg-white text-neutro-900 shadow-sm"
                             : "text-neutro-600 hover:text-neutro-900"
@@ -299,11 +300,34 @@ export default function AgendaSidePanel({
                             {extintoresCapacitacion.map((extintor) => (
                                 <label
                                     key={extintor.id}
-                                    className="flex items-center gap-2 text-xs text-neutro-900 cursor-pointer"
+                                    className="flex items-center gap-2 text-[11px] md:text-xs text-neutro-900 cursor-pointer"
                                 >
                                     <input
                                         type="checkbox"
-                                        className="rounded border-neutro-300 text-primario-700 focus:ring-0"
+                                        checked={formCapacitacion.extintores_ids.some(
+                                            (id) =>
+                                                String(id) ===
+                                                String(extintor.id),
+                                        )}
+                                        onChange={(e) => {
+                                            const isChecked = e.target.checked;
+                                            setFormCapacitacion((prev) => ({
+                                                ...prev,
+                                                extintores_ids: isChecked
+                                                    ? [
+                                                          ...prev.extintores_ids,
+                                                          extintor.id,
+                                                      ]
+                                                    : prev.extintores_ids.filter(
+                                                          (id) =>
+                                                              String(id) !==
+                                                              String(
+                                                                  extintor.id,
+                                                              ),
+                                                      ),
+                                            }));
+                                        }}
+                                        className="rounded border-neutro-300 text-primario-700 focus:ring-0 cursor-pointer"
                                     />
                                     {extintor.etiqueta_inventario}
                                 </label>
@@ -311,12 +335,22 @@ export default function AgendaSidePanel({
                         </div>
                     </div>
 
-                    <div className="flex justify-end mt-1">
+                    <div className="flex gap-2 mt-1">
+                        {eventoSeleccionado && (
+                            <button
+                                type="button"
+                                className="w-1/3 bg-white hover:bg-red-50 text-red-600 border border-red-600 text-etiqueta px-3 py-2 rounded-lg transition"
+                            >
+                                Eliminar
+                            </button>
+                        )}
                         <button
                             type="button"
-                            className="bg-primario-700 hover:bg-primario-900 text-white text-etiqueta px-5 py-2 rounded-lg transition"
+                            className={`${
+                                eventoSeleccionado ? "w-2/3" : "w-full"
+                            } bg-primario-700 hover:bg-primario-900 text-white text-etiqueta px-5 py-2 rounded-lg transition`}
                         >
-                            Agendar
+                            {eventoSeleccionado ? "Guardar cambios" : "Agendar"}
                         </button>
                     </div>
                 </form>
@@ -327,7 +361,7 @@ export default function AgendaSidePanel({
                             <span className="text-etiqueta text-neutro-900">
                                 Seleccionar Extintor
                             </span>
-                            <span className="bg-acento-500 text-neutro-900 text-[11px] font-bold px-2.5 py-0.5 rounded-md">
+                            <span className="bg-[#1b9e85] text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
                                 {extintorSeleccionado?.estatus || "Pendiente"}
                             </span>
                         </div>
@@ -352,7 +386,7 @@ export default function AgendaSidePanel({
                         <span className="text-etiqueta text-neutro-900">
                             Datos del extintor
                         </span>
-                        <div className="border border-neutro-300 rounded-lg p-2 text-xs text-neutro-600 flex flex-col gap-0.5">
+                        <div className="border border-neutro-300 bg-neutro-50 rounded-lg p-2 text-[11px] md:text-xs text-neutro-600 flex flex-col gap-0.5">
                             <span className="font-medium text-neutro-900">
                                 {textoUbicacion}
                             </span>
@@ -398,7 +432,7 @@ export default function AgendaSidePanel({
                                             fecha_programada: e.target.value,
                                         })
                                     }
-                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-center text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-center text-neutro-900 focus:border-primario-700 focus:ring-0 cursor-pointer"
                                 />
                             </div>
                             <div className="flex flex-col gap-1">
@@ -415,7 +449,7 @@ export default function AgendaSidePanel({
                                             hora_programada: e.target.value,
                                         })
                                     }
-                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-center text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-center text-neutro-900 focus:border-primario-700 focus:ring-0 cursor-pointer"
                                 />
                             </div>
                         </div>
@@ -439,12 +473,24 @@ export default function AgendaSidePanel({
                         </div>
                     </div>
 
-                    <div className="mt-1">
+                    <div className="flex gap-2 mt-1">
+                        {eventoSeleccionado && (
+                            <button
+                                type="button"
+                                className="w-1/3 bg-white hover:bg-red-50 text-red-600 border border-red-600 text-etiqueta px-3 py-2 rounded-lg transition"
+                            >
+                                Eliminar
+                            </button>
+                        )}
                         <button
                             type="button"
-                            className="w-full bg-primario-700 hover:bg-primario-900 text-white text-etiqueta py-2 rounded-lg transition"
+                            className={`${
+                                eventoSeleccionado ? "w-2/3" : "w-full"
+                            } bg-primario-700 hover:bg-primario-900 text-white text-etiqueta py-2 rounded-lg transition cursor-pointer`}
                         >
-                            Guardar Mantenimiento
+                            {eventoSeleccionado
+                                ? "Guardar cambios"
+                                : "Guardar Mantenimiento"}
                         </button>
                     </div>
                 </form>
