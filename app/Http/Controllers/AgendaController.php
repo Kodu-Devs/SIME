@@ -59,7 +59,7 @@ class AgendaController extends Controller
                 return [
                     'id' => $dc->id,
                     'clase' => 'capacitacion',
-                    'titulo' => 'Capactiacion: ' . $dc->nombre,
+                    'titulo' => 'Capacitacion: ' . $dc->nombre,
                     'ubicacion_id' => $dc->ubicacion_id, //Requerido para el combo de ubicaciones
                     'extintores_id' => $extintores_id->isEmpty() ? 'Sin extintores' : $extintores_id, //Si no se encuentran, regresa "Sin extintores"
                     'fecha' => $dc->fecha_hora->format('Y-m-d H:i:s'),
