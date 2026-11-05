@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Mantenimiento extends Model
 {
-    // Baja logica para conservar el historial de mantenimientos del extintor
-    use SoftDeletes;
+    // Habilitar fábricas y baja lógica para conservar el historial
+    use HasFactory, SoftDeletes;
 
     protected $table = 'mantenimientos';
 
@@ -22,6 +23,11 @@ class Mantenimiento extends Model
     public function extintor()
     {
         return $this->belongsTo(Extintor::class, 'extintor_id');
+    }
+
+    public function alertas()
+    {
+        return $this->hasMany(Alerta::class, 'mantenimiento_id');
     }
 
     public function scopePendientes($query)

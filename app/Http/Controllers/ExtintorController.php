@@ -8,6 +8,7 @@ use App\Models\TipoExtintor;
 use App\Models\Instalacion;
 use Inertia\Inertia;
 use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 class ExtintorController extends Controller
 {
@@ -15,26 +16,44 @@ class ExtintorController extends Controller
     {
         // Se filtran los extintores dados de baja para que no aparezcan en la tabla activa
         $extintores = Extintor::where('estatus', '!=', 'Baja')
-            ->with(['ubicacion.piso', 'tipoExtintor', 'mantenimientos'])
+            ->with(['ubicacion.piso', 'tipoExtintor', 'mantenimientos']) // Aquí está el with() que te pidieron revisar
             ->paginate(10)
             ->through(fn ($extintor) => [
                 'id' => $extintor->id,
                 'etiqueta_inventario' => $extintor->etiqueta_inventario,
                 'estatus' => $extintor->estatus,
+                // Directo al método como solicitó el frontend
+                'estado' => $extintor->estadoVencimiento(),
                 'capacidad' => $extintor->capacidad,
                 'tipo_nombre' => $extintor->tipoExtintor?->nombre ?? 'No definido',
                 'ubicacion_nombre' => $extintor->ubicacion?->nombre ?? 'Sin ubicación',
                 'piso_numero' => $extintor->ubicacion?->piso?->numero ?? 'N/A',
-                // Extrae la fecha del mantenimiento pendiente más próximo
+                'tipoextintor_id' => $extintor->tipoextintor_id,
+                'ubicacion_id' => $extintor->ubicacion_id,
+                // Campo 1: Solo el mantenimiento pendiente de la agenda
                 'proximo_mantenimiento' => $extintor->mantenimientos
                     ->whereNull('fecha_realizada')
                     ->sortBy('fecha_programada')
                     ->first()?->fecha_programada?->format('d/m/y') 
-                    ?? 'Sin programar'
+                    ?? 'Sin programar',
+                // Campo 2: La fecha de vencimiento real (revisión)
+                'proxima_revision' => $extintor->fecha_vencimiento 
+                    ? Carbon::parse($extintor->fecha_vencimiento)->format('d/m/y') 
+                    : 'Sin programar',
+                // Objeto raw con datos originales para precargar el formulario en edición
+                'raw' => [
+                    'id' => $extintor->id,
+                    'tipoextintor_id' => $extintor->tipoextintor_id,
+                    'ubicacion_id' => $extintor->ubicacion_id,
+                    'capacidad' => $extintor->capacidad,
+                    'fecha_instalacion' => $extintor->fecha_instalacion ? Carbon::parse($extintor->fecha_instalacion)->format('Y-m-d') : null,
+                    'fecha_vencimiento' => $extintor->fecha_vencimiento ? Carbon::parse($extintor->fecha_vencimiento)->format('Y-m-d') : null,
+                    'estatus' => $extintor->estatus,
+                ]
             ]);
 
         // Carga de catálogos necesarios para que el frontend arme los selectores
-        $tipos = TipoExtintor::select('id', 'nombre')->get();
+        $tipos = TipoExtintor::select('id', 'nombre', 'unidad')->get();
     
         $instalaciones = Instalacion::select('id', 'nombre')
             ->with([
@@ -55,16 +74,18 @@ class ExtintorController extends Controller
     public function store(Request $request)
     {
         $tipoSeleccionado = TipoExtintor::find($request->tipoextintor_id);
-        $listaCapacidades = ($tipoSeleccionado && $tipoSeleccionado->unidad === 'l') 
+        
+        // Normalizar la evaluación de la unidad para evitar errores de mayúsculas o espacios
+        $unidad = strtolower(trim($tipoSeleccionado?->unidad ?? ''));
+        $listaCapacidades = ($unidad === 'l') 
                         ? Extintor::CAPACIDADES_L 
                         : Extintor::CAPACIDADES_KG;
-        // Validación estricta de los datos enviados por el usuario
+
         $validated = $request->validate([
-            'tipoextintor_id' => 'required|exists:tipo_extintores,id',
+            'tipoextintor_id' => ['required', Rule::exists(TipoExtintor::class, 'id')],
             'ubicacion_id' => 'required|exists:ubicaciones,id',
             'capacidad' => ['required', Rule::in($listaCapacidades)],
-            'fecha_instalacion' => 'required|date',
-            'fecha_vencimiento' => 'required|date|after:fecha_instalacion', 
+            'fecha_instalacion' => 'required|date|before_or_equal:today',
         ], [
             'tipoextintor_id.required' => 'Debes seleccionar el tipo de extintor.',
             'tipoextintor_id.exists' => 'El tipo seleccionado no es válido en el catálogo.',
@@ -73,25 +94,22 @@ class ExtintorController extends Controller
             'capacidad.required' => 'La capacidad del extintor es obligatoria.',
             'fecha_instalacion.required' => 'Indica cuándo se instaló el extintor.',
             'fecha_instalacion.date' => 'La fecha de instalación tiene un formato incorrecto.',
-            'fecha_vencimiento.required' => 'La fecha de caducidad es obligatoria.',
-            'fecha_vencimiento.after' => 'La fecha de vencimiento no puede ser antes de la instalación',
+            'fecha_instalacion.before_or_equal' => 'La fecha de instalación no puede ser futura.',
         ]);
 
-        // Cálculo seguro del siguiente folio para evitar duplicados en la base de datos
         $ultimoExtintor = Extintor::latest('id')->first();
         $siguienteFolio = $ultimoExtintor ? 
                           str_pad((int)substr($ultimoExtintor->etiqueta_inventario, -5) + 1, 5, '0', STR_PAD_LEFT) : 
                           '00001';
         $nuevaEtiqueta = 'ITJMM-62007-5100-' . $siguienteFolio;
         
-        // Creación del registro asignando la etiqueta generada automáticamente
         Extintor::create([
             'etiqueta_inventario' => $nuevaEtiqueta,
             'tipoextintor_id' => $validated['tipoextintor_id'],
             'ubicacion_id' => $validated['ubicacion_id'],
             'capacidad' => $validated['capacidad'],
             'fecha_instalacion' => $validated['fecha_instalacion'],
-            'fecha_vencimiento' => $validated['fecha_vencimiento'],
+            'fecha_vencimiento' => Extintor::calcularVencimiento($validated['fecha_instalacion']),
             'estatus' => 'Disponible',
         ]);
 
@@ -102,36 +120,45 @@ class ExtintorController extends Controller
     public function update(Request $request, Extintor $extintor)
     {
         $tipoSeleccionado = TipoExtintor::find($request->tipoextintor_id);
-        $listaCapacidades = ($tipoSeleccionado && $tipoSeleccionado->unidad === 'l') 
+        
+        // Normalizar la evaluación de la unidad
+        $unidad = strtolower(trim($tipoSeleccionado?->unidad ?? ''));
+        $listaCapacidades = ($unidad === 'l') 
                         ? Extintor::CAPACIDADES_L 
                         : Extintor::CAPACIDADES_KG;
-        // Se reutilizan las reglas de validación para asegurar la integridad de los datos a actualizar
+
         $validated = $request->validate([
-            'tipoextintor_id' => 'required|exists:tipo_extintores,id',
+            'tipoextintor_id' => ['required', Rule::exists(TipoExtintor::class, 'id')],
             'ubicacion_id' => 'required|exists:ubicaciones,id',
             'capacidad' => ['required', Rule::in($listaCapacidades)],
-            'fecha_instalacion' => 'required|date',
-            'fecha_vencimiento' => 'required|date|after:fecha_instalacion', 
+            'fecha_instalacion' => 'required|date|before_or_equal:today',
         ], [
             'tipoextintor_id.required' => 'Debes seleccionar el tipo de extintor.',
             'tipoextintor_id.exists' => 'El tipo seleccionado no es válido.',
             'ubicacion_id.required' => 'Debes seleccionar la ubicación exacta.',
             'ubicacion_id.exists' => 'La ubicación seleccionada no existe.',
             'capacidad.required' => 'La capacidad es obligatoria.',
-            'fecha_instalacion.required' => 'Indica la fecha de instalación.',
-            'fecha_instalacion.date' => 'Formato de fecha inválido.',
-            'fecha_vencimiento.required' => 'La fecha de caducidad es obligatoria.',
-            'fecha_vencimiento.after' => 'La fecha de vencimiento debe ser posterior a la instalación.',
+            'fecha_instalacion.required' => 'Indica cuándo se instaló el extintor.',
+            'fecha_instalacion.date' => 'La fecha de instalación tiene un formato incorrecto.',
+            'fecha_instalacion.before_or_equal' => 'La fecha de instalación no puede ser futura.',
         ]);
 
-        // Actualización directa utilizando Route Model Binding. La etiqueta de inventario no se modifica.
-        $extintor->update([
+        $datos = [
             'tipoextintor_id' => $validated['tipoextintor_id'],
             'ubicacion_id' => $validated['ubicacion_id'],
             'capacidad' => $validated['capacidad'],
             'fecha_instalacion' => $validated['fecha_instalacion'],
-            'fecha_vencimiento' => $validated['fecha_vencimiento'],
-        ]);
+        ];
+
+        // Se recalcula el vencimiento solo si la fecha de instalación fue modificada
+        $instalacionNueva = Carbon::parse($validated['fecha_instalacion'])->toDateString();
+        $instalacionActual = Carbon::parse($extintor->fecha_instalacion)->toDateString();
+
+        if ($instalacionNueva !== $instalacionActual) {
+            $datos['fecha_vencimiento'] = Extintor::calcularVencimiento($validated['fecha_instalacion']);
+        }
+
+        $extintor->update($datos);
 
         return redirect()->route('extintores.index')
             ->with('success', "El extintor {$extintor->etiqueta_inventario} se actualizó correctamente.");
@@ -144,6 +171,6 @@ class ExtintorController extends Controller
         ]);
 
         return redirect()->route('extintores.index')
-            ->with('success', "El extintor {$extintor->etiqueta_inventario} ha sido dado de baja.");
+            ->with('success', "El extintor {$extintor->etiqueta_inventario} fue dado de baja correctamente.");
     }
 }

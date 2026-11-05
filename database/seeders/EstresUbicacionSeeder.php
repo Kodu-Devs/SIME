@@ -1,0 +1,61 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Instalacion;
+use App\Models\Piso;
+use App\Models\Ubicacion;
+use Database\Factories\InstalacionFactory;
+use Database\Factories\UbicacionFactory;
+use Illuminate\Database\Seeder;
+
+class EstresUbicacionSeeder extends Seeder
+{
+    // Volumen configurable: 50 instalaciones x 3 pisos x 10 ubicaciones = 1,500 registros
+    private const CANTIDAD = 50;
+    private const PISOS_POR_EDIFICIO = 3;
+    private const UBICACIONES_POR_PISO = 10;
+
+    public function run(): void
+    {
+        $tiposInstalacion = InstalacionFactory::TIPOS;
+        $tiposArea = UbicacionFactory::TIPOS_AREA;
+
+        for ($i = 1; $i <= self::CANTIDAD; $i++) {
+            $tipoInst = $tiposInstalacion[array_rand($tiposInstalacion)];
+
+            $instalacion = Instalacion::factory()->create([
+                'nombre' => "ESTRES-Edificio {$i}",
+                'tipo'   => $tipoInst,
+            ]);
+
+            // Si es Área exterior se crea 1 solo nivel ('Nivel único'), si es Edificio se crean varios pisos
+            $numPisos = $tipoInst === 'Área exterior' ? 1 : self::PISOS_POR_EDIFICIO;
+
+            // El nivel único concentra las ubicaciones que tendrían los pisos de un edificio,
+            // así cada instalación aporta lo mismo y el total es siempre CANTIDAD x 30.
+            $ubicacionesPorPiso = self::UBICACIONES_POR_PISO * self::PISOS_POR_EDIFICIO / $numPisos;
+
+            for ($p = 1; $p <= $numPisos; $p++) {
+                $nombrePiso = $tipoInst === 'Área exterior' 
+                    ? 'Nivel único' 
+                    : ($p === 1 ? 'Planta baja' : 'Nivel ' . $p);
+
+                $piso = Piso::factory()->create([
+                    'instalacion_id' => $instalacion->getKey(),
+                    'nombre'         => $nombrePiso,
+                ]);
+
+                for ($u = 1; $u <= $ubicacionesPorPiso; $u++) {
+                    Ubicacion::factory()->create([
+                        'piso_id'   => $piso->getKey(),
+                        'nombre'    => "ESTRES-Edificio {$i} - Piso {$p} - Zona {$u}",
+                        'tipo_area' => $tiposArea[array_rand($tiposArea)],
+                    ]);
+                }
+            }
+        }
+
+        $this->command->info('EstresUbicacionSeeder ejecutado con éxito.');
+    }
+}
