@@ -16,26 +16,44 @@ class ExtintorController extends Controller
     {
         // Se filtran los extintores dados de baja para que no aparezcan en la tabla activa
         $extintores = Extintor::where('estatus', '!=', 'Baja')
-            ->with(['ubicacion.piso', 'tipoExtintor', 'mantenimientos'])
+            ->with(['ubicacion.piso', 'tipoExtintor', 'mantenimientos']) // Aquí está el with() que te pidieron revisar
             ->paginate(10)
             ->through(fn ($extintor) => [
                 'id' => $extintor->id,
                 'etiqueta_inventario' => $extintor->etiqueta_inventario,
                 'estatus' => $extintor->estatus,
+                // Directo al método como solicitó el frontend
+                'estado' => $extintor->estadoVencimiento(),
                 'capacidad' => $extintor->capacidad,
                 'tipo_nombre' => $extintor->tipoExtintor?->nombre ?? 'No definido',
                 'ubicacion_nombre' => $extintor->ubicacion?->nombre ?? 'Sin ubicación',
                 'piso_numero' => $extintor->ubicacion?->piso?->numero ?? 'N/A',
-                // Extrae la fecha del mantenimiento pendiente más próximo
+                'tipoextintor_id' => $extintor->tipoextintor_id,
+                'ubicacion_id' => $extintor->ubicacion_id,
+                // Campo 1: Solo el mantenimiento pendiente de la agenda
                 'proximo_mantenimiento' => $extintor->mantenimientos
                     ->whereNull('fecha_realizada')
                     ->sortBy('fecha_programada')
                     ->first()?->fecha_programada?->format('d/m/y') 
-                    ?? 'Sin programar'
+                    ?? 'Sin programar',
+                // Campo 2: La fecha de vencimiento real (revisión)
+                'proxima_revision' => $extintor->fecha_vencimiento 
+                    ? Carbon::parse($extintor->fecha_vencimiento)->format('d/m/y') 
+                    : 'Sin programar',
+                // Objeto raw con datos originales para precargar el formulario en edición
+                'raw' => [
+                    'id' => $extintor->id,
+                    'tipoextintor_id' => $extintor->tipoextintor_id,
+                    'ubicacion_id' => $extintor->ubicacion_id,
+                    'capacidad' => $extintor->capacidad,
+                    'fecha_instalacion' => $extintor->fecha_instalacion ? Carbon::parse($extintor->fecha_instalacion)->format('Y-m-d') : null,
+                    'fecha_vencimiento' => $extintor->fecha_vencimiento ? Carbon::parse($extintor->fecha_vencimiento)->format('Y-m-d') : null,
+                    'estatus' => $extintor->estatus,
+                ]
             ]);
 
         // Carga de catálogos necesarios para que el frontend arme los selectores
-        $tipos = TipoExtintor::select('id', 'nombre')->get();
+        $tipos = TipoExtintor::select('id', 'nombre', 'unidad')->get();
     
         $instalaciones = Instalacion::select('id', 'nombre')
             ->with([
@@ -56,7 +74,10 @@ class ExtintorController extends Controller
     public function store(Request $request)
     {
         $tipoSeleccionado = TipoExtintor::find($request->tipoextintor_id);
-        $listaCapacidades = ($tipoSeleccionado && $tipoSeleccionado->unidad === 'l') 
+        
+        // Normalizar la evaluación de la unidad para evitar errores de mayúsculas o espacios
+        $unidad = strtolower(trim($tipoSeleccionado?->unidad ?? ''));
+        $listaCapacidades = ($unidad === 'l') 
                         ? Extintor::CAPACIDADES_L 
                         : Extintor::CAPACIDADES_KG;
 
@@ -99,7 +120,10 @@ class ExtintorController extends Controller
     public function update(Request $request, Extintor $extintor)
     {
         $tipoSeleccionado = TipoExtintor::find($request->tipoextintor_id);
-        $listaCapacidades = ($tipoSeleccionado && $tipoSeleccionado->unidad === 'l') 
+        
+        // Normalizar la evaluación de la unidad
+        $unidad = strtolower(trim($tipoSeleccionado?->unidad ?? ''));
+        $listaCapacidades = ($unidad === 'l') 
                         ? Extintor::CAPACIDADES_L 
                         : Extintor::CAPACIDADES_KG;
 
@@ -138,5 +162,15 @@ class ExtintorController extends Controller
 
         return redirect()->route('extintores.index')
             ->with('success', "El extintor {$extintor->etiqueta_inventario} se actualizó correctamente.");
+    }
+
+    public function baja(Extintor $extintor)
+    {
+        $extintor->update([
+            'estatus' => 'Baja'
+        ]);
+
+        return redirect()->route('extintores.index')
+            ->with('success', "El extintor {$extintor->etiqueta_inventario} fue dado de baja correctamente.");
     }
 }

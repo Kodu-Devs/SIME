@@ -43,6 +43,7 @@ class AgendaController extends Controller
                         'id' => $dm->id,
                         'clase' => 'mantenimiento',
                         'titulo' => $dm->tipo . '-' . ($dm->extintor->etiqueta_inventario),
+                        'descripcion' => $dm->descripcion, //Campo a petición de observaciones
                         'fecha' => $dm->fecha_programada->format('Y-m-d H:i:s'),
                         'realizado' => !is_null($dm->fecha_realizada)
                     ];
@@ -51,13 +52,16 @@ class AgendaController extends Controller
 
 
         //Obtener capacitaciones del mes
-        $capacitaciones = Capacitacion::with('ubicacion')->whereBetween('fecha_hora', [$fecha_inicio, $fecha_fin])
+        $capacitaciones = Capacitacion::with(['ubicacion', 'eventosUso:id,capacitacion_id,extintor_id'])->whereBetween('fecha_hora', [$fecha_inicio, $fecha_fin])
             ->get()
             ->map(function ($dc) {
+                $extintores_id = $dc->eventosUso->pluck('extintor_id')->unique()->values();
                 return [
                     'id' => $dc->id,
                     'clase' => 'capacitacion',
                     'titulo' => 'Capacitacion: ' . $dc->nombre,
+                    'ubicacion_id' => $dc->ubicacion_id, //Requerido para el combo de ubicaciones
+                    'extintores_id' => $extintores_id, //Campo con id de extintores usados en la capacitacion
                     'fecha' => $dc->fecha_hora->format('Y-m-d H:i:s'),
                     'realizado' => $dc->fecha_hora->isPast()
                 ];
