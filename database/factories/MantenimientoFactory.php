@@ -11,21 +11,40 @@ class MantenimientoFactory extends Factory
 {
     protected $model = Mantenimiento::class;
 
+    protected static ?array $fechasExtintores = null;
+
+    public static function reiniciarCache(): void
+    {
+        static::$fechasExtintores = null;
+    }
+
+    private function getFechas(): array
+    {
+        if (static::$fechasExtintores === null) {
+            static::$fechasExtintores = Extintor::pluck('fecha_instalacion', 'id')->toArray();
+        }
+
+        return static::$fechasExtintores;
+    }
+
     public function definition(): array
     {
+        $fechas = $this->getFechas();
+        $ids = array_keys($fechas);
+        $extintorId = ! empty($ids) ? $this->faker->randomElement($ids) : Extintor::factory()->create()->id;
+
+        $fechaStr = $fechas[$extintorId] ?? null;
+        $instalacion = $fechaStr ? Carbon::parse($fechaStr) : now()->subYear();
+
+        if ($instalacion->isFuture() || $instalacion->diffInMinutes(now()) < 60) {
+            $instalacion = now()->subYear();
+        }
+
         return [
-            'extintor_id' => fn () => Extintor::inRandomOrder()->value('id') ?? Extintor::factory(),
+            'extintor_id' => $extintorId,
             'tipo' => $this->faker->randomElement(['Revisión', 'Relleno de contenido', 'Otra']),
-            'descripcion' => 'ESTRES-Mantenimiento ' . $this->faker->sentence(3),
-            'fecha_programada' => function (array $attributes) {
-                $extintor = Extintor::find($attributes['extintor_id']);
-                if (!$extintor || !$extintor->fecha_instalacion) {
-                    return $this->faker->dateTimeBetween('-1 year', '+2 months');
-                }
-                
-                $instalacion = Carbon::parse($extintor->fecha_instalacion);
-                return $this->faker->dateTimeBetween($instalacion, '+2 months');
-            },
+            'descripcion' => 'ESTRES-Mantenimiento '.$this->faker->sentence(3),
+            'fecha_programada' => $this->faker->dateTimeBetween($instalacion, '+2 months'),
             'fecha_realizada' => null,
             'deleted_at' => null,
         ];
@@ -41,13 +60,21 @@ class MantenimientoFactory extends Factory
     public function realizado(): static
     {
         return $this->state(function (array $attributes) {
-            $extintor = Extintor::find($attributes['extintor_id']);
-            $limiteInferior = ($extintor && $extintor->fecha_instalacion) 
-                ? Carbon::parse($extintor->fecha_instalacion) 
-                : '-1 year';
+            $fechas = $this->getFechas();
+            $fechaStr = $fechas[$attributes['extintor_id']] ?? null;
+            $instalacion = $fechaStr ? Carbon::parse($fechaStr) : now()->subYear();
 
-            $programada = $this->faker->dateTimeBetween($limiteInferior, 'now');
-            
+            if ($instalacion->isFuture() || $instalacion->diffInMinutes(now()) < 60) {
+                $instalacion = now()->subYear();
+            }
+
+            $programada = Carbon::instance($this->faker->dateTimeBetween($instalacion, 'now'));
+
+            // Garantizar margen entre programada y hoy
+            if ($programada->diffInMinutes(now()) < 5) {
+                $programada = now()->subMinutes(10);
+            }
+
             return [
                 'fecha_programada' => $programada,
                 'fecha_realizada' => $this->faker->dateTimeBetween($programada, 'now'),
@@ -58,13 +85,16 @@ class MantenimientoFactory extends Factory
     public function atrasado(): static
     {
         return $this->state(function (array $attributes) {
-            $extintor = Extintor::find($attributes['extintor_id']);
-            $limiteInferior = ($extintor && $extintor->fecha_instalacion) 
-                ? Carbon::parse($extintor->fecha_instalacion) 
-                : '-1 year';
+            $fechas = $this->getFechas();
+            $fechaStr = $fechas[$attributes['extintor_id']] ?? null;
+            $instalacion = $fechaStr ? Carbon::parse($fechaStr) : now()->subYear();
+
+            if ($instalacion->isFuture() || $instalacion->diffInMinutes(now()->subDay()) < 60) {
+                $instalacion = now()->subYear();
+            }
 
             return [
-                'fecha_programada' => $this->faker->dateTimeBetween($limiteInferior, '-1 days'),
+                'fecha_programada' => $this->faker->dateTimeBetween($instalacion, '-1 days'),
                 'fecha_realizada' => null,
             ];
         });

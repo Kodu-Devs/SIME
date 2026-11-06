@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Capacitacion;
 use App\Models\EventoUso;
 use App\Models\Extintor;
 use App\Models\User;
@@ -14,8 +13,9 @@ class EventoUsoFactory extends Factory
 {
     protected $model = EventoUso::class;
 
-    protected static ?array $extintorIds = null;
     protected static ?array $userIds = null;
+
+    protected static ?array $fechasExtintores = null;
 
     private const MOTIVOS = [
         'Conato' => [
@@ -43,40 +43,36 @@ class EventoUsoFactory extends Factory
 
     public static function reiniciarCache(): void
     {
-        static::$extintorIds = null;
+        static::$fechasExtintores = null;
         static::$userIds = null;
     }
 
     public function definition(): array
     {
-        // Sin Capacitación: ese tipo solo va con capacitacion_id (ver deCapacitacion()).
+        if (static::$fechasExtintores === null) {
+            static::$fechasExtintores = Extintor::pluck('fecha_instalacion', 'id')->toArray();
+        }
+
+        $ids = array_keys(static::$fechasExtintores);
+        $extintorId = ! empty($ids) ? fake()->randomElement($ids) : Extintor::factory()->create()->id;
+
         $tipoMotivo = fake()->randomElement(
             array_values(array_diff(EventoUso::TIPOS_MOTIVO, ['Capacitación']))
         );
 
+        $fechaStr = static::$fechasExtintores[$extintorId] ?? null;
+        $instalacion = $fechaStr ? Carbon::parse($fechaStr) : now()->subYear();
+
+        if ($instalacion->isFuture() || $instalacion->diffInMinutes(now()) < 60) {
+            $instalacion = now()->subYear();
+        }
+
         return [
-            // El ID del extintor lo definimos usando una closure para evaluarlo primero
-            'extintor_id' => fn () => $this->extintorId() ?? Extintor::factory(),
+            'extintor_id' => $extintorId,
             'user_id' => $this->userId(),
-            // Calculamos la fecha estrictamente entre la instalación de ese extintor y una hora atrás
-            'fecha' => function (array $attributes) {
-                $extintor = Extintor::find($attributes['extintor_id']);
-                
-                if (!$extintor || !$extintor->fecha_instalacion) {
-                    return Carbon::instance(fake()->dateTimeBetween('-12 months', '-1 hour'));
-                }
-                
-                $instalacion = Carbon::parse($extintor->fecha_instalacion);
-                
-                // Si por alguna razón la instalación es futura, usamos el pasado genérico
-                if ($instalacion->isFuture()) {
-                     return Carbon::instance(fake()->dateTimeBetween('-12 months', '-1 hour'));
-                }
-                
-                return Carbon::instance(fake()->dateTimeBetween($instalacion, '-1 hour'));
-            },
+            'fecha' => Carbon::instance(fake()->dateTimeBetween($instalacion, '-1 hour')),
             'tipo_motivo' => $tipoMotivo,
-            'motivo' => 'ESTRES-' . fake()->randomElement(self::MOTIVOS[$tipoMotivo] ?? ['Evento de uso']),
+            'motivo' => 'ESTRES-'.fake()->randomElement(self::MOTIVOS[$tipoMotivo] ?? ['Evento de uso']),
             'capacitacion_id' => null,
             'tipo_descarga' => $this->descarga($tipoMotivo),
         ];
@@ -90,9 +86,8 @@ class EventoUsoFactory extends Factory
             return [
                 'capacitacion_id' => $capacitacion->id,
                 'tipo_motivo' => 'Capacitación',
-                'motivo' => 'ESTRES-' . fake()->randomElement(self::MOTIVOS['Capacitación']),
+                'motivo' => 'ESTRES-'.fake()->randomElement(self::MOTIVOS['Capacitación']),
                 'fecha' => $capacitacion->fecha_hora->copy()->addMinutes(fake()->numberBetween(10, 180)),
-                // En las prácticas casi siempre es descarga parcial.
                 'tipo_descarga' => fake()->boolean(20) ? 'total' : 'parcial',
             ];
         });
@@ -107,13 +102,6 @@ class EventoUsoFactory extends Factory
         };
 
         return fake()->boolean($probabilidadTotal) ? 'total' : 'parcial';
-    }
-
-    private function extintorId(): ?int
-    {
-        static::$extintorIds ??= Extintor::inRandomOrder()->pluck('id')->all();
-
-        return static::$extintorIds ? fake()->randomElement(static::$extintorIds) : null;
     }
 
     private function userId(): ?int
