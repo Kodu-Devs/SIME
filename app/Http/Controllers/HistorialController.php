@@ -36,7 +36,7 @@ class HistorialController extends Controller
         }
 
         // 1. Consulta de Eventos de Uso
-        $usos = EventoUso::with(['extintor.ubicacion.piso.instalacion', 'user', 'capacitacion'])
+        $usos = EventoUso::with(['extintor.ubicacion.piso.instalacion', 'usuario', 'capacitacion'])
             ->when($request->search, function ($query, $search) {
                 $query->whereHas('extintor', function ($q) use ($search) {
                     $q->where('etiqueta_inventario', 'like', "%{$search}%");
@@ -63,7 +63,7 @@ class HistorialController extends Controller
                     'detalle' => $uso->motivo,
                     'subtipo' => $uso->tipo_descarga,
                     'extintor' => $uso->extintor,
-                    'usuario' => $uso->user ? $uso->user->name : 'Sistema',
+                    'usuario' => $uso->usuario ? $uso->usuario->name : 'Sistema',
                     'capacitacion' => $uso->capacitacion,
                 ];
             });
