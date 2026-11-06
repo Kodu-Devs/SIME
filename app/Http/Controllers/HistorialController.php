@@ -110,6 +110,7 @@ class HistorialController extends Controller
         return Inertia::render('Historial/Index', [
             'eventos' => $eventos,
             'filters' => $request->only(['search', 'instalacion_id', 'fecha_inicio', 'fecha_fin']),
+            'edificios' => app(InformesHistorial::class)->edificios(),
         ]);
     }
 
@@ -165,7 +166,7 @@ class HistorialController extends Controller
             'instalacion_id' => [
                 'nullable',
                 'required_with:piso_id',
-                Rule::exists('instalaciones', 'id')->where('tipo', 'Edificio'),
+                Rule::exists('instalaciones', 'id'),
             ],
             'piso_id' => [
                 'nullable',

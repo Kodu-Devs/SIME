@@ -149,4 +149,42 @@ class InformesHistorialTest extends TestCase
 
         $this->assertSame(1, $datos['resumen']['eventos']);
     }
+        // ---------- Combos del modal ----------
+
+        public function test_edificios_trae_las_instalaciones_con_pisos_y_sus_pisos(): void
+    {
+        $edificioB = $this->crearEdificio('Edificio B');
+        $edificioA = $this->crearEdificio('Edificio A');
+        $this->crearPiso($edificioA, 'Planta baja');
+        $this->crearPiso($edificioA, 'Nivel 1');
+        $this->crearPiso($edificioB, 'Planta baja');
+
+        // Un área con piso también se puede elegir.
+        $almacen = $this->crearEdificio('Almacén', 'Área');
+        $this->crearPiso($almacen, 'Nivel único');
+
+        // Un área exterior sin pisos no debe salir.
+        $this->crearEdificio('Glorieta', 'Área');
+
+        $edificios = $this->servicio()->edificios();
+
+        $this->assertSame(['Almacén', 'Edificio A', 'Edificio B'], $edificios->pluck('nombre')->all());
+        $this->assertSame(
+            ['Planta baja', 'Nivel 1'],
+            $edificios->firstWhere('nombre', 'Edificio A')->pisos->pluck('nombre')->all()
+        );
+        $this->assertCount(1, $edificios->firstWhere('nombre', 'Almacén')->pisos);
+    }
+
+    public function test_la_lista_filtra_por_un_area_que_no_es_edificio(): void
+    {
+        $almacen = $this->crearEdificio('Almacén', 'Área');
+        $this->crearExtintor($this->crearUbicacion($this->crearPiso($almacen, 'Nivel único')));
+        $this->crearExtintor($this->crearUbicacionEnNuevoEdificio('Edificio A'));
+
+        $datos = $this->servicio()->extintores(['instalacion_id' => $almacen]);
+
+        $this->assertSame(1, $datos['resumen']['total']);
+        $this->assertSame('Almacén', $datos['encabezado']['area']);
+    }
 }
