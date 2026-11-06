@@ -16,8 +16,8 @@ class ExtintorController extends Controller
     {
         // Se filtran los extintores dados de baja para que no aparezcan en la tabla activa
         $extintores = Extintor::where('estatus', '!=', 'Baja')
-            ->with(['ubicacion.piso', 'tipoExtintor', 'mantenimientos']) // Aquí está el with() que te pidieron revisar
-            ->paginate(10)
+            ->with(['ubicacion.piso', 'tipoExtintor', 'mantenimientos'])
+            ->paginate(7)
             ->through(fn ($extintor) => [
                 'id' => $extintor->id,
                 'etiqueta_inventario' => $extintor->etiqueta_inventario,
