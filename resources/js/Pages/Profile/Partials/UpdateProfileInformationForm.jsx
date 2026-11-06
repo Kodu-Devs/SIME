@@ -48,6 +48,10 @@ export default function UpdateProfileInformationForm({ className = "" }) {
                             required
                             className="w-full rounded-lg border border-neutro-300 px-3.5 py-2 text-sm text-neutro-900 focus:border-primario-700 focus:ring-primario-700 transition"
                         />
+                        <InputError
+                            message={formulario.errors.name}
+                            className="mt-2"
+                        />
                     </div>
 
                     {/* Columna 2: Correo electrónico */}
@@ -67,6 +71,10 @@ export default function UpdateProfileInformationForm({ className = "" }) {
                             }
                             required
                             className="w-full rounded-lg border border-neutro-300 px-3.5 py-2 text-sm text-neutro-900 focus:border-primario-700 focus:ring-primario-700 transition"
+                        />
+                        <InputError
+                            message={formulario.errors.email}
+                            className="mt-2"
                         />
                     </div>
                 </div>

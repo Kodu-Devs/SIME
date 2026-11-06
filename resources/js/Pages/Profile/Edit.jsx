@@ -1,9 +1,10 @@
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head } from "@inertiajs/react";
+import DeleteUserForm from "./Partials/DeleteUserForm";
 import UpdatePasswordForm from "./Partials/UpdatePasswordForm";
 import UpdateProfileInformationForm from "./Partials/UpdateProfileInformationForm";
 
-export default function Edit({ mustVerifyEmail, status }) {
+export default function Edit() {
     return (
         <AdminLayout>
             <Head title="Perfil" />
@@ -21,15 +22,17 @@ export default function Edit({ mustVerifyEmail, status }) {
 
                 {/* Tarjeta 1: Datos de Perfil */}
                 <div className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-neutro-100">
-                    <UpdateProfileInformationForm
-                        mustVerifyEmail="{mustVerifyEmail}"
-                        status="{status}"
-                    />
+                    <UpdateProfileInformationForm />
                 </div>
 
                 {/* Tarjeta 2: Actualizar Contraseña */}
                 <div className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-neutro-100">
                     <UpdatePasswordForm />
+                </div>
+
+                {/* Tarjeta 3: Eliminar Cuenta */}
+                <div className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-neutro-100">
+                    <DeleteUserForm />
                 </div>
             </div>
         </AdminLayout>
