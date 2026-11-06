@@ -55,10 +55,6 @@ export default function UpdatePasswordForm({ className = "" }) {
                             autoComplete="current-password"
                             className="w-full rounded-lg border border-neutro-300 px-3.5 py-2 text-sm text-neutro-900 focus:border-primario-700 focus:ring-primario-700 transition"
                         />
-                        <InputError
-                            className="mt-1.5"
-                            message="{formClave.errors.current_password}"
-                        />
                     </div>
 
                     {/* Columna 2: Nueva contraseña */}
@@ -78,10 +74,6 @@ export default function UpdatePasswordForm({ className = "" }) {
                             }
                             autoComplete="new-password"
                             className="w-full rounded-lg border border-neutro-300 px-3.5 py-2 text-sm text-neutro-900 focus:border-primario-700 focus:ring-primario-700 transition"
-                        />
-                        <InputError
-                            className="mt-1.5"
-                            message="{formClave.errors.password}"
                         />
                     </div>
 
@@ -105,10 +97,6 @@ export default function UpdatePasswordForm({ className = "" }) {
                             }
                             autoComplete="new-password"
                             className="w-full rounded-lg border border-neutro-300 px-3.5 py-2 text-sm text-neutro-900 focus:border-primario-700 focus:ring-primario-700 transition"
-                        />
-                        <InputError
-                            className="mt-1.5"
-                            message="{formClave.errors.password_confirmation}"
                         />
                     </div>
                 </div>

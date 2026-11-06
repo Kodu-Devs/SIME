@@ -30,6 +30,15 @@ export default function AdminLayout({ children }) {
     const alertasRecientes = alertas?.recientes ?? [];
     const conteoPorTipo = alertas?.por_tipo ?? {};
 
+    // Iniciales dinámicas del usuario logueado (ej. "Administrador" -> "AD")
+    const obtenerIniciales = (nombre = "Administrador") => {
+        const partes = nombre.trim().split(/\s+/);
+        if (partes.length >= 2) {
+            return (partes[0][0] + partes[1][0]).toUpperCase();
+        }
+        return nombre.slice(0, 2).toUpperCase();
+    };
+
     // Cerrar el popover de notificaciones al hacer clic fuera
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -43,13 +52,27 @@ export default function AdminLayout({ children }) {
     }, []);
 
     // Marcar una alerta individual como leída (PATCH /alertas/{alerta}/leer)
-    const marcarUnaLeida = (id) => {
+    const marcarUnaLeida = (e, id) => {
+        e.stopPropagation();
         router.patch(route("alertas.leer", id), {}, { preserveScroll: true });
     };
 
     // Marcar todas como leídas (PATCH /alertas/leer-todas)
     const marcarTodasLeidas = () => {
         router.patch(route("alertas.leerTodas"), {}, { preserveScroll: true });
+    };
+
+    // Redirigir al módulo correspondiente según la categoría de la alerta
+    const irADetalleAlerta = (alerta) => {
+        setShowNotifications(false);
+        if (
+            alerta.categoria === "mantenimiento" ||
+            alerta.categoria === "capacitacion"
+        ) {
+            router.get(route("agenda.index"));
+        } else {
+            router.get(route("extintores.index"));
+        }
     };
 
     // Estilos e íconos según el tipo de alerta ('Urgente', 'Próximo', 'Informativo')
@@ -109,6 +132,8 @@ export default function AdminLayout({ children }) {
         },
     ];
 
+    const enVistaAlertas = route().current("alertas.*");
+
     return (
         <div className="min-h-screen bg-neutro-50 text-neutro-900 flex flex-col md:flex-row pb-16 md:pb-0">
             {/* 1. SIDEBAR DESKTOP Y TABLET */}
@@ -121,7 +146,7 @@ export default function AdminLayout({ children }) {
                         <img
                             src="/img/Logo_h.png"
                             alt="Logo SIME"
-                            className="w-24 h-12 object-contain"
+                            className="w-24 h-12 object-contain brightness-150"
                         />
                     </Link>
                 </div>
@@ -153,7 +178,7 @@ export default function AdminLayout({ children }) {
             <div className="flex-1 flex flex-col min-w-0">
                 {/* HEADER SUPERIOR */}
                 <header className="h-16 bg-white border-b border-neutro-100 px-4 md:px-8 flex items-center justify-between gap-4">
-                    {/* Buscador Global de Comandos */}
+                    {/* Buscador Global de Comandos (Tu componente BarraBusqueda) */}
                     <BarraBusqueda />
 
                     {/* Acciones Derecha: Campana de Notificaciones + Menú Administrador */}
@@ -164,7 +189,11 @@ export default function AdminLayout({ children }) {
                                 onClick={() =>
                                     setShowNotifications(!showNotifications)
                                 }
-                                className="relative p-2 rounded-full text-neutro-600 hover:bg-neutro-50 hover:text-neutro-900 transition"
+                                className={`relative p-2 rounded-full transition ${
+                                    showNotifications || enVistaAlertas
+                                        ? "bg-primario-100/60 text-primario-700"
+                                        : "text-neutro-600 hover:bg-neutro-50 hover:text-neutro-900"
+                                }`}
                             >
                                 <span className="sr-only">Notificaciones</span>
                                 <Bell className="w-5 h-5" />
@@ -207,7 +236,7 @@ export default function AdminLayout({ children }) {
 
                                     {/* Resumen rápido por gravedad (si hay alertas) */}
                                     {totalNoLeidas > 0 && (
-                                        <div className="px-4 py-2 bg-white border-b border-neutro-50 flex items-center gap-2 text-[11px]">
+                                        <div className="px-4 py-2 bg-white border-b border-neutro-50 flex flex-wrap items-center gap-2 text-[11px]">
                                             {conteoPorTipo.Urgente > 0 && (
                                                 <span className="px-2 py-0.5 rounded-full bg-primario-100 text-primario-700 font-semibold">
                                                     {conteoPorTipo.Urgente}{" "}
@@ -242,7 +271,12 @@ export default function AdminLayout({ children }) {
                                                 return (
                                                     <li
                                                         key={item.id}
-                                                        className="p-3.5 hover:bg-neutro-50/80 transition flex items-start justify-between gap-3"
+                                                        onClick={() =>
+                                                            irADetalleAlerta(
+                                                                item,
+                                                            )
+                                                        }
+                                                        className="p-3.5 hover:bg-neutro-50/80 transition flex items-start justify-between gap-3 cursor-pointer"
                                                     >
                                                         <div className="flex items-start gap-3 min-w-0">
                                                             <div
@@ -280,8 +314,9 @@ export default function AdminLayout({ children }) {
 
                                                         <button
                                                             type="button"
-                                                            onClick={() =>
+                                                            onClick={(e) =>
                                                                 marcarUnaLeida(
+                                                                    e,
                                                                     item.id,
                                                                 )
                                                             }
@@ -334,7 +369,7 @@ export default function AdminLayout({ children }) {
                                     className="flex items-center gap-2 rounded-full bg-white px-2.5 py-1 hover:bg-neutro-50 transition focus:outline-none border border-neutro-100"
                                 >
                                     <div className="w-7 h-7 rounded-full bg-primario-100 text-primario-700 flex items-center justify-center text-xs font-bold">
-                                        AD
+                                        {obtenerIniciales(auth?.user?.name)}
                                     </div>
                                     <span className="hidden sm:inline text-etiqueta text-neutro-900">
                                         {auth?.user?.name || "Administrador"}
