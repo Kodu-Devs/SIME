@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('ubicaciones', function (Blueprint $table) {
-            $table->string('nombre', 255)->nullable()->change();
+            $table->string('nombre', 255)->change();
         });
 
         Schema::table('mantenimientos', function (Blueprint $table) {
@@ -39,7 +39,7 @@ return new class extends Migration
         });
 
         Schema::table('ubicaciones', function (Blueprint $table) {
-            $table->text('nombre')->nullable()->change();
+            $table->text('nombre')->change();
         });
     }
 };
