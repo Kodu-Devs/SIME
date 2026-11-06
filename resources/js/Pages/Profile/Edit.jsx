@@ -1,39 +1,40 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
-import DeleteUserForm from './Partials/DeleteUserForm';
-import UpdatePasswordForm from './Partials/UpdatePasswordForm';
-import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
+import AdminLayout from "@/Layouts/AdminLayout";
+import { Head } from "@inertiajs/react";
+import DeleteUserForm from "./Partials/DeleteUserForm";
+import UpdatePasswordForm from "./Partials/UpdatePasswordForm";
+import UpdateProfileInformationForm from "./Partials/UpdateProfileInformationForm";
 
-export default function Edit({ mustVerifyEmail, status }) {
+export default function Edit() {
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Profile
-                </h2>
-            }
-        >
-            <Head title="Profile" />
+        <AdminLayout>
+            <Head title="Perfil" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <UpdateProfileInformationForm
-                            mustVerifyEmail={mustVerifyEmail}
-                            status={status}
-                            className="max-w-xl"
-                        />
-                    </div>
+            <div className="max-w-5xl space-y-6">
+                {/* Encabezado Principal */}
+                <div>
+                    <h1 className="text-titulo-1 font-bold text-neutro-900">
+                        Perfil
+                    </h1>
+                    <p className="text-xs text-neutro-600 mt-0.5">
+                        Administra tu perfil
+                    </p>
+                </div>
 
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <UpdatePasswordForm className="max-w-xl" />
-                    </div>
+                {/* Tarjeta 1: Datos de Perfil */}
+                <div className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-neutro-100">
+                    <UpdateProfileInformationForm />
+                </div>
 
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <DeleteUserForm className="max-w-xl" />
-                    </div>
+                {/* Tarjeta 2: Actualizar Contraseña */}
+                <div className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-neutro-100">
+                    <UpdatePasswordForm />
+                </div>
+
+                {/* Tarjeta 3: Eliminar Cuenta */}
+                <div className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-neutro-100">
+                    <DeleteUserForm />
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }
