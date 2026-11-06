@@ -10,17 +10,11 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Collection;
 
-/**
- * @extends Factory<EventoUso>
- */
 class EventoUsoFactory extends Factory
 {
     protected $model = EventoUso::class;
 
-    /** @var array<int>|null */
     protected static ?array $extintorIds = null;
-
-    /** @var array<int>|null */
     protected static ?array $userIds = null;
 
     private const MOTIVOS = [
@@ -61,9 +55,26 @@ class EventoUsoFactory extends Factory
         );
 
         return [
-            'extintor_id' => $this->extintorId(),
+            // El ID del extintor lo definimos usando una closure para evaluarlo primero
+            'extintor_id' => fn () => $this->extintorId() ?? Extintor::factory(),
             'user_id' => $this->userId(),
-            'fecha' => Carbon::instance(fake()->dateTimeBetween('-12 months', '-1 hour')),
+            // Calculamos la fecha estrictamente entre la instalación de ese extintor y una hora atrás
+            'fecha' => function (array $attributes) {
+                $extintor = Extintor::find($attributes['extintor_id']);
+                
+                if (!$extintor || !$extintor->fecha_instalacion) {
+                    return Carbon::instance(fake()->dateTimeBetween('-12 months', '-1 hour'));
+                }
+                
+                $instalacion = Carbon::parse($extintor->fecha_instalacion);
+                
+                // Si por alguna razón la instalación es futura, usamos el pasado genérico
+                if ($instalacion->isFuture()) {
+                     return Carbon::instance(fake()->dateTimeBetween('-12 months', '-1 hour'));
+                }
+                
+                return Carbon::instance(fake()->dateTimeBetween($instalacion, '-1 hour'));
+            },
             'tipo_motivo' => $tipoMotivo,
             'motivo' => 'ESTRES-' . fake()->randomElement(self::MOTIVOS[$tipoMotivo] ?? ['Evento de uso']),
             'capacitacion_id' => null,
@@ -71,13 +82,6 @@ class EventoUsoFactory extends Factory
         ];
     }
 
-    /**
-     * Evento que viene de una capacitación: queda ligado a ella, su tipo_motivo es
-     * Capacitación y la fecha cae el mismo día que la capacitación.
-     * Las capacitaciones deben ser pasadas (el seeder ya las filtra).
-     *
-     * @param  Collection<int, Capacitacion>  $capacitaciones
-     */
     public function deCapacitacion(Collection $capacitaciones): static
     {
         return $this->state(function () use ($capacitaciones) {

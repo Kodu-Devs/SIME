@@ -4,36 +4,33 @@ namespace Database\Factories;
 
 use App\Models\Extintor;
 use App\Models\Mantenimiento;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends Factory<Mantenimiento>
- */
 class MantenimientoFactory extends Factory
 {
     protected $model = Mantenimiento::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            'extintor_id' => Extintor::inRandomOrder()->value('id'),
+            'extintor_id' => fn () => Extintor::inRandomOrder()->value('id') ?? Extintor::factory(),
             'tipo' => $this->faker->randomElement(['Revisión', 'Relleno de contenido', 'Otra']),
-            // Marca obligatoria ESTRES- en la descripción según las instrucciones
             'descripcion' => 'ESTRES-Mantenimiento ' . $this->faker->sentence(3),
-            'fecha_programada' => $this->faker->dateTimeBetween('-2 months', '+2 months'),
+            'fecha_programada' => function (array $attributes) {
+                $extintor = Extintor::find($attributes['extintor_id']);
+                if (!$extintor || !$extintor->fecha_instalacion) {
+                    return $this->faker->dateTimeBetween('-1 year', '+2 months');
+                }
+                
+                $instalacion = Carbon::parse($extintor->fecha_instalacion);
+                return $this->faker->dateTimeBetween($instalacion, '+2 months');
+            },
             'fecha_realizada' => null,
             'deleted_at' => null,
         ];
     }
 
-    /**
-     * State: Mantenimiento pendiente (fecha_realizada en null)
-     */
     public function pendiente(): static
     {
         return $this->state(fn (array $attributes) => [
@@ -41,13 +38,16 @@ class MantenimientoFactory extends Factory
         ]);
     }
 
-    /**
-     * State: Mantenimiento realizado (fecha_realizada >= programada)
-     */
     public function realizado(): static
     {
         return $this->state(function (array $attributes) {
-            $programada = $this->faker->dateTimeBetween('-3 months', 'now');
+            $extintor = Extintor::find($attributes['extintor_id']);
+            $limiteInferior = ($extintor && $extintor->fecha_instalacion) 
+                ? Carbon::parse($extintor->fecha_instalacion) 
+                : '-1 year';
+
+            $programada = $this->faker->dateTimeBetween($limiteInferior, 'now');
+            
             return [
                 'fecha_programada' => $programada,
                 'fecha_realizada' => $this->faker->dateTimeBetween($programada, 'now'),
@@ -55,20 +55,21 @@ class MantenimientoFactory extends Factory
         });
     }
 
-    /**
-     * State: Mantenimiento atrasado (programado en el pasado y sin realizar)
-     */
     public function atrasado(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'fecha_programada' => $this->faker->dateTimeBetween('-3 months', '-1 days'),
-            'fecha_realizada' => null,
-        ]);
+        return $this->state(function (array $attributes) {
+            $extintor = Extintor::find($attributes['extintor_id']);
+            $limiteInferior = ($extintor && $extintor->fecha_instalacion) 
+                ? Carbon::parse($extintor->fecha_instalacion) 
+                : '-1 year';
+
+            return [
+                'fecha_programada' => $this->faker->dateTimeBetween($limiteInferior, '-1 days'),
+                'fecha_realizada' => null,
+            ];
+        });
     }
 
-    /**
-     * State: Mantenimiento con baja lógica
-     */
     public function conBajaLogica(): static
     {
         return $this->state(fn (array $attributes) => [
