@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\EstatusExtintor;
+use App\Services\AlertaService;
 use Illuminate\Http\Request;
 use App\Models\Extintor;
 use App\Models\TipoExtintor;
@@ -166,9 +168,9 @@ class ExtintorController extends Controller
 
     public function baja(Extintor $extintor)
     {
-        $extintor->update([
-            'estatus' => 'Baja'
-        ]);
+        EstatusExtintor::cambiarA($extintor, 'Baja');
+        $extintor->mantenimientos()->whereNull('fecha_realizada')->delete();
+        AlertaService::cerrarPara('extintor_id', $extintor->id);
 
         return redirect()->route('extintores.index')
             ->with('success', "El extintor {$extintor->etiqueta_inventario} fue dado de baja correctamente.");
