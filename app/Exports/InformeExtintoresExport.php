@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class InformeExtintoresExport implements FromArray, WithTitle, ShouldAutoSize, WithStyles, WithStrictNullComparison{
     private const COLUMNAS = [
@@ -69,23 +70,42 @@ class InformeExtintoresExport implements FromArray, WithTitle, ShouldAutoSize, W
         return 'Lista de extintores';
     }
 
-    public function styles(Worksheet $sheet): array
+        public function styles(Worksheet $sheet): array
     {
-        $ultima = $this->filaTabla + count($this->datos['filas']);
+        $total = count($this->datos['filas']);
+        $ultima = $this->filaTabla + $total;
+
+        // Última columna de la fila de resumen: Total + un estatus por columna.
+        $ultimaResumen = Coordinate::stringFromColumnIndex(1 + count($this->datos['resumen']['por_estatus']));
 
         // Filtros en los encabezados de la tabla principal.
         $sheet->setAutoFilter('A' . $this->filaTabla . ':I' . $ultima);
 
-        return [
-            1 => ['font' => ['bold' => true, 'size' => 14]],
-            'A2:A5' => ['font' => ['bold' => true]],
-            7 => ['font' => ['bold' => true]],
+        $estilos = [
+            1 => ['font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'C0262D']]],
+            'A2:A5' => ['font' => ['bold' => true, 'color' => ['rgb' => '6D6162']]],
+            "A7:{$ultimaResumen}7" => [
+                'font' => ['bold' => true],
+                'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => 'FDEDED']],
+            ],
+            "A8:{$ultimaResumen}8" => ['alignment' => ['horizontal' => 'left']],
             10 => ['font' => ['bold' => true]],
-            11 => ['font' => ['bold' => true]],
-            $this->filaTabla => [
+            'A11:C11' => [
+                'font' => ['bold' => true],
+                'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => 'FDEDED']],
+            ],
+            'A' . $this->filaTabla . ':I' . $this->filaTabla => [
                 'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => '444444']],
+                'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => '272222']],
             ],
         ];
+
+        if ($total > 0) {
+            $estilos['A' . ($this->filaTabla + 1) . ':I' . $ultima] = [
+                'borders' => ['allBorders' => ['borderStyle' => 'thin', 'color' => ['rgb' => 'D7D4D4']]],
+            ];
+        }
+
+        return $estilos;
     }
 }
