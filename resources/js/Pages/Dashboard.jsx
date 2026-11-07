@@ -4,6 +4,7 @@ import TarjetaMetrica from "@/Components/Dashboard/TarjetaMetrica";
 import BannerAlerta from "@/Components/Dashboard/BannerAlerta";
 import PanelAgenda from "@/Components/Dashboard/PanelAgenda";
 import PanelRecomendaciones from "@/Components/Dashboard/PanelRecomendaciones";
+import MapaContenedor from "@/Components/Dashboard/MapaContenedor";
 import AdminLayout from "@/Layouts/AdminLayout";
 
 export default function Dashboard({
@@ -63,15 +64,16 @@ export default function Dashboard({
                         )}
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className=""></div>
+                            <div>
+                                <MapaContenedor />
+                            </div>
                             <div className="flex flex-col gap-6">
                                 <PanelAgenda eventos={agenda} />
                                 <PanelRecomendaciones
                                     recomendaciones={recomendaciones}
                                 />
                             </div>
-
-                            <div className=""></div>
+                            <div></div>
                         </div>
                     </div>
                 </div>
