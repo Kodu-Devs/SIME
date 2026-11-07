@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\EstatusExtintor;
+use App\Services\AlertaService;
 use Illuminate\Http\Request;
 use App\Models\Extintor;
 use App\Models\TipoExtintor;
@@ -9,6 +11,7 @@ use App\Models\Instalacion;
 use Inertia\Inertia;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ExtintorController extends Controller
 {
@@ -16,8 +19,8 @@ class ExtintorController extends Controller
     {
         // Se filtran los extintores dados de baja para que no aparezcan en la tabla activa
         $extintores = Extintor::where('estatus', '!=', 'Baja')
-            ->with(['ubicacion.piso', 'tipoExtintor', 'mantenimientos']) // Aquí está el with() que te pidieron revisar
-            ->paginate(10)
+            ->with(['ubicacion.piso', 'tipoExtintor', 'mantenimientos'])
+            ->paginate(7)
             ->through(fn ($extintor) => [
                 'id' => $extintor->id,
                 'etiqueta_inventario' => $extintor->etiqueta_inventario,
@@ -166,9 +169,11 @@ class ExtintorController extends Controller
 
     public function baja(Extintor $extintor)
     {
-        $extintor->update([
-            'estatus' => 'Baja'
-        ]);
+        DB::transaction(function () use ($extintor) {
+            EstatusExtintor::cambiarA($extintor, 'Baja');
+            $extintor->mantenimientos()->whereNull('fecha_realizada')->delete();
+            AlertaService::cerrarPara('extintor_id', $extintor->id);
+        });
 
         return redirect()->route('extintores.index')
             ->with('success', "El extintor {$extintor->etiqueta_inventario} fue dado de baja correctamente.");

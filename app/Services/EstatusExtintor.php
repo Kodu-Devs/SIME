@@ -9,6 +9,11 @@ class EstatusExtintor
 {
     public static function cambiarA(Extintor $extintor, string $estatus)
     {
+        // Un extintor dado de baja ya no cambia de estatus (regla del 31/10/2026)
+        if ($extintor->estatus === 'Baja') {
+            return $extintor;
+        }
+
         $extintor->update([
             'estatus' => $estatus
         ]);

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Extintor;
 use App\Models\Mantenimiento;
 use Illuminate\Database\Seeder;
+use Carbon\Carbon;
 
 class MantenimientoSeeder extends Seeder
 {
@@ -16,47 +17,56 @@ class MantenimientoSeeder extends Seeder
             return;
         }
 
+        // Definimos compensaciones (días y horas a sumar después de la instalación) en vez de fechas fijas
         $datosFijos = [
-            ['tipo' => 'Revisión', 'descripcion' => 'Revisión trimestral rutinaria', 'fecha_programada' => '2026-01-10 10:00:00', 'fecha_realizada' => '2026-01-10 10:30:00'],
-            ['tipo' => 'Relleno de contenido', 'descripcion' => 'Recarga por uso parcial', 'fecha_programada' => '2026-03-15 09:00:00', 'fecha_realizada' => '2026-03-15 11:00:00'],
-            ['tipo' => 'Otra', 'descripcion' => 'Reemplazo de válvula', 'fecha_programada' => '2026-06-20 12:00:00', 'fecha_realizada' => null],
-            ['tipo' => 'Revisión', 'descripcion' => 'Revisión preventiva', 'fecha_programada' => '2026-01-12 10:00:00', 'fecha_realizada' => '2026-01-12 10:15:00'],
-            ['tipo' => 'Relleno de contenido', 'descripcion' => 'Recarga anual obligatoria', 'fecha_programada' => '2026-02-18 08:30:00', 'fecha_realizada' => '2026-02-18 10:00:00'],
-            ['tipo' => 'Otra', 'descripcion' => 'Reemplazo de etiqueta', 'fecha_programada' => '2026-05-10 14:00:00', 'fecha_realizada' => null],
-            ['tipo' => 'Revisión', 'descripcion' => 'Revisión mensual', 'fecha_programada' => '2026-01-05 09:00:00', 'fecha_realizada' => '2026-01-05 09:30:00'],
-            ['tipo' => 'Relleno de contenido', 'descripcion' => 'Recarga por caducidad del agente', 'fecha_programada' => '2026-04-10 10:00:00', 'fecha_realizada' => '2026-04-10 12:00:00'],
-            ['tipo' => 'Otra', 'descripcion' => 'Reemplazo de cilindro', 'fecha_programada' => '2026-07-01 11:00:00', 'fecha_realizada' => null],
-            ['tipo' => 'Revisión', 'descripcion' => 'Revisión de rutina', 'fecha_programada' => '2026-01-20 10:00:00', 'fecha_realizada' => '2026-01-20 10:30:00'],
-            ['tipo' => 'Relleno de contenido', 'descripcion' => 'Recarga post-incidente', 'fecha_programada' => '2026-02-25 15:00:00', 'fecha_realizada' => '2026-02-25 16:30:00'],
-            ['tipo' => 'Otra', 'descripcion' => 'Reemplazo de soporte', 'fecha_programada' => '2026-08-12 09:00:00', 'fecha_realizada' => null],
-            ['tipo' => 'Revisión', 'descripcion' => 'Revisión inicial del año', 'fecha_programada' => '2026-01-02 08:00:00', 'fecha_realizada' => '2026-01-02 08:45:00'],
-            ['tipo' => 'Relleno de contenido', 'descripcion' => 'Recarga preventiva', 'fecha_programada' => '2026-03-30 11:00:00', 'fecha_realizada' => '2026-03-30 13:00:00'],
-            ['tipo' => 'Otra', 'descripcion' => 'Reemplazo de manómetro', 'fecha_programada' => '2026-09-05 10:00:00', 'fecha_realizada' => null],
+            ['tipo' => 'Revisión', 'descripcion' => 'Revisión trimestral rutinaria', 'add_days' => 10, 'add_hours' => 2],
+            ['tipo' => 'Relleno de contenido', 'descripcion' => 'Recarga por uso parcial', 'add_days' => 45, 'add_hours' => 3],
+            ['tipo' => 'Otra', 'descripcion' => 'Reemplazo de válvula', 'add_days' => 90, 'add_hours' => 0, 'pendiente' => true],
+            ['tipo' => 'Revisión', 'descripcion' => 'Revisión preventiva', 'add_days' => 15, 'add_hours' => 1],
+            ['tipo' => 'Relleno de contenido', 'descripcion' => 'Recarga anual obligatoria', 'add_days' => 365, 'add_hours' => 2],
+            ['tipo' => 'Otra', 'descripcion' => 'Reemplazo de etiqueta', 'add_days' => 120, 'add_hours' => 0, 'pendiente' => true],
+            ['tipo' => 'Revisión', 'descripcion' => 'Revisión mensual', 'add_days' => 30, 'add_hours' => 1],
+            ['tipo' => 'Relleno de contenido', 'descripcion' => 'Recarga por caducidad del agente', 'add_days' => 400, 'add_hours' => 4],
+            ['tipo' => 'Otra', 'descripcion' => 'Reemplazo de cilindro', 'add_days' => 150, 'add_hours' => 0, 'pendiente' => true],
+            ['tipo' => 'Revisión', 'descripcion' => 'Revisión de rutina', 'add_days' => 60, 'add_hours' => 2],
+            ['tipo' => 'Relleno de contenido', 'descripcion' => 'Recarga post-incidente', 'add_days' => 200, 'add_hours' => 5],
+            ['tipo' => 'Otra', 'descripcion' => 'Reemplazo de soporte', 'add_days' => 80, 'add_hours' => 0, 'pendiente' => true],
+            ['tipo' => 'Revisión', 'descripcion' => 'Revisión inicial del año', 'add_days' => 5, 'add_hours' => 1],
+            ['tipo' => 'Relleno de contenido', 'descripcion' => 'Recarga preventiva', 'add_days' => 250, 'add_hours' => 3],
+            ['tipo' => 'Otra', 'descripcion' => 'Reemplazo de manómetro', 'add_days' => 180, 'add_hours' => 0, 'pendiente' => true],
         ];
 
         $contador = 0;
         foreach ($datosFijos as $data) {
             $extintor = $extintores[$contador % $extintores->count()];
+            
+            $fechaInstalacion = Carbon::parse($extintor->fecha_instalacion);
+            
+            // Asegurarnos que la fecha generada no sobrepase el día de hoy
+            $fechaProgramada = $fechaInstalacion->copy()->addDays($data['add_days'])->setTime(10, 0);
+            if ($fechaProgramada->isFuture()) {
+                $fechaProgramada = now()->subDays(2)->setTime(10, 0);
+            }
 
-            // withTrashed: con SoftDeletes, firstOrCreate no ve los mantenimientos
-            // dados de baja y crearia un duplicado; asi la baja se respeta y no se repite
+            $fechaRealizada = isset($data['pendiente']) && $data['pendiente'] 
+                ? null 
+                : $fechaProgramada->copy()->addHours($data['add_hours']);
+
             Mantenimiento::withTrashed()->firstOrCreate(
                 [
                     'extintor_id' => $extintor->getKey(),
-                    'fecha_programada' => $data['fecha_programada'],
+                    'descripcion' => $data['descripcion'],
                 ],
                 [
                     'tipo' => $data['tipo'],
-                    'descripcion' => $data['descripcion'],
-                    'fecha_realizada' => $data['fecha_realizada'],
+                    'fecha_programada' => $fechaProgramada,
+                    'fecha_realizada' => $fechaRealizada,
                 ]
             );
 
             $contador++;
         }
 
-        // Pendientes con fecha relativa a hoy para que la agenda siempre tenga proximos;
-        // la clave no incluye la fecha para que al re-sembrar se actualice y no se duplique
         $proximos = [
             ['tipo' => 'Revisión', 'descripcion' => 'Revisión trimestral programada', 'dias' => 10, 'hora' => 10],
             ['tipo' => 'Relleno de contenido', 'descripcion' => 'Recarga programada', 'dias' => 18, 'hora' => 9],

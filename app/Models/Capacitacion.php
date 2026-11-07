@@ -35,4 +35,9 @@ class Capacitacion extends Model
     {
         return $this->hasMany(EventoUso::class, 'capacitacion_id');
     }
+
+    public function extintores()
+    {
+        return $this->belongsToMany(Extintor::class, 'capacitacion_extintor')->withTimestamps();
+    }
 }

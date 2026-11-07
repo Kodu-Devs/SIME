@@ -1,140 +1,132 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import { Transition } from '@headlessui/react';
-import { useForm } from '@inertiajs/react';
-import { useRef } from 'react';
+import InputError from "@/Components/InputError";
+import { useForm } from "@inertiajs/react";
 
-export default function UpdatePasswordForm({ className = '' }) {
-    const passwordInput = useRef();
-    const currentPasswordInput = useRef();
-
-    const {
-        data,
-        setData,
-        errors,
-        put,
-        reset,
-        processing,
-        recentlySuccessful,
-    } = useForm({
-        current_password: '',
-        password: '',
-        password_confirmation: '',
+export default function UpdatePasswordForm({ className = "" }) {
+    const formClave = useForm({
+        current_password: "",
+        password: "",
+        password_confirmation: "",
     });
 
-    const updatePassword = (e) => {
+    const enviarCambioClave = (e) => {
         e.preventDefault();
 
-        put(route('password.update'), {
+        formClave.put(route("password.update"), {
             preserveScroll: true,
-            onSuccess: () => reset(),
-            onError: (errors) => {
-                if (errors.password) {
-                    reset('password', 'password_confirmation');
-                    passwordInput.current.focus();
-                }
-
-                if (errors.current_password) {
-                    reset('current_password');
-                    currentPasswordInput.current.focus();
-                }
+            onSuccess: () => formClave.reset(),
+            onError: () => {
+                formClave.reset("password", "password_confirmation");
             },
         });
     };
 
     return (
         <section className={className}>
-            <header>
-                <h2 className="text-lg font-medium text-gray-900">
-                    Update Password
+            <div className="mb-5">
+                <h2 className="text-titulo-2 font-bold text-neutro-900">
+                    Actualizar contraseña
                 </h2>
-
-                <p className="mt-1 text-sm text-gray-600">
-                    Ensure your account is using a long, random password to stay
-                    secure.
+                <p className="mt-1 text-xs text-neutro-600">
+                    Asegúrate de usar una contraseña larga y aleatoria para
+                    mantener tu cuenta segura.
                 </p>
-            </header>
+            </div>
 
-            <form onSubmit={updatePassword} className="mt-6 space-y-6">
-                <div>
-                    <InputLabel
-                        htmlFor="current_password"
-                        value="Current Password"
-                    />
+            <form onSubmit={enviarCambioClave} className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Columna 1: Contraseña actual */}
+                    <div>
+                        <label
+                            htmlFor="clave-actual"
+                            className="block text-xs font-bold text-neutro-900 mb-1.5"
+                        >
+                            Contraseña actual
+                        </label>
+                        <input
+                            id="clave-actual"
+                            type="password"
+                            value={formClave.data.current_password}
+                            onChange={(e) =>
+                                formClave.setData(
+                                    "current_password",
+                                    e.target.value,
+                                )
+                            }
+                            autoComplete="current-password"
+                            className="w-full rounded-lg border border-neutro-300 px-3.5 py-2 text-sm text-neutro-900 focus:border-primario-700 focus:ring-primario-700 transition"
+                        />
+                        <InputError
+                            message={formClave.errors.current_password}
+                            className="mt-2"
+                        />
+                    </div>
 
-                    <TextInput
-                        id="current_password"
-                        ref={currentPasswordInput}
-                        value={data.current_password}
-                        onChange={(e) =>
-                            setData('current_password', e.target.value)
-                        }
-                        type="password"
-                        className="mt-1 block w-full"
-                        autoComplete="current-password"
-                    />
+                    {/* Columna 2: Nueva contraseña */}
+                    <div>
+                        <label
+                            htmlFor="clave-nueva"
+                            className="block text-xs font-bold text-neutro-900 mb-1.5"
+                        >
+                            Nueva contraseña
+                        </label>
+                        <input
+                            id="clave-nueva"
+                            type="password"
+                            value={formClave.data.password}
+                            onChange={(e) =>
+                                formClave.setData("password", e.target.value)
+                            }
+                            autoComplete="new-password"
+                            className="w-full rounded-lg border border-neutro-300 px-3.5 py-2 text-sm text-neutro-900 focus:border-primario-700 focus:ring-primario-700 transition"
+                        />
+                        <InputError
+                            message={formClave.errors.password}
+                            className="mt-2"
+                        />
+                    </div>
 
-                    <InputError
-                        message={errors.current_password}
-                        className="mt-2"
-                    />
-                </div>
-
-                <div>
-                    <InputLabel htmlFor="password" value="New Password" />
-
-                    <TextInput
-                        id="password"
-                        ref={passwordInput}
-                        value={data.password}
-                        onChange={(e) => setData('password', e.target.value)}
-                        type="password"
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                    />
-
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div>
-                    <InputLabel
-                        htmlFor="password_confirmation"
-                        value="Confirm Password"
-                    />
-
-                    <TextInput
-                        id="password_confirmation"
-                        value={data.password_confirmation}
-                        onChange={(e) =>
-                            setData('password_confirmation', e.target.value)
-                        }
-                        type="password"
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                    />
-
-                    <InputError
-                        message={errors.password_confirmation}
-                        className="mt-2"
-                    />
+                    {/* Columna 3: Confirmar contraseña */}
+                    <div>
+                        <label
+                            htmlFor="clave-confirmacion"
+                            className="block text-xs font-bold text-neutro-900 mb-1.5"
+                        >
+                            Confirmar contraseña
+                        </label>
+                        <input
+                            id="clave-confirmacion"
+                            type="password"
+                            value={formClave.data.password_confirmation}
+                            onChange={(e) =>
+                                formClave.setData(
+                                    "password_confirmation",
+                                    e.target.value,
+                                )
+                            }
+                            autoComplete="new-password"
+                            className="w-full rounded-lg border border-neutro-300 px-3.5 py-2 text-sm text-neutro-900 focus:border-primario-700 focus:ring-primario-700 transition"
+                        />
+                        <InputError
+                            message={formClave.errors.password_confirmation}
+                            className="mt-2"
+                        />
+                    </div>
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>Save</PrimaryButton>
-
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
+                    <button
+                        type="submit"
+                        disabled={formClave.processing}
+                        className="bg-primario-700 hover:bg-primario-900 text-white text-xs font-semibold px-5 py-2.5 rounded-lg transition disabled:opacity-50"
                     >
-                        <p className="text-sm text-gray-600">
-                            Saved.
-                        </p>
-                    </Transition>
+                        Guardar
+                    </button>
+
+                    {formClave.recentlySuccessful && (
+                        <span className="text-xs font-semibold text-acento-500">
+                            Contraseña actualizada.
+                        </span>
+                    )}
                 </div>
             </form>
         </section>

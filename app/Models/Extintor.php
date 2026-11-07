@@ -58,6 +58,11 @@ class Extintor extends Model
         return $this->hasMany(Mantenimiento::class, 'extintor_id');
     }
 
+    public function capacitaciones()
+    {
+        return $this->belongsToMany(Capacitacion::class, 'capacitacion_extintor')->withTimestamps();
+    }
+
 
     public function scopeVencidos(Builder $query): Builder
     {
