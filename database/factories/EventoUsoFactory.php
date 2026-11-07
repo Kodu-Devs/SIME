@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Capacitacion;
 use App\Models\EventoUso;
 use App\Models\Extintor;
 use App\Models\User;
@@ -9,12 +10,17 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Collection;
 
+/**
+ * @extends Factory<EventoUso>
+ */
 class EventoUsoFactory extends Factory
 {
     protected $model = EventoUso::class;
 
+    /** @var array<int>|null */
     protected static ?array $userIds = null;
 
+    /** @var array<int, string>|null */
     protected static ?array $fechasExtintores = null;
 
     private const MOTIVOS = [
@@ -47,6 +53,11 @@ class EventoUsoFactory extends Factory
         static::$userIds = null;
     }
 
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
         if (static::$fechasExtintores === null) {
@@ -78,16 +89,34 @@ class EventoUsoFactory extends Factory
         ];
     }
 
+    /**
+     * Evento que viene de una capacitación.
+     *
+     * @param  Collection<int, Capacitacion>  $capacitaciones
+     */
     public function deCapacitacion(Collection $capacitaciones): static
     {
-        return $this->state(function () use ($capacitaciones) {
-            $capacitacion = $capacitaciones->random();
+        return $this->state(function (array $attributes) use ($capacitaciones) {
+            $extintorId = $attributes['extintor_id'];
+            $fechaStr = static::$fechasExtintores[$extintorId] ?? null;
+            $instalacion = $fechaStr ? Carbon::parse($fechaStr) : now()->subYear();
+
+            // Filtrar para usar solo capacitaciones posteriores a la instalación
+            $validas = $capacitaciones->filter(fn ($cap) => $cap->fecha_hora->isAfter($instalacion));
+            $capacitacion = $validas->isNotEmpty() ? $validas->random() : $capacitaciones->random();
+
+            $fecha = $capacitacion->fecha_hora->copy()->addMinutes(fake()->numberBetween(10, 180));
+
+            // Garantizar la coherencia por si caemos en el fallback
+            if ($fecha->isBefore($instalacion)) {
+                $fecha = $instalacion->copy()->addDays(1);
+            }
 
             return [
                 'capacitacion_id' => $capacitacion->id,
                 'tipo_motivo' => 'Capacitación',
                 'motivo' => 'ESTRES-'.fake()->randomElement(self::MOTIVOS['Capacitación']),
-                'fecha' => $capacitacion->fecha_hora->copy()->addMinutes(fake()->numberBetween(10, 180)),
+                'fecha' => $fecha,
                 'tipo_descarga' => fake()->boolean(20) ? 'total' : 'parcial',
             ];
         });
