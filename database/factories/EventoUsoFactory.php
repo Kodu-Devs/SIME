@@ -18,10 +18,10 @@ class EventoUsoFactory extends Factory
     protected $model = EventoUso::class;
 
     /** @var array<int>|null */
-    protected static ?array $extintorIds = null;
-
-    /** @var array<int>|null */
     protected static ?array $userIds = null;
+
+    /** @var array<int, string>|null */
+    protected static ?array $fechasExtintores = null;
 
     private const MOTIVOS = [
         'Conato' => [
@@ -49,46 +49,74 @@ class EventoUsoFactory extends Factory
 
     public static function reiniciarCache(): void
     {
-        static::$extintorIds = null;
+        static::$fechasExtintores = null;
         static::$userIds = null;
     }
 
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
-        // Sin Capacitación: ese tipo solo va con capacitacion_id (ver deCapacitacion()).
+        if (static::$fechasExtintores === null) {
+            static::$fechasExtintores = Extintor::pluck('fecha_instalacion', 'id')->toArray();
+        }
+
+        $ids = array_keys(static::$fechasExtintores);
+        $extintorId = ! empty($ids) ? fake()->randomElement($ids) : Extintor::factory()->create()->id;
+
         $tipoMotivo = fake()->randomElement(
             array_values(array_diff(EventoUso::TIPOS_MOTIVO, ['Capacitación']))
         );
 
+        $fechaStr = static::$fechasExtintores[$extintorId] ?? null;
+        $instalacion = $fechaStr ? Carbon::parse($fechaStr) : now()->subYear();
+
+        if ($instalacion->isFuture() || $instalacion->diffInMinutes(now()) < 60) {
+            $instalacion = now()->subYear();
+        }
+
         return [
-            'extintor_id' => $this->extintorId(),
+            'extintor_id' => $extintorId,
             'user_id' => $this->userId(),
-            'fecha' => Carbon::instance(fake()->dateTimeBetween('-12 months', '-1 hour')),
+            'fecha' => Carbon::instance(fake()->dateTimeBetween($instalacion, '-1 hour')),
             'tipo_motivo' => $tipoMotivo,
-            'motivo' => 'ESTRES-' . fake()->randomElement(self::MOTIVOS[$tipoMotivo] ?? ['Evento de uso']),
+            'motivo' => 'ESTRES-'.fake()->randomElement(self::MOTIVOS[$tipoMotivo] ?? ['Evento de uso']),
             'capacitacion_id' => null,
             'tipo_descarga' => $this->descarga($tipoMotivo),
         ];
     }
 
     /**
-     * Evento que viene de una capacitación: queda ligado a ella, su tipo_motivo es
-     * Capacitación y la fecha cae el mismo día que la capacitación.
-     * Las capacitaciones deben ser pasadas (el seeder ya las filtra).
+     * Evento que viene de una capacitación.
      *
      * @param  Collection<int, Capacitacion>  $capacitaciones
      */
     public function deCapacitacion(Collection $capacitaciones): static
     {
-        return $this->state(function () use ($capacitaciones) {
-            $capacitacion = $capacitaciones->random();
+        return $this->state(function (array $attributes) use ($capacitaciones) {
+            $extintorId = $attributes['extintor_id'];
+            $fechaStr = static::$fechasExtintores[$extintorId] ?? null;
+            $instalacion = $fechaStr ? Carbon::parse($fechaStr) : now()->subYear();
+
+            // Filtrar para usar solo capacitaciones posteriores a la instalación
+            $validas = $capacitaciones->filter(fn ($cap) => $cap->fecha_hora->isAfter($instalacion));
+            $capacitacion = $validas->isNotEmpty() ? $validas->random() : $capacitaciones->random();
+
+            $fecha = $capacitacion->fecha_hora->copy()->addMinutes(fake()->numberBetween(10, 180));
+
+            // Garantizar la coherencia por si caemos en el fallback
+            if ($fecha->isBefore($instalacion)) {
+                $fecha = $instalacion->copy()->addDays(1);
+            }
 
             return [
                 'capacitacion_id' => $capacitacion->id,
                 'tipo_motivo' => 'Capacitación',
-                'motivo' => 'ESTRES-' . fake()->randomElement(self::MOTIVOS['Capacitación']),
-                'fecha' => $capacitacion->fecha_hora->copy()->addMinutes(fake()->numberBetween(10, 180)),
-                // En las prácticas casi siempre es descarga parcial.
+                'motivo' => 'ESTRES-'.fake()->randomElement(self::MOTIVOS['Capacitación']),
+                'fecha' => $fecha,
                 'tipo_descarga' => fake()->boolean(20) ? 'total' : 'parcial',
             ];
         });
@@ -103,13 +131,6 @@ class EventoUsoFactory extends Factory
         };
 
         return fake()->boolean($probabilidadTotal) ? 'total' : 'parcial';
-    }
-
-    private function extintorId(): ?int
-    {
-        static::$extintorIds ??= Extintor::inRandomOrder()->pluck('id')->all();
-
-        return static::$extintorIds ? fake()->randomElement(static::$extintorIds) : null;
     }
 
     private function userId(): ?int
