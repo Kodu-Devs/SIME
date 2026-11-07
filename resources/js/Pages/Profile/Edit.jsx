@@ -1,6 +1,5 @@
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head } from "@inertiajs/react";
-import DeleteUserForm from "./Partials/DeleteUserForm";
 import UpdatePasswordForm from "./Partials/UpdatePasswordForm";
 import UpdateProfileInformationForm from "./Partials/UpdateProfileInformationForm";
 
@@ -28,11 +27,6 @@ export default function Edit() {
                 {/* Tarjeta 2: Actualizar Contraseña */}
                 <div className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-neutro-100">
                     <UpdatePasswordForm />
-                </div>
-
-                {/* Tarjeta 3: Eliminar Cuenta */}
-                <div className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-neutro-100">
-                    <DeleteUserForm />
                 </div>
             </div>
         </AdminLayout>
