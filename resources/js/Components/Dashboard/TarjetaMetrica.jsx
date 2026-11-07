@@ -2,7 +2,7 @@ export default function TarjetaMetrica({
     titulo,
     valor,
     detalle,
-    colorTexto = "text-gray-900",
+    colorTexto = "text-neutro-900",
 }) {
     return (
         <div className="bg-white rounded-lg shadow-md p-6 flex flex-col items-start mt-8">
