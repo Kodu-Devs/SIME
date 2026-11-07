@@ -59,21 +59,35 @@ class InformeUsosExport implements FromArray, WithTitle, ShouldAutoSize, WithSty
         return 'Eventos de uso';
     }
 
-    public function styles(Worksheet $sheet): array
+        public function styles(Worksheet $sheet): array
     {
-        $ultima = self::FILA_TABLA + count($this->datos['filas']);
+        $total = count($this->datos['filas']);
+        $ultima = self::FILA_TABLA + $total;
 
-        // Filtros en los encabezados (se puede filtrar por tipo de motivo) y fila fija.
+        // Filtros en los encabezados (se puede filtrar por tipo de motivo).
         $sheet->setAutoFilter('A' . self::FILA_TABLA . ':I' . $ultima);
 
-        return [
-            1 => ['font' => ['bold' => true, 'size' => 14]],
-            'A2:A5' => ['font' => ['bold' => true]],
-            7 => ['font' => ['bold' => true]],
-            self::FILA_TABLA => [
+        $estilos = [
+            1 => ['font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'C0262D']]],
+            'A2:A5' => ['font' => ['bold' => true, 'color' => ['rgb' => '6D6162']]],
+            'A7:D7' => [
+                'font' => ['bold' => true],
+                'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => 'FDEDED']],
+            ],
+            'A8:D8' => ['alignment' => ['horizontal' => 'left']],
+            'A' . self::FILA_TABLA . ':I' . self::FILA_TABLA => [
                 'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => '444444']],
+                'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => '272222']],
             ],
         ];
+
+        // Líneas finas en las filas de datos (si las hay).
+        if ($total > 0) {
+            $estilos['A' . (self::FILA_TABLA + 1) . ':I' . $ultima] = [
+                'borders' => ['allBorders' => ['borderStyle' => 'thin', 'color' => ['rgb' => 'D7D4D4']]],
+            ];
+        }
+
+        return $estilos;
     }
 }
