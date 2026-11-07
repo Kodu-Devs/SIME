@@ -52,10 +52,10 @@ class AgendaController extends Controller
 
 
         //Obtener capacitaciones del mes
-        $capacitaciones = Capacitacion::with(['ubicacion', 'eventosUso:id,capacitacion_id,extintor_id'])->whereBetween('fecha_hora', [$fecha_inicio, $fecha_fin])
+        $capacitaciones = Capacitacion::with(['ubicacion', 'extintores:id'])->whereBetween('fecha_hora', [$fecha_inicio, $fecha_fin])
             ->get()
             ->map(function ($dc) {
-                $extintores_id = $dc->eventosUso->pluck('extintor_id')->unique()->values();
+                $extintores_id = $dc->extintores->pluck('id')->unique()->values();
                 return [
                     'id' => $dc->id,
                     'clase' => 'capacitacion',
@@ -125,11 +125,12 @@ class AgendaController extends Controller
     {
         $v = $request->validated();
         DB::transaction(function () use ($v) {
-            Capacitacion::create([
+            $capacitacion = Capacitacion::create([
                 'nombre' => $v['nombre'],
                 'fecha_hora' => $v['fecha_hora'],
                 'ubicacion_id' => $v['ubicacion_id']
             ]);
+            $capacitacion->extintores()->sync($v['extintores_id'] ?? []);
         });
         return back()->with('success', 'Capacitación creada correctamente.');
     }
@@ -165,6 +166,7 @@ class AgendaController extends Controller
 
         DB::transaction(function () use ($v, $capacitacion) {
             $capacitacion->update($v);
+            $capacitacion->extintores()->sync($v['extintores_id'] ?? []);
             AlertaService::cerrarPara('capacitacion_id', $capacitacion->id);
         });
         return back()->with('success', 'Capacitación actualizada correctamente.');

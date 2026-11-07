@@ -27,7 +27,9 @@ class StoreCapacitacionRequest extends FormRequest
         return [
             'nombre' => ['required', 'string', 'max:255'],
             'fecha_hora' => ['required', 'date', 'after:now'],
-            'ubicacion_id' => ['required', 'exists:ubicaciones,id']
+            'ubicacion_id' => ['required', 'exists:ubicaciones,id'],
+            'extintores_id' => ['nullable', 'array'],
+            'extintores_id.*' => ['integer', 'exists:extintores,id'] //Validacion por cada id de extintor en existencia
         ];
     }
 }
