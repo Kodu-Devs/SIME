@@ -1,36 +1,31 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, usePage, Link } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import ExtintoresHeader from '@/Components/Extintores/ExtintoresHeader';
 import ExtintorFilterPills from '@/Components/Extintores/ExtintorFilterPills';
 import ExtintoresTable from '@/Components/Extintores/ExtintoresTable';
 import ExtintorFormPanel from '@/Components/Extintores/ExtintorFormPanel';
-
-const ITEMS_PER_PAGE = 5;
+import ExtintorNotification from '@/Components/Extintores/ExtintorNotification'; // <-- 1. Importar
 
 export default function Index(props) {
-    const { auth } = usePage().props;
+    const { auth, flash } = usePage().props; // <-- 2. Extraer flash
 
-    // Datos recibidos desde ExtintorController
-    const extintoresRaw = props.extintores?.data || (Array.isArray(props.extintores) ? props.extintores : []);
+    const [flashDismissed, setFlashDismissed] = useState(false);
+
+    // Datos paginados recibidos desde ExtintorController
+    const extintoresPaginator = props.extintores || {};
+    const extintoresRaw = extintoresPaginator.data || (Array.isArray(props.extintores) ? props.extintores : []);
     const tipos = props.tipos || [];
     const instalaciones = props.instalaciones || [];
     const capacidades_kg = props.capacidades_kg || [];
     const capacidades_l = props.capacidades_l || [];
 
-    // Estados de interacción
     const [selectedExtintor, setSelectedExtintor] = useState(null);
     const [activeFilter, setActiveFilter] = useState('Todos');
     const [isMobileFormOpen, setIsMobileFormOpen] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
 
-    // Si el usuario cambia el filtro, regresar a la página 1
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [activeFilter]);
-
-    // Normalización: cruza la ubicación con el árbol de instalaciones
+    // Normalización de ubicaciones
     const normalizedExtintores = useMemo(() => {
         return extintoresRaw.map((ext) => {
             const areaNombre = ext.ubicacion_nombre || ext.area_nombre || '';
@@ -84,7 +79,6 @@ export default function Index(props) {
         });
     }, [extintoresRaw, instalaciones, tipos]);
 
-    // Filtrado reactivo
     const filteredExtintores = useMemo(() => {
         if (activeFilter === 'Todos') return normalizedExtintores;
 
@@ -108,14 +102,6 @@ export default function Index(props) {
         });
     }, [normalizedExtintores, activeFilter]);
 
-    // Paginación local exacta
-    const totalPages = Math.ceil(filteredExtintores.length / ITEMS_PER_PAGE) || 1;
-    const paginatedExtintores = useMemo(() => {
-        const start = (currentPage - 1) * ITEMS_PER_PAGE;
-        return filteredExtintores.slice(start, start + ITEMS_PER_PAGE);
-    }, [filteredExtintores, currentPage]);
-
-    // Manejadores de interacción
     const handleSelectExtintor = (extintor) => {
         setSelectedExtintor(extintor);
         if (extintor) {
@@ -133,49 +119,59 @@ export default function Index(props) {
         setIsMobileFormOpen(true);
     };
 
-    // Renderizado de controles de paginación
     const renderPagination = () => {
-        if (totalPages <= 1) return null;
+        const { current_page, last_page, prev_page_url, next_page_url, links } = extintoresPaginator;
+
+        if (!last_page || last_page <= 1) return null;
 
         return (
             <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-[#D7D4D4] sm:px-6 rounded-b-2xl shadow-xs mt-1 font-['Manrope']">
                 <div className="text-xs text-[#6D6162]">
-                    Página <span className="font-semibold text-[#272222]">{currentPage}</span> de{' '}
-                    <span className="font-semibold text-[#272222]">{totalPages}</span>
+                    Página <span className="font-semibold text-[#272222]">{current_page}</span> de{' '}
+                    <span className="font-semibold text-[#272222]">{last_page}</span>
                 </div>
 
                 <div className="inline-flex items-center gap-1">
-                    <button
-                        type="button"
-                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                        className="p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] hover:bg-[#F1F0F0] disabled:opacity-40 disabled:cursor-not-allowed"
+                    <Link
+                        href={prev_page_url || '#'}
+                        preserveScroll
+                        preserveState
+                        as={prev_page_url ? 'a' : 'span'}
+                        className={`p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] transition-colors ${prev_page_url
+                                ? 'hover:bg-[#F1F0F0] cursor-pointer'
+                                : 'opacity-40 cursor-not-allowed pointer-events-none'
+                            }`}
                     >
                         <ChevronLeft className="w-4 h-4" />
-                    </button>
+                    </Link>
 
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                        <button
-                            key={page}
-                            type="button"
-                            onClick={() => setCurrentPage(page)}
-                            className={`w-7 h-7 text-xs font-semibold rounded-lg transition-colors ${currentPage === page
+                    {links && links.slice(1, -1).map((link, idx) => (
+                        <Link
+                            key={idx}
+                            href={link.url || '#'}
+                            preserveScroll
+                            preserveState
+                            as={link.url ? 'a' : 'span'}
+                            dangerouslySetInnerHTML={{ __html: link.label }}
+                            className={`w-7 h-7 flex items-center justify-center text-xs font-semibold rounded-lg transition-colors ${link.active
                                     ? 'bg-[#C0262D] text-white shadow-xs'
                                     : 'border border-[#D7D4D4] text-[#272222] hover:bg-[#F1F0F0]'
-                                }`}
-                        >
-                            {page}
-                        </button>
+                                } ${!link.url ? 'opacity-40 pointer-events-none' : 'cursor-pointer'}`}
+                        />
                     ))}
 
-                    <button
-                        type="button"
-                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                        className="p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] hover:bg-[#F1F0F0] disabled:opacity-40 disabled:cursor-not-allowed"
+                    <Link
+                        href={next_page_url || '#'}
+                        preserveScroll
+                        preserveState
+                        as={next_page_url ? 'a' : 'span'}
+                        className={`p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] transition-colors ${next_page_url
+                                ? 'hover:bg-[#F1F0F0] cursor-pointer'
+                                : 'opacity-40 cursor-not-allowed pointer-events-none'
+                            }`}
                     >
                         <ChevronRight className="w-4 h-4" />
-                    </button>
+                    </Link>
                 </div>
             </div>
         );
@@ -189,13 +185,22 @@ export default function Index(props) {
                 {/* 1. Encabezado */}
                 <ExtintoresHeader onAddNew={handleAddNew} />
 
-                {/* 2. Barra de píldoras de filtrado */}
+                {/* 2. Banner de Notificación Visual */}
+                {!flashDismissed && (flash?.success || flash?.error) && (
+                    <ExtintorNotification
+                        message={flash?.success || flash?.error}
+                        type={flash?.success ? 'success' : 'error'}
+                        onClose={() => setFlashDismissed(true)}
+                    />
+                )}
+
+                {/* 3. Filtros */}
                 <ExtintorFilterPills
                     activeFilter={activeFilter}
                     onFilterChange={setActiveFilter}
                 />
 
-                {/* 3. Vista móvil: sólo activa cuando isMobileFormOpen es true o false */}
+                {/* 4. Vista Móvil */}
                 <div className="block md:hidden">
                     {isMobileFormOpen ? (
                         <div>
@@ -220,7 +225,7 @@ export default function Index(props) {
                     ) : (
                         <div>
                             <ExtintoresTable
-                                extintores={paginatedExtintores}
+                                extintores={filteredExtintores}
                                 selectedExtintor={selectedExtintor}
                                 onSelectExtintor={handleSelectExtintor}
                             />
@@ -229,11 +234,11 @@ export default function Index(props) {
                     )}
                 </div>
 
-                {/* 4. Vista escritorio: oculta en móviles para no empalmar selectores */}
+                {/* 5. Vista Escritorio */}
                 <div className="hidden md:grid grid-cols-12 gap-6 items-start">
                     <div className="col-span-8">
                         <ExtintoresTable
-                            extintores={paginatedExtintores}
+                            extintores={filteredExtintores}
                             selectedExtintor={selectedExtintor}
                             onSelectExtintor={handleSelectExtintor}
                         />
