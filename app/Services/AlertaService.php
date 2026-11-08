@@ -19,6 +19,7 @@ class AlertaService
     {
         //Validar que el extintor no este en baja
         if ($e->estatus == 'Baja') {
+            self::cerrarPara('extintor_id', $e->id);
             return;
         }
 
@@ -36,7 +37,6 @@ class AlertaService
             self::cerrarPara('extintor_id', $e->id, 'vencido'); //Cerrar alertas anteriores al estar vigente
             self::cerrarPara('extintor_id', $e->id, 'por_vencer');
         }
-
 
         //Bloque estatus
         if ($e->estatus == 'Vacío' || $e->estatus == 'Fuera de servicio') {
@@ -71,6 +71,9 @@ class AlertaService
             //Cerrar alertas para mantenimientos Urgentes
             Alerta::where('mantenimiento_id', $m->id)->where('categoria', 'mantenimiento')->where('tipo', 'Urgente')->noLeidas()->update(['leida' => true]);
             self::generar('mantenimiento_id', $m->id, 'Próximo', 'mantenimiento', 'Mantenimiento próximo');
+        } else {
+            //Si se reprograma un mantenimiento
+            self::cerrarPara('mantenimiento_id', $m->id, 'mantenimiento');
         }
     }
 
