@@ -8,6 +8,7 @@ use App\Models\Ubicacion;
 use App\Services\ResumenExtintores;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Extintor;
 
 /**
  * Controlador del Módulo 2: Mapa.
@@ -40,19 +41,18 @@ class MapaController extends Controller
             }, 'extintores_count')
 
             // 2. Cuenta los extintores VENCIDOS por instalación utilizando el motor de BD
-            ->selectSub(function ($query) {
-                $query->from('extintores')
+            ->selectSub(
+                Extintor::vencidos()
                     ->join('ubicaciones', 'extintores.ubicacion_id', '=', 'ubicaciones.id')
                     ->join('pisos', 'ubicaciones.piso_id', '=', 'pisos.id')
                     ->whereColumn('pisos.instalacion_id', 'instalaciones.id')
-                    ->where('extintores.estatus', '!=', 'Baja')
-                    ->whereDate('extintores.fecha_vencimiento', '<', today())
-                    ->selectRaw('count(*)');
-            }, 'vencidos_count')
+                    ->selectRaw('count(*)'),
+                'vencidos_count'
+            )
             ->get();
 
         // 3. Adaptador para Frontend: Genera el diccionario {'Edificio A': {total: 5, vencidos: 2}}
-        $porEdificioUli = $instalaciones->mapWithKeys(function ($inst) {
+        $porEdificio = $instalaciones->mapWithKeys(function ($inst) {
             return [
                 $inst->nombre => [
                     'total' => $inst->extintores_count ?? 0,
@@ -63,7 +63,7 @@ class MapaController extends Controller
 
         // Se retorna una sola vista con las métricas consolidadas y parseadas
         return Inertia::render('Mapa/Index', [
-            'porEdificio'   => $porEdificioUli,
+            'porEdificio'   => $porEdificio,
             'instalaciones' => $instalaciones,
             'porEstatus'    => $resumen->porEstatus(),
             'vencidos'      => $resumen->vencidos(),
