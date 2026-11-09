@@ -1,7 +1,6 @@
 import React from "react";
 import Espacio from "@/Components/Mapa/Planos/Espacio";
 
-// COORDENADAS EXACTAS EXTRAÍDAS DE TUS SVGS ORIGINALES DE FIGMA
 const DISTRIBUCIONES_PB = {
     "Edificio A": [
         {
@@ -10,7 +9,7 @@ const DISTRIBUCIONES_PB = {
             width: 207.53,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 223,
@@ -18,7 +17,7 @@ const DISTRIBUCIONES_PB = {
             width: 64.54,
             height: 194.5,
             tipo: "oficina",
-            nombre: "Oficina",
+            nombre: "Oficina de cómputo",
         },
         {
             x: 294,
@@ -26,7 +25,7 @@ const DISTRIBUCIONES_PB = {
             width: 139.01,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 438.96,
@@ -42,7 +41,7 @@ const DISTRIBUCIONES_PB = {
             width: 138.02,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 718,
@@ -50,7 +49,7 @@ const DISTRIBUCIONES_PB = {
             width: 136.2,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 10,
@@ -58,7 +57,7 @@ const DISTRIBUCIONES_PB = {
             width: 207.53,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 223,
@@ -90,7 +89,7 @@ const DISTRIBUCIONES_PB = {
             width: 138.02,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 718,
@@ -98,18 +97,17 @@ const DISTRIBUCIONES_PB = {
             width: 136.2,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
     ],
     "Edificio C": [
-        // ---- Fila superior ----
         {
             x: 10,
             y: 10,
             width: 138.022,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón",
+            nombre: "Lab. Programación",
         },
         {
             x: 154,
@@ -133,7 +131,7 @@ const DISTRIBUCIONES_PB = {
             width: 129.086,
             height: 194.5,
             tipo: "pasillo",
-            nombre: "",
+            nombre: "Pasillo",
         },
         {
             x: 576,
@@ -141,10 +139,8 @@ const DISTRIBUCIONES_PB = {
             width: 280.352,
             height: 194.99,
             tipo: "salon",
-            nombre: "Salón",
+            nombre: "Auditorio",
         },
-
-        // ---- Fila inferior ----
         {
             x: 10,
             y: 279,
@@ -193,7 +189,7 @@ const DISTRIBUCIONES_PB = {
             width: 138.02,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 154,
@@ -201,7 +197,7 @@ const DISTRIBUCIONES_PB = {
             width: 139.01,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 299,
@@ -225,7 +221,7 @@ const DISTRIBUCIONES_PB = {
             width: 89.15,
             height: 194.98,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Pasillo",
         },
         {
             x: 575,
@@ -241,7 +237,7 @@ const DISTRIBUCIONES_PB = {
             width: 140,
             height: 195,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 10,
@@ -249,7 +245,7 @@ const DISTRIBUCIONES_PB = {
             width: 424.49,
             height: 194.5,
             tipo: "taller",
-            nombre: "Taller",
+            nombre: "Taller automotriz",
         },
         {
             x: 440,
@@ -257,7 +253,7 @@ const DISTRIBUCIONES_PB = {
             width: 416.54,
             height: 193.51,
             tipo: "taller",
-            nombre: "Taller ",
+            nombre: "Taller de robótica",
         },
     ],
     "Edificio D": [
@@ -267,7 +263,7 @@ const DISTRIBUCIONES_PB = {
             width: 138.02,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 154,
@@ -275,7 +271,7 @@ const DISTRIBUCIONES_PB = {
             width: 139.01,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 299,
@@ -299,7 +295,7 @@ const DISTRIBUCIONES_PB = {
             width: 89.15,
             height: 194.98,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 575,
@@ -315,7 +311,7 @@ const DISTRIBUCIONES_PB = {
             width: 140,
             height: 195,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 10,
@@ -331,21 +327,18 @@ const DISTRIBUCIONES_PB = {
             width: 416.54,
             height: 193.51,
             tipo: "taller",
-            nombre: "Taller ",
+            nombre: "Taller",
         },
     ],
     "Edificio E": [
-        // ---- Vestíbulo ----
         {
             x: 6,
             y: 6,
             width: 179,
             height: 468,
             tipo: "vestibulo",
-            nombre: "Vestíbulo",
+            nombre: "Auditorio",
         },
-
-        // ---- Fila superior ----
         {
             x: 191,
             y: 6,
@@ -386,8 +379,6 @@ const DISTRIBUCIONES_PB = {
             tipo: "salon",
             nombre: "Salón 4",
         },
-
-        // ---- Fila inferior ----
         {
             x: 191,
             y: 278,
@@ -428,8 +419,6 @@ const DISTRIBUCIONES_PB = {
             tipo: "salon",
             nombre: "Salón 8",
         },
-
-        // ---- Escaleras (gris claro en este edificio) ----
         {
             x: 759,
             y: 165,
@@ -447,7 +436,27 @@ const DISTRIBUCIONES_PB = {
             width: 856,
             height: 460,
             tipo: "taller",
-            nombre: "Área de Almacenamiento Principal",
+            nombre: "Almacén general",
+        },
+    ],
+    Almacen: [
+        {
+            x: 10,
+            y: 10,
+            width: 856,
+            height: 460,
+            tipo: "taller",
+            nombre: "Almacén general",
+        },
+    ],
+    "Almacén 2": [
+        {
+            x: 10,
+            y: 10,
+            width: 856,
+            height: 460,
+            tipo: "taller",
+            nombre: "Almacén 2",
         },
     ],
     "Almacen 2": [
@@ -457,7 +466,17 @@ const DISTRIBUCIONES_PB = {
             width: 856,
             height: 460,
             tipo: "taller",
-            nombre: "Área de Almacenamiento Secundaria",
+            nombre: "Almacén 2",
+        },
+    ],
+    Vigilancia: [
+        {
+            x: 10,
+            y: 10,
+            width: 856,
+            height: 460,
+            tipo: "taller",
+            nombre: "Almacén 2",
         },
     ],
 };
@@ -477,7 +496,7 @@ export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
                         filter="url(#filter0_d_2280_15677)"
                         onClick={() =>
                             onSeleccionarEspacio?.({
-                                nombre: "Vestíbulo",
+                                nombre: "SUM",
                                 tipo: "vestibulo",
                             })
                         }
@@ -529,7 +548,7 @@ export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
                         className="text-xs font-bold pointer-events-none"
                         fill="#6D6162"
                     >
-                        Vestíbulo / Comedor
+                        SUM / Comedor
                     </text>
                     <defs>
                         <filter
@@ -581,7 +600,7 @@ export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
     if (!espacios) {
         return (
             <div className="w-full h-[400px] flex items-center justify-center text-neutral-400 border border-dashed border-neutral-200 rounded-xl">
-                Planta baja en desarrollo para {edificio}
+                Plano general de {edificio}
             </div>
         );
     }

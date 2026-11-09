@@ -6,21 +6,15 @@ import Croquis from "@/Components/Mapa/Croquis";
 
 export default function Index({
     instalaciones = [],
-    porEstatus = {},
+    porEdificio = {},
     vencidos = 0,
+    porVencer = 0,
+    vigentes = 0,
+    total = 0,
 }) {
     const { auth } = usePage().props;
-    const isAdmin = Boolean(auth?.user);
-    const Layout = isAdmin ? AdminLayout : PublicLayout;
-
-    // Calculamos el total de extintores sumando extintores_count que envía MapaController@index
-    const totalExtintores = instalaciones.reduce(
-        (acc, inst) => acc + Number(inst.extintores_count || 0),
-        0,
-    );
-
-    const disponibles = Number(porEstatus["Disponible"] || 0);
-    const medioUso = Number(porEstatus["Medio uso"] || 0);
+    const esAdmin = Boolean(auth?.user);
+    const Layout = esAdmin ? AdminLayout : PublicLayout;
 
     // Soporte para atajo desde BarraBusqueda (?edificio=Edificio A)
     useEffect(() => {
@@ -41,13 +35,36 @@ export default function Index({
         router.get(route("mapa.edificio", instalacion.id));
     };
 
+    // Filtramos las instalaciones que sí tienen extintores o son edificios principales para que la lista sume los 35
+    const instalacionesLista = instalaciones.filter((inst) => {
+        const totalInst =
+            porEdificio[inst.nombre]?.total ?? inst.extintores_count ?? 0;
+        const esEdificioPrincipal = [
+            "Edificio A",
+            "Edificio B",
+            "Edificio C",
+            "Edificio D",
+            "Edificio E",
+            "Cafetería y SUM",
+            "Almacén",
+            "Almacén 2",
+            "Vigilancia",
+        ].includes(inst.nombre);
+
+        return esEdificioPrincipal || totalInst > 0;
+    });
+
+    // Si en la BD aún se llama "Vigilancia", en la interfaz lo mostramos como "Almacén 2"
+    const nombreVisible = (nombreBD) =>
+        nombreBD === "Vigilancia" ? "Almacén 2" : nombreBD;
+
     return (
         <Layout>
             <Head title="Mapa de la Institución" />
 
             <div className="mb-4">
                 <h1 className="text-titulo-2 font-bold text-neutro-900">
-                    {isAdmin
+                    {esAdmin
                         ? "Ubicar extintores"
                         : "¿Dónde está el extintor más cercano?"}
                 </h1>
@@ -60,11 +77,12 @@ export default function Index({
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Columna Izquierda (2/3): Croquis del Campus de Alex */}
+                {/* Columna Izquierda (2/3): Croquis Interactivo */}
                 <div className="lg:col-span-2">
                     <div className="bg-white rounded-xl p-6 shadow-sm border border-neutro-100 min-h-[420px]">
                         <Croquis
                             instalaciones={instalaciones}
+                            porEdificio={porEdificio}
                             onSelectEdificio={irAEdificio}
                         />
                     </div>
@@ -77,28 +95,28 @@ export default function Index({
                             Toda la institución
                         </h3>
                         <p className="text-xs text-neutro-600 mt-1">
-                            {totalExtintores} extintores activos en el plantel
+                            {total} extintores marcados en los planos
                         </p>
 
-                        {/* Indicadores reales que envía MapaController@index */}
+                        {/* Tarjetas de métricas que vienen de MapaController@index */}
                         <div className="grid grid-cols-3 gap-2 mt-4 mb-6">
-                            <div className="bg-acento-500 text-white p-3 rounded-lg flex flex-col justify-between">
+                            <div className="bg-[#48A5A3] text-white p-3 rounded-lg flex flex-col justify-between">
                                 <span className="text-xl font-bold">
-                                    {disponibles}
+                                    {vigentes}
                                 </span>
                                 <span className="text-[10px] uppercase font-medium">
-                                    Disponibles
+                                    Vigentes
                                 </span>
                             </div>
-                            <div className="bg-neutro-600 text-white p-3 rounded-lg flex flex-col justify-between">
+                            <div className="bg-[#786C6A] text-white p-3 rounded-lg flex flex-col justify-between">
                                 <span className="text-xl font-bold">
-                                    {medioUso}
+                                    {porVencer}
                                 </span>
                                 <span className="text-[10px] uppercase font-medium">
-                                    Medio uso
+                                    Por vencer
                                 </span>
                             </div>
-                            <div className="bg-primario-700 text-white p-3 rounded-lg flex flex-col justify-between">
+                            <div className="bg-[#C82A2E] text-white p-3 rounded-lg flex flex-col justify-between">
                                 <span className="text-xl font-bold">
                                     {vencidos}
                                 </span>
@@ -109,14 +127,26 @@ export default function Index({
                         </div>
 
                         <p className="text-[10px] font-bold text-neutro-600 tracking-wider uppercase mb-2">
-                            Instalaciones y Edificios
+                            EDIFICIOS E INSTALACIONES
                         </p>
 
-                        <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
-                            {instalaciones.map((inst) => {
-                                const inicial = inst.nombre.includes("Edificio")
-                                    ? inst.nombre.split(" ")[1]
-                                    : inst.nombre.charAt(0);
+                        {/* Lista dinámica armada con la prop instalaciones y porEdificio */}
+                        <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+                            {instalacionesLista.map((inst) => {
+                                const stats = porEdificio[inst.nombre] || {};
+                                const totalExt =
+                                    stats.total ?? inst.extintores_count ?? 0;
+                                const vencidosExt =
+                                    stats.vencidos ?? inst.vencidos_count ?? 0;
+
+                                const etiquetaNombre = nombreVisible(
+                                    inst.nombre,
+                                );
+                                const inicial = etiquetaNombre.includes(
+                                    "Edificio",
+                                )
+                                    ? etiquetaNombre.split(" ")[1]
+                                    : etiquetaNombre.charAt(0);
 
                                 return (
                                     <button
@@ -126,19 +156,25 @@ export default function Index({
                                         className="w-full flex items-center justify-between p-3 rounded-lg border border-neutro-100 hover:bg-neutro-50 transition-colors group text-left"
                                     >
                                         <div className="flex items-center gap-3 min-w-0">
-                                            <span className="text-primario-700 font-bold text-sm w-5 shrink-0">
+                                            <span className="text-[#C82A2E] font-bold text-sm w-4 shrink-0">
                                                 {inicial}
                                             </span>
                                             <span className="text-sm font-semibold text-neutro-900 truncate">
-                                                {inst.nombre}
+                                                {etiquetaNombre}
                                             </span>
                                         </div>
-                                        <div className="flex items-center gap-2 shrink-0">
+                                        <div className="flex items-center gap-3 shrink-0">
                                             <span className="text-xs text-neutro-600">
-                                                {inst.extintores_count ?? 0}{" "}
-                                                extintores
+                                                {totalExt}{" "}
+                                                {totalExt === 1
+                                                    ? "extintor"
+                                                    : "extintores"}{" "}
+                                                - {vencidosExt}{" "}
+                                                {vencidosExt === 1
+                                                    ? "vencido"
+                                                    : "vencidos"}
                                             </span>
-                                            <span className="text-neutro-300 group-hover:text-neutro-900">
+                                            <span className="text-neutro-300 group-hover:text-neutro-600">
                                                 ›
                                             </span>
                                         </div>

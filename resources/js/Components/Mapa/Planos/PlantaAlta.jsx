@@ -3,14 +3,13 @@ import Espacio from "@/Components/Mapa/Planos/Espacio";
 
 const DISTRIBUCIONES_PA = {
     "Edificio A": [
-        // arriba
         {
             x: 8,
             y: 10,
             width: 138.02,
             height: 192.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 152,
@@ -18,7 +17,7 @@ const DISTRIBUCIONES_PA = {
             width: 136.2,
             height: 192.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 294,
@@ -26,7 +25,7 @@ const DISTRIBUCIONES_PA = {
             width: 139.02,
             height: 192.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 439.09,
@@ -42,17 +41,15 @@ const DISTRIBUCIONES_PA = {
             width: 280.35,
             height: 192.99,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Lab. Dibujo",
         },
-
-        // lo de abajo
         {
             x: 10,
             y: 278,
             width: 207.53,
             height: 192.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 223,
@@ -60,7 +57,7 @@ const DISTRIBUCIONES_PA = {
             width: 64.54,
             height: 192.5,
             tipo: "oficina",
-            nombre: "Oficina",
+            nombre: "Administración",
         },
         {
             x: 294,
@@ -92,10 +89,9 @@ const DISTRIBUCIONES_PA = {
             width: 212.99,
             height: 192.99,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
     ],
-
     "Edificio B": [
         {
             x: 10,
@@ -103,7 +99,7 @@ const DISTRIBUCIONES_PA = {
             width: 138.02,
             height: 192.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Lab. Redes",
         },
         {
             x: 154,
@@ -111,7 +107,7 @@ const DISTRIBUCIONES_PA = {
             width: 139.02,
             height: 192.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 300,
@@ -143,7 +139,7 @@ const DISTRIBUCIONES_PA = {
             width: 136.2,
             height: 192.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 726,
@@ -151,9 +147,74 @@ const DISTRIBUCIONES_PA = {
             width: 136.2,
             height: 192.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
-
+        {
+            x: 10,
+            y: 278,
+            width: 847,
+            height: 192.99,
+            tipo: "taller",
+            nombre: "Pasillo",
+        },
+    ],
+    "Edificio C": [
+        {
+            x: 10,
+            y: 10,
+            width: 138.02,
+            height: 192.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
+        {
+            x: 154,
+            y: 10,
+            width: 139.02,
+            height: 192.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
+        {
+            x: 300,
+            y: 10,
+            width: 89.16,
+            height: 93.34,
+            tipo: "bano",
+            nombre: "Baños",
+        },
+        {
+            x: 299,
+            y: 109,
+            width: 89.16,
+            height: 93.1,
+            tipo: "escaleras",
+            nombre: "Escaleras",
+        },
+        {
+            x: 394,
+            y: 10,
+            width: 184.26,
+            height: 192.99,
+            tipo: "oficina",
+            nombre: "Biblioteca",
+        },
+        {
+            x: 584,
+            y: 10,
+            width: 136.2,
+            height: 192.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
+        {
+            x: 726,
+            y: 10,
+            width: 136.2,
+            height: 192.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
         {
             x: 10,
             y: 278,
@@ -165,7 +226,6 @@ const DISTRIBUCIONES_PA = {
     ],
 };
 
-DISTRIBUCIONES_PA["Edificio C"] = DISTRIBUCIONES_PA["Edificio B"];
 DISTRIBUCIONES_PA["Edificio D"] = DISTRIBUCIONES_PA["Edificio B"];
 
 export default function PlantaAlta({ edificio, onSeleccionarEspacio }) {
@@ -174,7 +234,7 @@ export default function PlantaAlta({ edificio, onSeleccionarEspacio }) {
     if (espacios.length === 0) {
         return (
             <div className="w-full h-[400px] flex items-center justify-center text-neutral-400 border border-dashed border-neutral-200 rounded-xl">
-                Plano no configurado para {edificio} (Planta alta)
+                Plano no configurado para {edificio} (Nivel 1)
             </div>
         );
     }
