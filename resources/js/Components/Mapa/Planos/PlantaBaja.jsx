@@ -456,7 +456,7 @@ const DISTRIBUCIONES_PB = {
             width: 856,
             height: 460,
             tipo: "taller",
-            nombre: "Almacén 2",
+            nombre: "Cuarto de vigilancia",
         },
     ],
     "Almacen 2": [
@@ -466,7 +466,7 @@ const DISTRIBUCIONES_PB = {
             width: 856,
             height: 460,
             tipo: "taller",
-            nombre: "Almacén 2",
+            nombre: "Cuarto de vigilancia",
         },
     ],
     Vigilancia: [
@@ -476,7 +476,7 @@ const DISTRIBUCIONES_PB = {
             width: 856,
             height: 460,
             tipo: "taller",
-            nombre: "Almacén 2",
+            nombre: "Cuarto de vigilancia",
         },
     ],
 };
@@ -599,7 +599,7 @@ export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
 
     if (!espacios) {
         return (
-            <div className="w-full h-[400px] flex items-center justify-center text-neutral-400 border border-dashed border-neutral-200 rounded-xl">
+            <div className="w-full h-[400px] flex items-center justify-center text-neutro-600 border border-dashed border-neutro-100 rounded-xl">
                 Plano general de {edificio}
             </div>
         );
@@ -628,6 +628,11 @@ export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
                     <Espacio
                         key={`${edificio}_pb_${index}`}
                         {...espacio}
+                        nombre={
+                            espacio.nombre === "Cuarto de vigilancia"
+                                ? "Almacén 2"
+                                : espacio.nombre
+                        }
                         onClick={() => onSeleccionarEspacio?.(espacio)}
                     />
                 ))}

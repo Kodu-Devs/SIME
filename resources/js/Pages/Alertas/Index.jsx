@@ -72,7 +72,7 @@ export default function Index({ alertas = {} }) {
         <AdminLayout>
             <Head title="Centro de Notificaciones" />
 
-            <div className="max-w-5xl space-y-6">
+            <div className="w-full max-w-7xl mx-auto space-y-6">
                 {/* Encabezado y botón de marcar todas */}
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>

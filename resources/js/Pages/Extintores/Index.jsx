@@ -220,7 +220,7 @@ export default function Index(props) {
         <AdminLayout auth={auth} user={auth?.user}>
             <Head title="Extintores - SIME" />
 
-            <div className="font-['Manrope'] pb-6 overflow-x-hidden">
+            <div className="w-full max-w-7xl mx-auto space-y-4 pb-6 overflow-x-hidden">
                 {/* 1. Encabezado */}
                 <ExtintoresHeader onAddNew={handleAddNew} />
 

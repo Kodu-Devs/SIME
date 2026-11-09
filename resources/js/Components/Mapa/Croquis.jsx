@@ -6,19 +6,19 @@ export default function Croquis({
     porEdificio = {},
     onSelectEdificio,
 }) {
-    // Busca por nombre oficial o por alias (ej. "Almacén 2" -> "Vigilancia" en la BD)
     const buscarInstalacion = (...nombresPosibles) =>
         instalaciones.find((inst) => nombresPosibles.includes(inst.nombre));
 
-    const textoConteo = (...nombresPosibles) => {
-        // Si estamos en el Dashboard y no se pasó la lista de instalaciones
-        if (!instalaciones || instalaciones.length === 0) {
-            return "Ver planta";
-        }
+    const obtenerTotal = (...nombresPosibles) => {
+        if (!instalaciones || instalaciones.length === 0) return null;
         const inst = buscarInstalacion(...nombresPosibles);
-        if (!inst) return "0 extintores";
-        const total =
-            porEdificio[inst.nombre]?.total ?? inst.extintores_count ?? 0;
+        if (!inst) return 0;
+        return porEdificio[inst.nombre]?.total ?? inst.extintores_count ?? 0;
+    };
+
+    const textoConteo = (...nombresPosibles) => {
+        const total = obtenerTotal(...nombresPosibles);
+        if (total === null) return "Ver planta";
         return `${total} ${total === 1 ? "extintor" : "extintores"}`;
     };
 
@@ -27,12 +27,12 @@ export default function Croquis({
         if (inst && onSelectEdificio) {
             onSelectEdificio(inst);
         } else if (onSelectEdificio && nombresPosibles[0]) {
-            // Respaldo para cuando se da clic desde el Dashboard sin instalaciones cargadas
             onSelectEdificio({ nombre: nombresPosibles[0] });
         }
     };
+
     return (
-        <div className="w-full h-full flex items-center justify-center p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="w-full h-full flex items-center justify-center p-4 bg-white rounded-xl shadow-sm border border-neutro-100">
             <svg
                 className="w-full h-auto max-h-[600px] object-contain drop-shadow-sm"
                 viewBox="0 0 876 780"
@@ -159,6 +159,10 @@ export default function Croquis({
                     y={26.5}
                     tipo="cafeteria"
                     nombre="Cafetería"
+                    totalExtintores={obtenerTotal(
+                        "Cafetería y SUM",
+                        "Cafetería",
+                    )}
                     extintores={textoConteo("Cafetería y SUM", "Cafetería")}
                     onClick={() => manejarClic("Cafetería y SUM", "Cafetería")}
                 />
@@ -169,6 +173,7 @@ export default function Croquis({
                     ancho={135}
                     alto={89.39}
                     nombre="C"
+                    totalExtintores={obtenerTotal("Edificio C")}
                     extintores={textoConteo("Edificio C")}
                     onClick={() => manejarClic("Edificio C")}
                 />
@@ -179,6 +184,7 @@ export default function Croquis({
                     ancho={113}
                     alto={85.9}
                     nombre="A"
+                    totalExtintores={obtenerTotal("Edificio A")}
                     extintores={textoConteo("Edificio A")}
                     onClick={() => manejarClic("Edificio A")}
                 />
@@ -189,6 +195,7 @@ export default function Croquis({
                     ancho={128}
                     alto={95.19}
                     nombre="B"
+                    totalExtintores={obtenerTotal("Edificio B")}
                     extintores={textoConteo("Edificio B")}
                     onClick={() => manejarClic("Edificio B")}
                 />
@@ -199,6 +206,7 @@ export default function Croquis({
                     ancho={113}
                     alto={85.9}
                     nombre="E"
+                    totalExtintores={obtenerTotal("Edificio E")}
                     extintores={textoConteo("Edificio E")}
                     onClick={() => manejarClic("Edificio E")}
                 />
@@ -209,6 +217,7 @@ export default function Croquis({
                     ancho={119}
                     alto={75}
                     nombre="D"
+                    totalExtintores={obtenerTotal("Edificio D")}
                     extintores={textoConteo("Edificio D")}
                     onClick={() => manejarClic("Edificio D")}
                 />
@@ -219,6 +228,11 @@ export default function Croquis({
                     ancho={95}
                     alto={78.94}
                     nombre="Almacén 2"
+                    totalExtintores={obtenerTotal(
+                        "Almacén 2",
+                        "Almacen 2",
+                        "Vigilancia",
+                    )}
                     extintores={textoConteo(
                         "Almacén 2",
                         "Almacen 2",
@@ -235,6 +249,7 @@ export default function Croquis({
                     ancho={93}
                     alto={54.56}
                     nombre="Almacén"
+                    totalExtintores={obtenerTotal("Almacén", "Almacen")}
                     extintores={textoConteo("Almacén", "Almacen")}
                     onClick={() => manejarClic("Almacén", "Almacen")}
                 />

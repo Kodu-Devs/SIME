@@ -1,14 +1,17 @@
-import React from 'react';
-import { Plus } from 'lucide-react';
+import React from "react";
+import { Plus } from "lucide-react";
 
 export default function ExtintoresHeader({ onAddNew }) {
     return (
         <div className="flex items-center justify-between mb-4 font-['Manrope']">
             <div>
-                <h1 className="text-2xl font-black text-[#272222] tracking-tight">Extintores</h1>
-                <p className="text-xs text-[#6D6162] font-medium mt-0.5">Inventario completo</p>
+                <h1 className="text-titulo-1 font-bold text-neutro-900">
+                    Extintores
+                </h1>
+                <p className="text-xs text-neutro-600 mt-0.5">
+                    Inventario completo de equipos registrados
+                </p>
             </div>
-
             {/* Botón rápido visible exclusivamente en móviles */}
             {onAddNew && (
                 <div className="block md:hidden">

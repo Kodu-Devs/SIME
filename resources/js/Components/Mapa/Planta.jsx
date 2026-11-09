@@ -22,7 +22,6 @@ export default function Planta({
         (piso === "Nivel 1" || piso === "Planta alta") &&
         edificio !== "Edificio E";
 
-    // Color del pin según el estado más crítico de los extintores en esa ubicación
     const obtenerColorPin = (extintores = []) => {
         if (extintores.some((e) => e.estado === "vencido")) {
             return "bg-primario-500 border-white text-white";
@@ -44,7 +43,7 @@ export default function Planta({
         <div className="w-full bg-white rounded-xl shadow-sm border border-neutro-100 p-6 flex flex-col items-center">
             <div className="w-full flex justify-between items-center mb-4 pb-3 border-b border-neutro-100">
                 <div>
-                    <h2 className="text-xl font-bold text-neutro-900">
+                    <h2 className="text-titulo-2 font-bold text-neutro-900">
                         {edificio}
                     </h2>
                     <span className="inline-block mt-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-primario-100 text-primario-700">
@@ -90,7 +89,7 @@ export default function Planta({
                         </div>
                     )}
 
-                {/* Capa de Pines de Ubicaciones que ya tienen coordenadas en BD */}
+                {/* Capa de Pines de Ubicaciones con coordenadas en BD */}
                 {ubicacionesConCoordenadas.map((ub) => {
                     const colorClase = obtenerColorPin(ub.extintores);
                     const activo = ubicacionActivaId === ub.id;
