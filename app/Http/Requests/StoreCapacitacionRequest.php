@@ -31,8 +31,9 @@ class StoreCapacitacionRequest extends FormRequest
             'ubicacion_id' => ['required', 'exists:ubicaciones,id'],
             'extintores_id' => ['nullable', 'array'],
             'extintores_id.*' => [
-                'integer',
-                'exists:extintores,id',
+            'bail',
+            'integer',
+            'exists:extintores,id',
                 function ($campo, $id, $error) {
                     $e = Extintor::find($id);
                     if ($e->estatus != 'Medio uso') { //Validacion en estado medio uso
