@@ -440,7 +440,7 @@ const DISTRIBUCIONES_PB = {
             fill: "#D9D9D9",
         },
     ],
-    Almacen: [
+    Almacén: [
         {
             x: 10,
             y: 10,
@@ -463,7 +463,7 @@ const DISTRIBUCIONES_PB = {
 };
 
 export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
-    if (edificio === "Cafetería") {
+    if (edificio === "Cafetería y SUM" || edificio === "Cafetería") {
         return (
             <div className="w-full flex justify-center items-center">
                 <svg

@@ -1,9 +1,25 @@
 import React from "react";
 import Edificio from "@/Components/Mapa/Edificio";
 
-export default function Croquis({ onSelectEdificio }) {
+export default function Croquis({ instalaciones = [], onSelectEdificio }) {
+    const buscarInstalacion = (nombreOficial) =>
+        instalaciones.find((inst) => inst.nombre === nombreOficial);
+
+    const textoConteo = (nombreOficial) => {
+        const inst = buscarInstalacion(nombreOficial);
+        const total = inst?.extintores_count ?? 0;
+        return `${total} ${total === 1 ? "extintor" : "extintores"}`;
+    };
+
+    const manejarClic = (nombreOficial) => {
+        const inst = buscarInstalacion(nombreOficial);
+        if (inst && onSelectEdificio) {
+            onSelectEdificio(inst);
+        }
+    };
+
     return (
-        <div className="w-full h-full flex items-center justify-center p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="w-full h-full flex items-center justify-center p-4 bg-white rounded-xl shadow-sm border border-neutro-100">
             <svg
                 className="w-full h-auto max-h-[600px] object-contain drop-shadow-sm"
                 viewBox="0 0 876 780"
@@ -28,7 +44,6 @@ export default function Croquis({ onSelectEdificio }) {
                     fill="#D0D0D0"
                 />
 
-                {/* Parche verde central */}
                 <rect
                     x="420.5"
                     y="334.883"
@@ -38,7 +53,6 @@ export default function Croquis({ onSelectEdificio }) {
                     fill="#A2DB8A"
                 />
 
-                {/* Parches verdes conectores (L-shape) */}
                 <path
                     d="M327.406 357.104C327.406 344.832 336.246 334.883 347.151 334.883H377.755C388.66 334.883 397.5 344.832 397.5 357.104V493.761C397.5 506.033 389.749 515.981 380.187 515.981H347.151C336.246 515.981 327.406 506.033 327.406 493.761V357.104Z"
                     fill="#A2DB8A"
@@ -64,7 +78,6 @@ export default function Croquis({ onSelectEdificio }) {
                 </g>
 
                 <g>
-                    {/* Campo base */}
                     <rect
                         x="92.5"
                         y="553.221"
@@ -73,8 +86,6 @@ export default function Croquis({ onSelectEdificio }) {
                         rx="7"
                         fill="#2FB741"
                     />
-
-                    {/* Línea media */}
                     <line
                         x1="92.5"
                         y1="650.724"
@@ -83,8 +94,6 @@ export default function Croquis({ onSelectEdificio }) {
                         stroke="white"
                         strokeWidth="1"
                     />
-
-                    {/* Círculo central */}
                     <ellipse
                         cx="170.8"
                         cy="650.773"
@@ -94,8 +103,6 @@ export default function Croquis({ onSelectEdificio }) {
                         stroke="white"
                         strokeWidth="2"
                     />
-
-                    {/* Áreas grandes */}
                     <rect
                         x="135.836"
                         y="553.129"
@@ -114,8 +121,6 @@ export default function Croquis({ onSelectEdificio }) {
                         stroke="white"
                         strokeWidth="1"
                     />
-
-                    {/* Áreas chicas */}
                     <rect
                         x="146.67"
                         y="553.129"
@@ -135,15 +140,14 @@ export default function Croquis({ onSelectEdificio }) {
                         strokeWidth="1"
                     />
                 </g>
+
                 <Edificio
                     x={429}
                     y={26.5}
                     tipo="cafeteria"
                     nombre="Cafetería"
-                    extintores="Extintores"
-                    onClick={() =>
-                        onSelectEdificio && onSelectEdificio("Cafetería")
-                    }
+                    extintores={textoConteo("Cafetería y SUM")}
+                    onClick={() => manejarClic("Cafetería y SUM")}
                 />
 
                 <Edificio
@@ -152,10 +156,8 @@ export default function Croquis({ onSelectEdificio }) {
                     ancho={135}
                     alto={89.39}
                     nombre="C"
-                    extintores="Extintores"
-                    onClick={() =>
-                        onSelectEdificio && onSelectEdificio("Edificio C")
-                    }
+                    extintores={textoConteo("Edificio C")}
+                    onClick={() => manejarClic("Edificio C")}
                 />
 
                 <Edificio
@@ -164,10 +166,8 @@ export default function Croquis({ onSelectEdificio }) {
                     ancho={113}
                     alto={85.9}
                     nombre="A"
-                    extintores="Extintores"
-                    onClick={() =>
-                        onSelectEdificio && onSelectEdificio("Edificio A")
-                    }
+                    extintores={textoConteo("Edificio A")}
+                    onClick={() => manejarClic("Edificio A")}
                 />
 
                 <Edificio
@@ -176,10 +176,8 @@ export default function Croquis({ onSelectEdificio }) {
                     ancho={128}
                     alto={95.19}
                     nombre="B"
-                    extintores="Extintores"
-                    onClick={() =>
-                        onSelectEdificio && onSelectEdificio("Edificio B")
-                    }
+                    extintores={textoConteo("Edificio B")}
+                    onClick={() => manejarClic("Edificio B")}
                 />
 
                 <Edificio
@@ -188,10 +186,8 @@ export default function Croquis({ onSelectEdificio }) {
                     ancho={113}
                     alto={85.9}
                     nombre="E"
-                    extintores="Extintores"
-                    onClick={() =>
-                        onSelectEdificio && onSelectEdificio("Edificio E")
-                    }
+                    extintores={textoConteo("Edificio E")}
+                    onClick={() => manejarClic("Edificio E")}
                 />
 
                 <Edificio
@@ -200,10 +196,8 @@ export default function Croquis({ onSelectEdificio }) {
                     ancho={119}
                     alto={75}
                     nombre="D"
-                    extintores="Sin Datos aun"
-                    onClick={() =>
-                        onSelectEdificio && onSelectEdificio("Edificio D")
-                    }
+                    extintores={textoConteo("Edificio D")}
+                    onClick={() => manejarClic("Edificio D")}
                 />
 
                 <Edificio
@@ -211,11 +205,9 @@ export default function Croquis({ onSelectEdificio }) {
                     y={425.43}
                     ancho={95}
                     alto={78.94}
-                    nombre="Almacen 2"
-                    extintores="Extintores"
-                    onClick={() =>
-                        onSelectEdificio && onSelectEdificio("Almacen 2")
-                    }
+                    nombre="Vigilancia"
+                    extintores={textoConteo("Vigilancia")}
+                    onClick={() => manejarClic("Vigilancia")}
                 />
 
                 <Edificio
@@ -223,11 +215,9 @@ export default function Croquis({ onSelectEdificio }) {
                     y={461.42}
                     ancho={93}
                     alto={54.56}
-                    nombre="Almacen"
-                    extintores="Extintores"
-                    onClick={() =>
-                        onSelectEdificio && onSelectEdificio("Almacen")
-                    }
+                    nombre="Almacén"
+                    extintores={textoConteo("Almacén")}
+                    onClick={() => manejarClic("Almacén")}
                 />
             </svg>
         </div>
