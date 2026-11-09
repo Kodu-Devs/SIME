@@ -479,14 +479,14 @@ const BaseE = () => (
     </>
 );
 
-// 2. CONFIGURACIÓN DE LOS EDIFICIOS
+// CONFIG_EDIFICIOS
 const CONFIG_EDIFICIOS = {
     "Edificio A": {
         viewBox: "0 -240 962 800",
         ComponenteBase: BaseA,
         niveles: [
             { nombre: "Planta baja", y: 0 },
-            { nombre: "Planta alta", y: -220 },
+            { nombre: "Nivel 1", y: -220 },
         ],
     },
     "Edificio B": {
@@ -494,7 +494,7 @@ const CONFIG_EDIFICIOS = {
         ComponenteBase: BaseBD,
         niveles: [
             { nombre: "Planta baja", y: 0, Componente: BaseBD },
-            { nombre: "Planta alta", y: -220, Componente: BaseBAlta },
+            { nombre: "Nivel 1", y: -220, Componente: BaseBAlta },
         ],
     },
     "Edificio C": {
@@ -502,15 +502,15 @@ const CONFIG_EDIFICIOS = {
         ComponenteBase: BaseC,
         niveles: [
             { nombre: "Planta baja", y: 0 },
-            { nombre: "Planta alta", y: -220 },
+            { nombre: "Nivel 1", y: -220 },
         ],
     },
     "Edificio D": {
         viewBox: "0 -240 962 800",
         ComponenteBase: BaseBD,
         niveles: [
-            { nombre: "Planta baja", y: 0, componente: BaseBD },
-            { nombre: "Planta alta", y: -220, componente: BaseBAlta },
+            { nombre: "Planta baja", y: 0, Componente: BaseBD },
+            { nombre: "Nivel 1", y: -220, Componente: BaseBAlta },
         ],
     },
     "Edificio E": {
