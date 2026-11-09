@@ -8,7 +8,7 @@ export default function Edit() {
         <AdminLayout>
             <Head title="Perfil" />
 
-            <div className="max-w-5xl space-y-6">
+            <div className="w-full max-w-7xl mx-auto space-y-6">
                 {/* Encabezado Principal */}
                 <div>
                     <h1 className="text-titulo-1 font-bold text-neutro-900">

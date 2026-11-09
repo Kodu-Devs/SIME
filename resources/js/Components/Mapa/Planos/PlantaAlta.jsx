@@ -233,7 +233,7 @@ export default function PlantaAlta({ edificio, onSeleccionarEspacio }) {
 
     if (espacios.length === 0) {
         return (
-            <div className="w-full h-[400px] flex items-center justify-center text-neutral-400 border border-dashed border-neutral-200 rounded-xl">
+            <div className="w-full h-[400px] flex items-center justify-center text-neutro-600 border border-dashed border-neutro-100 rounded-xl">
                 Plano no configurado para {edificio} (Nivel 1)
             </div>
         );
