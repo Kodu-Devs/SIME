@@ -22,7 +22,7 @@ jobs:
             git pull origin main
 
             # Compilar frontend
-            docker run --rm -v $(pwd):/app -w /app node:20-alpine sh -c "npm install --legacy-peer-deps && npm run build"
+            docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp -v $(pwd):/app -w /app node:20-alpine sh -c "npm install --legacy-peer-deps && npm run build"
 
             # Actualizar dependencias de PHP
             docker exec -i sime-app composer install --no-interaction --prefer-dist --optimize-autoloader
