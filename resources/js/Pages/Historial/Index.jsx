@@ -1,3 +1,4 @@
+import HistorialPublicoView from "@/Components/Historial/HistorialPublicoView";
 import { useState } from "react";
 import { Head, usePage } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
