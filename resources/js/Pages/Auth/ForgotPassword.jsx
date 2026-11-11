@@ -21,12 +21,12 @@ export default function ForgotPassword({ status }) {
             <Head title="Recuperar Contraseña" />
 
             <div className="mb-4 text-sm text-gray-600">
-                ¿Olvidaste tu contraseña? No hay problema. Ingresa tu correo electrónico registrado y te enviaremos un enlace seguro para que elijas una nueva.
+                ¿Olvidó su contraseña? No hay problema. Ingrese su correo electrónico registrado y le enviaremos un enlace seguro para que elija una nueva.
             </div>
 
             {status && (
                 <div className="mb-4 text-sm font-medium text-green-600">
-                    Hemos enviado el enlace de recuperación a tu correo electrónico.
+                    Hemos enviado el enlace de recuperación a su correo electrónico.
                 </div>
             )}
 
