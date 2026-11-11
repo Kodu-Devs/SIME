@@ -9,6 +9,7 @@ use Database\Seeders\InstalacionSeeder;
 use Database\Seeders\PisoSeeder;
 use Database\Seeders\TipoExtintorSeeder;
 use Database\Seeders\UbicacionSeeder;
+use Inertia\Testing\AssertableInertia as Assert;
 
 test('el historial carga con eventos de uso registrados', function () {
     $this->withoutVite();
@@ -35,8 +36,13 @@ test('el historial carga con eventos de uso registrados', function () {
         'motivo' => 'Simulacro de evacuación',
     ]);
 
-    // Con un uso en la base, el with('usuario') sí se resuelve
     $this->actingAs($admin)
         ->get('/historial')
-        ->assertOk();
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Historial/Index')
+            ->has('eventos', 1)
+            ->has('extintores')
+            ->has('capacitaciones')
+        );
 });
