@@ -37,7 +37,7 @@ export default function RegistrarUsoPanel({
     // Al seleccionar una fila se precarga solo el extintor; sin selección se limpia
     useEffect(() => {
         if (evento) {
-            setData("extintor_id", evento.extintor_id ?? "");
+            setData("extintor_id", evento.extintor?.id ?? "");
         } else {
             reset();
         }
