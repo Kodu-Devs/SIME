@@ -228,7 +228,7 @@ export default function Login({ status, canResetPassword }) {
                                         href={route("password.request")}
                                         className="text-etiqueta text-primario-500 hover:text-primario-700 hover:underline transition"
                                     >
-                                        ¿Olvidaste tu contraseña?
+                                         ¿Olvidó su contraseña?
                                     </Link>
                                 )}
                             </div>
