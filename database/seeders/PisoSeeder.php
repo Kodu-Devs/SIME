@@ -35,7 +35,7 @@ class PisoSeeder extends Seeder
             ['instalacion' => 'Cancha',                          'nombre' => 'Nivel único'],
             ['instalacion' => 'Estacionamiento de motocicletas', 'nombre' => 'Nivel único'],
             ['instalacion' => 'Parque vehicular',                'nombre' => 'Nivel único'],
-            ['instalacion' => 'Vigilancia',                      'nombre' => 'Nivel único'],
+            ['instalacion' => 'Almacén 2',                       'nombre' => 'Nivel único'],
             ['instalacion' => 'Almacén',                         'nombre' => 'Nivel único'],
         ];
 
