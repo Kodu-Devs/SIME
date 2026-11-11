@@ -7,12 +7,14 @@ export default function Edificio({
     alto = 75,
     nombre = "Edificio",
     extintores = "0 extintores",
+    totalExtintores = null,
     tipo = "rectangulo",
     onClick,
 }) {
     const clipId = `clip-barra-${nombre.replace(/\s+/g, "-")}`;
+    const tieneEquipos =
+        totalExtintores === null ? true : Number(totalExtintores) > 0;
 
-    // 1. cafe
     if (tipo === "cafeteria") {
         return (
             <g
@@ -70,29 +72,31 @@ export default function Edificio({
                         fill="#E5E7EB"
                     />
 
-                    <g clipPath={`url(#${clipId}-cafeteria)`}>
-                        <rect
-                            x="31.6"
-                            y="86.5"
-                            width="78"
-                            height="10"
-                            fill="#00B828"
-                        />
-                        <rect
-                            x="109.6"
-                            y="86.5"
-                            width="22"
-                            height="10"
-                            fill="#FF7700"
-                        />
-                        <rect
-                            x="131.6"
-                            y="86.5"
-                            width="12"
-                            height="10"
-                            fill="#FF0004"
-                        />
-                    </g>
+                    {tieneEquipos && (
+                        <g clipPath={`url(#${clipId}-cafeteria)`}>
+                            <rect
+                                x="31.6"
+                                y="86.5"
+                                width="78"
+                                height="10"
+                                fill="#00B828"
+                            />
+                            <rect
+                                x="109.6"
+                                y="86.5"
+                                width="22"
+                                height="10"
+                                fill="#FF7700"
+                            />
+                            <rect
+                                x="131.6"
+                                y="86.5"
+                                width="12"
+                                height="10"
+                                fill="#FF0004"
+                            />
+                        </g>
+                    )}
                 </g>
             </g>
         );
@@ -100,6 +104,7 @@ export default function Edificio({
 
     const anchoBarra = Math.max(ancho - 20, 20);
     const yBarra = alto - 18;
+    const tamanoTitulo = nombre.length > 5 ? "14" : "22";
 
     return (
         <g
@@ -107,7 +112,6 @@ export default function Edificio({
             onClick={onClick}
             className="cursor-pointer transition-opacity duration-150 hover:opacity-85 select-none"
         >
-            {/* Tarjeta base */}
             <rect
                 x="0"
                 y="0"
@@ -119,23 +123,21 @@ export default function Edificio({
                 strokeWidth="1"
             />
 
-            {/* Nombre del edificio */}
             <text
                 x="12"
                 y="24"
                 fill="#272222"
-                fontSize="22"
+                fontSize={tamanoTitulo}
                 fontWeight="bold"
                 fontFamily="Manrope, sans-serif"
             >
                 {nombre}
             </text>
 
-            {/* Subtítulo de extintores */}
-            {alto > 55 && (
+            {alto > 50 && (
                 <text
                     x="12"
-                    y="42"
+                    y="40"
                     fill="#272222"
                     fontSize="10"
                     fontWeight="600"
@@ -145,7 +147,6 @@ export default function Edificio({
                 </text>
             )}
 
-            {/* Barra de estado con bordes redondeados limpios */}
             <g>
                 <defs>
                     <clipPath id={clipId}>
@@ -159,7 +160,6 @@ export default function Edificio({
                     </clipPath>
                 </defs>
 
-                {/* Fondo gris base */}
                 <rect
                     x="10"
                     y={yBarra}
@@ -169,30 +169,31 @@ export default function Edificio({
                     fill="#E5E7EB"
                 />
 
-                {/* Segmentos de color dentro de la máscara */}
-                <g clipPath={`url(#${clipId})`}>
-                    <rect
-                        x="10"
-                        y={yBarra}
-                        width={anchoBarra * 0.7}
-                        height="8"
-                        fill="#00B828"
-                    />
-                    <rect
-                        x={10 + anchoBarra * 0.7}
-                        y={yBarra}
-                        width={anchoBarra * 0.2}
-                        height="8"
-                        fill="#FF7700"
-                    />
-                    <rect
-                        x={10 + anchoBarra * 0.9}
-                        y={yBarra}
-                        width={anchoBarra * 0.1}
-                        height="8"
-                        fill="#FF0004"
-                    />
-                </g>
+                {tieneEquipos && (
+                    <g clipPath={`url(#${clipId})`}>
+                        <rect
+                            x="10"
+                            y={yBarra}
+                            width={anchoBarra * 0.7}
+                            height="8"
+                            fill="#00B828"
+                        />
+                        <rect
+                            x={10 + anchoBarra * 0.7}
+                            y={yBarra}
+                            width={anchoBarra * 0.2}
+                            height="8"
+                            fill="#FF7700"
+                        />
+                        <rect
+                            x={10 + anchoBarra * 0.9}
+                            y={yBarra}
+                            width={anchoBarra * 0.1}
+                            height="8"
+                            fill="#FF0004"
+                        />
+                    </g>
+                )}
             </g>
         </g>
     );

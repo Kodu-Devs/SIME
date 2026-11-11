@@ -74,16 +74,16 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
             : `${eventosFiltrados.length} capacitaciones programadas este mes`;
 
     const Contenido = (
-        <div className="py-4 px-4 md:px-6 w-full max-w-[1400px] mx-auto">
+        <div className="w-full max-w-7xl mx-auto space-y-4">
             <Head title="Agenda" />
 
             {/* Encabezado con botón "+ Añadir" visible solo en móvil/tablet para Admin */}
-            <div className="flex items-center justify-between gap-4 mb-4">
+            <div className="flex items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-xl md:text-2xl font-bold text-neutro-900">
+                    <h1 className="text-titulo-1 font-bold text-neutro-900">
                         Agenda
                     </h1>
-                    <p className="text-xs md:text-sm text-neutro-600">
+                    <p className="text-xs text-neutro-600 mt-0.5">
                         {isAdmin
                             ? "Mantenimientos y capacitaciones"
                             : textoSubtituloPublico}

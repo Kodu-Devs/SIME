@@ -1,7 +1,6 @@
 import React from "react";
 import Espacio from "@/Components/Mapa/Planos/Espacio";
 
-// COORDENADAS EXACTAS EXTRAÍDAS DE TUS SVGS ORIGINALES DE FIGMA
 const DISTRIBUCIONES_PB = {
     "Edificio A": [
         {
@@ -10,7 +9,7 @@ const DISTRIBUCIONES_PB = {
             width: 207.53,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 223,
@@ -18,7 +17,7 @@ const DISTRIBUCIONES_PB = {
             width: 64.54,
             height: 194.5,
             tipo: "oficina",
-            nombre: "Oficina",
+            nombre: "Oficina de cómputo",
         },
         {
             x: 294,
@@ -26,7 +25,7 @@ const DISTRIBUCIONES_PB = {
             width: 139.01,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 438.96,
@@ -42,7 +41,7 @@ const DISTRIBUCIONES_PB = {
             width: 138.02,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 718,
@@ -50,7 +49,7 @@ const DISTRIBUCIONES_PB = {
             width: 136.2,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 10,
@@ -58,7 +57,7 @@ const DISTRIBUCIONES_PB = {
             width: 207.53,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 223,
@@ -90,7 +89,7 @@ const DISTRIBUCIONES_PB = {
             width: 138.02,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 718,
@@ -98,18 +97,17 @@ const DISTRIBUCIONES_PB = {
             width: 136.2,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
     ],
     "Edificio C": [
-        // ---- Fila superior ----
         {
             x: 10,
             y: 10,
             width: 138.022,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón",
+            nombre: "Lab. Programación",
         },
         {
             x: 154,
@@ -133,7 +131,7 @@ const DISTRIBUCIONES_PB = {
             width: 129.086,
             height: 194.5,
             tipo: "pasillo",
-            nombre: "",
+            nombre: "Pasillo",
         },
         {
             x: 576,
@@ -141,10 +139,8 @@ const DISTRIBUCIONES_PB = {
             width: 280.352,
             height: 194.99,
             tipo: "salon",
-            nombre: "Salón",
+            nombre: "Auditorio",
         },
-
-        // ---- Fila inferior ----
         {
             x: 10,
             y: 279,
@@ -193,7 +189,7 @@ const DISTRIBUCIONES_PB = {
             width: 138.02,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 154,
@@ -201,7 +197,7 @@ const DISTRIBUCIONES_PB = {
             width: 139.01,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 299,
@@ -225,7 +221,7 @@ const DISTRIBUCIONES_PB = {
             width: 89.15,
             height: 194.98,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Pasillo",
         },
         {
             x: 575,
@@ -241,7 +237,7 @@ const DISTRIBUCIONES_PB = {
             width: 140,
             height: 195,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 10,
@@ -249,7 +245,7 @@ const DISTRIBUCIONES_PB = {
             width: 424.49,
             height: 194.5,
             tipo: "taller",
-            nombre: "Taller",
+            nombre: "Taller automotriz",
         },
         {
             x: 440,
@@ -257,7 +253,7 @@ const DISTRIBUCIONES_PB = {
             width: 416.54,
             height: 193.51,
             tipo: "taller",
-            nombre: "Taller ",
+            nombre: "Taller de robótica",
         },
     ],
     "Edificio D": [
@@ -267,7 +263,7 @@ const DISTRIBUCIONES_PB = {
             width: 138.02,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 154,
@@ -275,7 +271,7 @@ const DISTRIBUCIONES_PB = {
             width: 139.01,
             height: 194.5,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 299,
@@ -299,7 +295,7 @@ const DISTRIBUCIONES_PB = {
             width: 89.15,
             height: 194.98,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 575,
@@ -315,7 +311,7 @@ const DISTRIBUCIONES_PB = {
             width: 140,
             height: 195,
             tipo: "salon",
-            nombre: "Salón ",
+            nombre: "Salón",
         },
         {
             x: 10,
@@ -331,21 +327,18 @@ const DISTRIBUCIONES_PB = {
             width: 416.54,
             height: 193.51,
             tipo: "taller",
-            nombre: "Taller ",
+            nombre: "Taller",
         },
     ],
     "Edificio E": [
-        // ---- Vestíbulo ----
         {
             x: 6,
             y: 6,
             width: 179,
             height: 468,
             tipo: "vestibulo",
-            nombre: "Vestíbulo",
+            nombre: "Auditorio",
         },
-
-        // ---- Fila superior ----
         {
             x: 191,
             y: 6,
@@ -386,8 +379,6 @@ const DISTRIBUCIONES_PB = {
             tipo: "salon",
             nombre: "Salón 4",
         },
-
-        // ---- Fila inferior ----
         {
             x: 191,
             y: 278,
@@ -428,8 +419,6 @@ const DISTRIBUCIONES_PB = {
             tipo: "salon",
             nombre: "Salón 8",
         },
-
-        // ---- Escaleras (gris claro en este edificio) ----
         {
             x: 759,
             y: 165,
@@ -440,137 +429,146 @@ const DISTRIBUCIONES_PB = {
             fill: "#D9D9D9",
         },
     ],
-    Almacen: [
+
+    // ---- DISTRIBUCIÓN DE ALMACÉN (Planta alta arriba-izq + 2 Oficinas a la derecha + Área inferior) ----
+    Almacén: [
         {
             x: 10,
             y: 10,
-            width: 856,
-            height: 460,
+            width: 666,
+            height: 222,
+            tipo: "salon",
+            nombre: "Planta alta del almacén",
+            matchNombre: "Almacén general",
+        },
+        {
+            x: 10,
+            y: 242,
+            width: 666,
+            height: 232,
             tipo: "taller",
-            nombre: "Área de Almacenamiento Principal",
+            nombre: "",
+            matchNombre: "Almacén general",
+        },
+        {
+            x: 686,
+            y: 10,
+            width: 171,
+            height: 222,
+            tipo: "oficina",
+            nombre: "Oficina",
+            matchNombre: "Almacén general",
+        },
+        {
+            x: 686,
+            y: 242,
+            width: 171,
+            height: 232,
+            tipo: "oficina",
+            nombre: "Oficina",
+            matchNombre: "Almacén general",
         },
     ],
-    "Almacen 2": [
+
+    // ---- DISTRIBUCIÓN DE ALMACÉN 2 (Planta única totalmente plana sin divisiones) ----
+    "Almacén 2": [
         {
             x: 10,
             y: 10,
-            width: 856,
-            height: 460,
+            width: 847,
+            height: 464,
             tipo: "taller",
-            nombre: "Área de Almacenamiento Secundaria",
+            nombre: "Almacén 2",
+            matchNombre: "Cuarto de vigilancia",
         },
     ],
 };
 
+// Alias para que funcione con o sin tilde y con el nombre de BD ("Vigilancia")
+DISTRIBUCIONES_PB["Almacen"] = DISTRIBUCIONES_PB["Almacén"];
+DISTRIBUCIONES_PB["Almacen 2"] = DISTRIBUCIONES_PB["Almacén 2"];
+DISTRIBUCIONES_PB["Vigilancia"] = DISTRIBUCIONES_PB["Almacén 2"];
+
 export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
-    if (edificio === "Cafetería") {
+    // ---- PLANTA DE CAFETERÍA Y SUM CON EL ESTILO HOMOLOGADO DE LAS DEMÁS PLANTAS ----
+    if (edificio === "Cafetería y SUM" || edificio === "Cafetería") {
         return (
             <div className="w-full flex justify-center items-center">
                 <svg
-                    width="668"
-                    height="539"
-                    viewBox="0 0 668 539"
+                    width="100%"
+                    height="auto"
+                    viewBox="0 0 668 530"
                     fill="none"
-                    className="max-h-[460px] object-contain drop-shadow-sm overflow-visible"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-full max-w-[668px] max-h-[460px] block select-none drop-shadow-md"
                 >
+                    {/* Contorno base estilo edificio (#F1F0F0 con borde #D7D4D4) */}
+                    <path
+                        d="M625.556 274.526C571.809 560.892 88.7798 580.286 13.5094 275.318C10.8192 264.418 15.3759 252.982 24.4564 246.379L180.322 133.053C187.857 127.575 192.315 118.822 192.315 109.506V41.8496C192.315 25.7711 205.349 12.7368 221.428 12.7368H411.183C427.261 12.7368 440.296 25.771 440.296 41.8496V109.261C440.296 118.713 444.885 127.578 452.604 133.034L614.03 247.142C622.78 253.328 627.533 263.994 625.556 274.526Z"
+                        fill="#F1F0F0"
+                        stroke="#D7D4D4"
+                        strokeWidth="6"
+                    />
+
+                    {/* Zona Inferior: SUM */}
                     <g
-                        filter="url(#filter0_d_2280_15677)"
                         onClick={() =>
                             onSeleccionarEspacio?.({
-                                nombre: "Vestíbulo",
-                                tipo: "vestibulo",
+                                nombre: "SUM",
+                                tipo: "taller",
                             })
                         }
-                        className="cursor-pointer transition-all duration-300 hover:brightness-95"
+                        className="cursor-pointer hover:opacity-80 transition-opacity"
                     >
                         <path
-                            d="M625.556 274.526C571.809 560.892 88.7798 580.286 13.5094 275.318C10.8192 264.418 15.3759 252.982 24.4564 246.379L180.322 133.053C187.857 127.575 192.315 118.822 192.315 109.506V41.8496C192.315 25.7711 205.349 12.7368 221.428 12.7368H411.183C427.261 12.7368 440.296 25.771 440.296 41.8496V109.261C440.296 118.713 444.885 127.578 452.604 133.034L614.03 247.142C622.78 253.328 627.533 263.994 625.556 274.526Z"
-                            fill="#F9CACB"
-                            strokeWidth="25.4737"
-                            stroke="#F1F0F0"
+                            d="M606 272C556 536 104 554 32 273C30 264 34 254 42 248L188 142H445L596 249C603 254 607 263 606 272Z"
+                            fill="#D7D4D4"
                         />
+                        <text
+                            x="317"
+                            y="315"
+                            textAnchor="middle"
+                            fill="#6D6162"
+                            fontSize="22"
+                            fontWeight="bold"
+                            fontFamily="Manrope, sans-serif"
+                            className="select-none pointer-events-none"
+                        >
+                            SUM
+                        </text>
                     </g>
-                    <path
-                        d="M180.092 34.7368L179.592 110.737H453.092L454.092 39.2368C448.092 9.23682 425.592 0.736816 415.092 0.236816H219.092C193.892 0.636816 182.592 23.4035 180.092 34.7368Z"
-                        fill="#FDEDED"
+
+                    {/* Zona Superior Rectangular: Cafetería (vinculada a "Cocina" en BD) */}
+                    <g
                         onClick={() =>
                             onSeleccionarEspacio?.({
                                 nombre: "Cocina",
-                                tipo: "oficina",
+                                tipo: "salon",
                             })
                         }
-                        className="cursor-pointer transition-all duration-300 hover:brightness-95"
-                    />
-                    <rect
-                        x="179.592"
-                        y="144.737"
-                        width="34"
-                        height="275"
-                        rx="8"
-                        transform="rotate(-90 179.592 144.737)"
-                        fill="#F1F0F0"
-                        className="pointer-events-none"
-                    />
-                    <text
-                        x="317"
-                        y="75"
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        className="text-xs font-bold pointer-events-none"
-                        fill="#6D6162"
+                        className="cursor-pointer hover:opacity-80 transition-opacity"
                     >
-                        Cocina
-                    </text>
-                    <text
-                        x="317"
-                        y="320"
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        className="text-xs font-bold pointer-events-none"
-                        fill="#6D6162"
-                    >
-                        Vestíbulo / Comedor
-                    </text>
-                    <defs>
-                        <filter
-                            id="filter0_d_2280_15677"
-                            x="0"
-                            y="0"
-                            width="667.854"
-                            height="538.586"
-                            filterUnits="userSpaceOnUse"
-                            colorInterpolationFilters="sRGB"
+                        <rect
+                            x="198"
+                            y="20"
+                            width="236"
+                            height="112"
+                            rx="22"
+                            fill="#FDEDED"
+                        />
+                        <text
+                            x="316.5"
+                            y="82"
+                            textAnchor="middle"
+                            fill="#6D6162"
+                            fontSize="20"
+                            fontWeight="bold"
+                            fontFamily="Manrope, sans-serif"
+                            className="select-none pointer-events-none"
                         >
-                            <feFlood
-                                floodOpacity="0"
-                                result="BackgroundImageFix"
-                            />
-                            <feColorMatrix
-                                in="SourceAlpha"
-                                type="matrix"
-                                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                                result="hardAlpha"
-                            />
-                            <feOffset dx="14.5564" dy="14.5564" />
-                            <feGaussianBlur stdDeviation="7.2782" />
-                            <feComposite in2="hardAlpha" operator="out" />
-                            <feColorMatrix
-                                type="matrix"
-                                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"
-                            />
-                            <feBlend
-                                mode="normal"
-                                in2="BackgroundImageFix"
-                                result="effect1_dropShadow_2280_15677"
-                            />
-                            <feBlend
-                                mode="normal"
-                                in="SourceGraphic"
-                                in2="effect1_dropShadow_2280_15677"
-                                result="shape"
-                            />
-                        </filter>
-                    </defs>
+                            Cafetería
+                        </text>
+                    </g>
                 </svg>
             </div>
         );
@@ -580,8 +578,8 @@ export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
 
     if (!espacios) {
         return (
-            <div className="w-full h-[400px] flex items-center justify-center text-neutral-400 border border-dashed border-neutral-200 rounded-xl">
-                Planta baja en desarrollo para {edificio}
+            <div className="w-full h-[400px] flex items-center justify-center text-neutro-600 border border-dashed border-neutro-100 rounded-xl">
+                Plano general de {edificio}
             </div>
         );
     }
@@ -589,10 +587,12 @@ export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
     return (
         <div className="w-full flex justify-center items-center">
             <svg
-                className="w-full h-auto max-h-[460px] object-contain select-none drop-shadow-md"
+                width="100%"
+                height="auto"
                 viewBox="0 0 876 493"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
+                className="w-full max-w-[876px] max-h-[460px] block select-none drop-shadow-md"
             >
                 <rect width="867" height="484" rx="8" fill="#F1F0F0" />
                 <rect
@@ -609,7 +609,12 @@ export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
                     <Espacio
                         key={`${edificio}_pb_${index}`}
                         {...espacio}
-                        onClick={() => onSeleccionarEspacio?.(espacio)}
+                        onClick={() =>
+                            onSeleccionarEspacio?.({
+                                ...espacio,
+                                nombre: espacio.matchNombre || espacio.nombre,
+                            })
+                        }
                     />
                 ))}
             </svg>
