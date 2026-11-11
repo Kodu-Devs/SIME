@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\EventoUso;
 use App\Models\Mantenimiento;
 use App\Models\Extintor;
+use App\Models\Capacitacion;
 use App\Exports\InformeExtintoresExport;
 use App\Services\EstatusExtintor;
 use Illuminate\Http\Request;
@@ -19,7 +20,6 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Services\InformesHistorial;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-
 class HistorialController extends Controller
 {
     /**
@@ -31,7 +31,10 @@ class HistorialController extends Controller
         if (!Auth::check()) {
             return Inertia::render('Historial/Index', [
                 'eventos' => [],
-                'filters' => []
+                'filters' => [],
+                'extintores' => [],
+                'capacitaciones' => [],
+                'edificios' => [],
             ]);
         }
 
@@ -58,7 +61,8 @@ class HistorialController extends Controller
                 return [
                     'id' => 'uso_' . $uso->id,
                     'tipo_evento' => 'Uso',
-                    'fecha' => $uso->fecha,
+                    'fecha' => $uso->fecha->format('Y-m-d H:i'), // Formato limpio para el Front
+                    'estado_vencimiento' => $uso->extintor ? $uso->extintor->estadoVencimiento() : null, // Calculado por el backend
                     'tipo_motivo' => $uso->tipo_motivo,
                     'detalle' => $uso->motivo,
                     'subtipo' => $uso->tipo_descarga,
@@ -92,7 +96,8 @@ class HistorialController extends Controller
                 return [
                     'id' => 'mant_' . $mant->id,
                     'tipo_evento' => 'Mantenimiento',
-                    'fecha' => $mant->fecha_realizada,
+                    'fecha' => $mant->fecha_realizada->format('Y-m-d H:i'), // Formato limpio para el Front
+                    'estado_vencimiento' => $mant->extintor ? $mant->extintor->estadoVencimiento() : null, // Calculado por el backend
                     'tipo_motivo' => null, // Homologado para que el frontend maneje el valor vacío
                     'detalle' => $mant->descripcion ?? $mant->tipo,
                     'subtipo' => $mant->tipo,
@@ -107,8 +112,16 @@ class HistorialController extends Controller
             ->sortByDesc('fecha')
             ->values();
 
+        // 4. Catálogos para los selects del Front (Registrar Uso)
+        $extintoresParaSelect = Extintor::whereNotIn('estatus', ['Baja', 'Vacío'])
+            ->get(['id', 'etiqueta_inventario']);
+            
+        $capacitacionesParaSelect = Capacitacion::get(['id', 'nombre']);
+
         return Inertia::render('Historial/Index', [
             'eventos' => $eventos,
+            'extintores' => $extintoresParaSelect,
+            'capacitaciones' => $capacitacionesParaSelect,
             'filters' => $request->only(['search', 'instalacion_id', 'fecha_inicio', 'fecha_fin']),
             'edificios' => app(InformesHistorial::class)->edificios(),
         ]);
@@ -155,7 +168,7 @@ class HistorialController extends Controller
         return redirect()->back()->with('success', 'Uso del extintor registrado correctamente.');
     }
 
-        // Módulo 5 · Exportar: lo programa Sara
+    // Módulo 5 · Exportar: lo programa Sara
     public function exportar(Request $request, InformesHistorial $informes)
     {
         $validated = $request->validate([
