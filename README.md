@@ -1,60 +1,124 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<div align="center">
+  <img src="public/img/Logo_h.png" alt="Logo SIME" width="200"/>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# SIME (Sistema Interactivo de Mapa de Extintores)
 
-## About Laravel
+**Gestión, trazabilidad y control de extintores mediante navegación progresiva y mapeo espacial.**
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+  <img src="public/img/Logo_Kodu.png" alt="Logo KoduDevs" width="150"/>
+  
+  <p><em>Desarrollado con pasión por KoduDevs</em></p>
+</div>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 📖 Descripción del Proyecto
 
-## Learning Laravel
+**SIME** es una aplicación web SPA (Single Page Application) diseñada para optimizar la gestión y monitoreo del equipo contra incendios en instituciones. El sistema permite administrar extintores, planificar mantenimientos, registrar eventos de uso y visualizar la distribución del equipo a través de un mapa interactivo con navegación progresiva.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 🎯 Objetivos Principales
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **Trazabilidad:** Ciclo de vida completo del extintor (registro, uso, recarga, baja).
+- **Prevención:** Sistema de alertas automatizadas para mantenimientos y fechas de caducidad.
+- **Mapeo Espacial:** Interfaz gráfica interactiva con funcionalidad Drag & Drop para ubicar los extintores en sus planos físicos correspondientes.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+---
 
-## Agentic Development
+## 🛠️ Stack Tecnológico
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Este proyecto está construido bajo una arquitectura moderna y robusta:
+
+- **Backend:** Laravel 11 (PHP 8.x)
+- **Frontend:** React.js con JavaScript
+- **Comunicación:** Inertia.js (Breeze) - _Sin APIs REST, comunicación directa y fluida._
+- **Base de Datos:** MySQL / MariaDB
+- **Estilos:** Tailwind CSS
+
+---
+
+## ⚙️ Arquitectura de Módulos (Backend)
+
+El sistema se divide en dueños y responsabilidades claras, manteniendo controladores delgados y servicios reutilizables:
+
+- **1. Acceso y Estructura:** Gestión de autenticación, recuperación de contraseñas y middleware público/privado.
+- **2. Mapa Interactivo:** Navegación progresiva (Instalación → Piso → Ubicación) y Drag & Drop espacial.
+- **3. Extintores:** Registro central de equipos y manejo de bajas lógicas.
+- **4. Agenda:** Programación de mantenimientos y capacitaciones.
+- **5. Historial:** Registro de eventos de uso e impacto directo en el estatus físico del equipo.
+- **6. Alertas:** Motor automatizado que evalúa fechas y estatus diarios.
+- **7. Dashboard:** Métricas agrupadas directamente desde consultas SQL optimizadas.
+- **8. Consulta Pública:** Acceso sin login a módulos informativos.
+
+---
+
+## 🚀 Requisitos Previos
+
+Asegúrate de tener instalados en tu entorno local:
+
+- PHP >= 8.2
+- Composer
+- Node.js y npm
+- Sqlite / PostgreSQL
+
+---
+
+## 💻 Instalación y Configuración
+
+Sigue estos pasos para levantar el entorno de desarrollo:
+
+**1. Clonar el repositorio**
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone git@github.com:tu-usuario/sime.git
+cd sime
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+**2. Instalar dependencias de PHP y Node**
 
-## Contributing
+```bash
+composer install
+npm install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+**3. Configurar el entorno**
+Copia el archivo de ejemplo y genera la clave de la aplicación.
 
-## Code of Conduct
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+**4. Configurar la base de datos**
+Abre el archivo `.env` y configura tus credenciales de base de datos (`DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`).
 
-## Security Vulnerabilities
+**5. Ejecutar migraciones y seeders**
+Aviso: Esto creará las tablas y los catálogos base necesarios para el sistema.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+php artisan migrate:fresh --seed
+```
 
-## License
+**6. Levantar los servidores**
+Necesitarás una terminal corriendo y la app HERD en ejecución.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Terminal (Frontend):
 
-hola
+```bash
+npm run dev
+```
+
+---
+
+## 🧑‍💻 Flujo de Trabajo (Git)
+
+Seguimos una metodología de ramas para mantener la rama principal estable:
+
+- **Ramas nuevas:** `area/descripcion-corta` (Ej. `back/mapa-coordenadas`).
+- **Commits:** Uso de Conventional Commits (Ej. `feat: agregar servicio arbol de ubicaciones`).
+- **Merge:** Fusionar mediante Pull Requests hacia `main`.
+
+---
+
+<div align="center">
+  <p>© 2026 KoduDevs - Todos los derechos reservados.</p>
+</div>

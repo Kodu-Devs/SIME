@@ -8,6 +8,7 @@ use App\Models\Ubicacion;
 use App\Services\ResumenExtintores;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Extintor;
 
 /**
  * Controlador del Módulo 2: Mapa.
@@ -19,29 +20,62 @@ class MapaController extends Controller
 {
     /**
      * Muestra el primer nivel de navegación (Instalaciones) y los totales del Dashboard.
-     * Inyecta el servicio ResumenExtintores para evitar duplicidad de lógica de negocio.
+     * Utiliza subconsultas SQL (selectSub) para aislar la carga de procesamiento en el motor de Base de Datos.
+     * Implementa una mutación de colección (mapWithKeys) para estructurar el DTO (Data Transfer Object)
+     * exactamente con las llaves que el componente React espera, evitando lógica de mapeo en el cliente.
      * 
      * @param \App\Services\ResumenExtintores $resumen
      * @return \Inertia\Response
      */
     public function index(ResumenExtintores $resumen)
     {
-        // Carga de instalaciones con el conteo precalculado de extintores operativos
-        $instalaciones = Instalacion::withCount(['extintores' => function ($query) {
-            $query->where('estatus', '!=', 'Baja');
-        }])->get();
+        $instalaciones = Instalacion::select('instalaciones.id', 'instalaciones.nombre')
+            // 1. Cuenta el total de extintores operativos por instalación saltando tablas intermedias
+            ->selectSub(function ($query) {
+                $query->from('extintores')
+                    ->join('ubicaciones', 'extintores.ubicacion_id', '=', 'ubicaciones.id')
+                    ->join('pisos', 'ubicaciones.piso_id', '=', 'pisos.id')
+                    ->whereColumn('pisos.instalacion_id', 'instalaciones.id')
+                    ->where('extintores.estatus', '!=', 'Baja')
+                    ->selectRaw('count(*)');
+            }, 'extintores_count')
 
-        // Se retorna una sola vista; Frontend decide el Layout basado en el estado de autenticación
+            // 2. Cuenta los extintores VENCIDOS por instalación utilizando el motor de BD
+            ->selectSub(
+                Extintor::vencidos()
+                    ->join('ubicaciones', 'extintores.ubicacion_id', '=', 'ubicaciones.id')
+                    ->join('pisos', 'ubicaciones.piso_id', '=', 'pisos.id')
+                    ->whereColumn('pisos.instalacion_id', 'instalaciones.id')
+                    ->selectRaw('count(*)'),
+                'vencidos_count'
+            )
+            ->get();
+
+        // 3. Adaptador para Frontend: Genera el diccionario {'Edificio A': {total: 5, vencidos: 2}}
+        $porEdificio = $instalaciones->mapWithKeys(function ($inst) {
+            return [
+                $inst->nombre => [
+                    'total' => $inst->extintores_count ?? 0,
+                    'vencidos' => $inst->vencidos_count ?? 0
+                ]
+            ];
+        });
+
+        // Se retorna una sola vista con las métricas consolidadas y parseadas
         return Inertia::render('Mapa/Index', [
+            'porEdificio'   => $porEdificio,
             'instalaciones' => $instalaciones,
-            'porEstatus' => $resumen->porEstatus(),
-            'vencidos' => $resumen->vencidos()
+            'porEstatus'    => $resumen->porEstatus(),
+            'vencidos'      => $resumen->vencidos(),
+            'vigentes'      => $resumen->vigentes(),
+            'porVencer'     => $resumen->porVencer(),
+            'total'         => $resumen->total(),
         ]);
     }
 
     /**
      * Muestra el segundo nivel de navegación: los pisos de una instalación específica.
-     * Implementa Route Model Binding y Eager Loading.
+     * Implementa Route Model Binding y Eager Loading para optimizar las consultas.
      * 
      * @param \App\Models\Instalacion $instalacion
      * @return \Inertia\Response
@@ -60,7 +94,8 @@ class MapaController extends Controller
     /**
      * Muestra el tercer nivel de navegación: las ubicaciones y sus extintores.
      * Muta la colección para entregar un payload estrictamente formateado para el "hover"
-     * de los pines, mitigando la sobrecarga de datos en el cliente.
+     * de los pines, mitigando la sobrecarga de datos en el cliente y delegando la 
+     * lógica de vencimiento directamente al Modelo.
      * 
      * @param \App\Models\Instalacion $instalacion
      * @param \App\Models\Piso $piso
@@ -86,7 +121,10 @@ class MapaController extends Controller
                 'tipo' => $ext->tipoExtintor?->nombre ?? 'N/A',
                 'capacidad' => $ext->capacidad,
                 'estatus' => $ext->estatus,
-                'vencimiento' => $ext->fecha_vencimiento
+                'vencimiento' => $ext->fecha_vencimiento,
+
+                // Consumimos el método del modelo para que Frontend pinte los colores
+                'estado' => $ext->estadoVencimiento(),
             ])
         ]);
 
@@ -99,7 +137,7 @@ class MapaController extends Controller
 
     /**
      * Endpoint protegido para actualizar coordenadas (X, Y) vía Drag and Drop.
-     * Muta exclusivamente la columna JSON serializada 'posicion'.
+     * Muta exclusivamente la columna JSON serializada 'posicion' previniendo inyección de datos.
      * 
      * @param \Illuminate\Http\Request $request
      * @param \App\Models\Ubicacion $ubicacion

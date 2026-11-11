@@ -43,4 +43,14 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    public function estres(): static
+    {      
+        // Sufijo aleatorio para no chocar por sí solo; EstresUserSeeder lo reemplaza con un consecutivo.
+        return $this->state(fn (array $attributes) => [
+            'name' => 'ESTRES-Usuario '.Str::random(6),
+            'email' => 'estres-'.Str::lower(Str::random(10)).'@sime.test',
+            'email_verified_at' => now(),
+        ]);
+    }
 }

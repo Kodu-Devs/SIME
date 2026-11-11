@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Carbon\Carbon;
 
 class Extintor extends Model
 {
@@ -57,18 +58,46 @@ class Extintor extends Model
         return $this->hasMany(Mantenimiento::class, 'extintor_id');
     }
 
+    public function capacitaciones()
+    {
+        return $this->belongsToMany(Capacitacion::class, 'capacitacion_extintor')->withTimestamps();
+    }
+
 
     public function scopeVencidos(Builder $query): Builder
     {
-        return $query->where('fecha_vencimiento', '<', now())
-            ->where('estatus', '!=', 'Baja');
+        return $query->where('estatus', '!=', 'Baja')
+            ->whereDate('fecha_vencimiento', '<', today());
     }
 
-    public function scopePorVencer(Builder $query, int $dias = 30): Builder
+    public function scopePorVencer(Builder $query): Builder
     {
-        return $query->whereBetween('fecha_vencimiento', [
-            now(),
-            now()->addDays($dias),
-        ]);
+        return $query->where('estatus', '!=', 'Baja')
+            ->whereDate('fecha_vencimiento', '>=', today())
+            ->whereDate('fecha_vencimiento', '<=', today()->addDays(config('sime.dias_por_vencer')));
+    }
+
+    public static function calcularVencimiento($instalacion, int $periodosExtra = 0): Carbon
+    {
+        $instalacion = Carbon::parse($instalacion)->startOfDay();
+
+        $meses = (int) $instalacion->diffInMonths(today());
+
+        return $instalacion->copy()->addMonthsNoOverflow($meses + 1 + $periodosExtra);
+    }
+
+    // Estado del vencimiento para pintar colores en el front.
+    // Usa la MISMA regla que los scopes vencidos() y porVencer().
+    public function estadoVencimiento(): string
+    {
+        $vencimiento = Carbon::parse($this->fecha_vencimiento)->startOfDay();
+
+        if ($vencimiento->lt(today())) {
+            return 'vencido';      // venció ayer o antes
+        }
+        if ($vencimiento->lte(today()->addDays(config('sime.dias_por_vencer')))) {
+            return 'por_vencer';   // vence de hoy a 7 días (hoy cuenta como por vencer)
+        }
+        return 'vigente';
     }
 }
