@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from "react";
-import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
-import { Head, usePage, Link } from "@inertiajs/react";
+import React, { useState, useMemo, useEffect } from "react";
+import { ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { Head, usePage, Link, router } from "@inertiajs/react"; // <-- Agregado router
 import AdminLayout from "@/Layouts/AdminLayout";
 import ExtintoresHeader from "@/Components/Extintores/ExtintoresHeader";
 import ExtintorFilterPills from "@/Components/Extintores/ExtintorFilterPills";
@@ -8,23 +8,46 @@ import ExtintoresTable from "@/Components/Extintores/ExtintoresTable";
 import ExtintorFormPanel from "@/Components/Extintores/ExtintorFormPanel";
 
 export default function Index(props) {
-    const { auth, flash } = usePage().props; // <-- 2. Extraer flash
+    const { auth, flash } = usePage().props;
 
-    const [flashDismissed, setFlashDismissed] = useState(false);
+    const [flashVisible, setFlashVisible] = useState(false);
+
+    useEffect(() => {
+        if (flash?.success || flash?.error) {
+            setFlashVisible(true);
+            const timer = setTimeout(() => {
+                setFlashVisible(false);
+            }, 4500);
+            return () => clearTimeout(timer);
+        }
+    }, [flash]);
 
     // Datos paginados recibidos desde ExtintorController
     const extintoresPaginator = props.extintores || {};
-    const extintoresRaw =
-        extintoresPaginator.data ||
-        (Array.isArray(props.extintores) ? props.extintores : []);
+    const extintoresRaw = extintoresPaginator.data || (Array.isArray(props.extintores) ? props.extintores : []);
     const tipos = props.tipos || [];
     const instalaciones = props.instalaciones || [];
     const capacidades_kg = props.capacidades_kg || [];
     const capacidades_l = props.capacidades_l || [];
 
     const [selectedExtintor, setSelectedExtintor] = useState(null);
-    const [activeFilter, setActiveFilter] = useState("Todos");
     const [isMobileFormOpen, setIsMobileFormOpen] = useState(false);
+
+    // El filtro activo viene sincronizado con la URL desde el backend
+    const activeFilter = props.filtroActivo || "Todos";
+
+    // Petición al servidor cuando se pulsa una píldora de filtro
+    const handleFilterChange = (nuevoFiltro) => {
+        router.get(
+            route('extintores.index'),
+            { filtro: nuevoFiltro },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            }
+        );
+    };
 
     // Normalización de ubicaciones
     const normalizedExtintores = useMemo(() => {
@@ -40,19 +63,12 @@ export default function Index(props) {
                 for (const inst of instalaciones) {
                     for (const p of inst.pisos || []) {
                         for (const ub of p.ubicaciones || []) {
-                            const matchId =
-                                ubicacionId &&
-                                String(ub.id) === String(ubicacionId);
-                            const matchNombre =
-                                ub.nombre &&
-                                ub.nombre.trim().toLowerCase() ===
-                                    areaNombre.trim().toLowerCase();
+                            const matchId = ubicacionId && String(ub.id) === String(ubicacionId);
+                            const matchNombre = ub.nombre && ub.nombre.trim().toLowerCase() === areaNombre.trim().toLowerCase();
 
                             if (matchId || matchNombre) {
                                 edificioDetectado = inst.nombre || "";
-                                pisoDetectado =
-                                    p.nombre ||
-                                    (p.numero ? `Piso ${p.numero}` : "");
+                                pisoDetectado = p.nombre || (p.numero ? `Piso ${p.numero}` : "");
                                 break;
                             }
                         }
@@ -62,12 +78,9 @@ export default function Index(props) {
                 }
             }
 
-            const finalPiso =
-                ext.piso_numero && !String(ext.piso_numero).includes("N/A")
-                    ? `Piso ${ext.piso_numero}`
-                    : pisoDetectado;
-
-            const finalEdificio = edificioDetectado || "";
+            const finalPiso = ext.piso_numero && !String(ext.piso_numero).includes("N/A")
+                ? `Piso ${ext.piso_numero}`
+                : pisoDetectado;
 
             return {
                 id: ext.id,
@@ -78,55 +91,15 @@ export default function Index(props) {
                 capacidad_raw: ext.capacidad_raw || ext.capacidad,
                 area_nombre: areaNombre,
                 ubicacion_id: ubicacionId,
-                edificio: finalEdificio,
+                edificio: edificioDetectado || "",
                 piso: finalPiso,
-                proximo_mantenimiento:
-                    ext.proximo_mantenimiento || "Sin programar",
+                proximo_mantenimiento: ext.proximo_mantenimiento || "Sin programar",
                 proxima_revision: ext.proxima_revision || "Sin programar",
                 estado: ext.estado ?? ext.estatus ?? "Disponible",
                 raw: ext.raw || ext,
             };
         });
     }, [extintoresRaw, instalaciones, tipos]);
-
-    const filteredExtintores = useMemo(() => {
-        if (activeFilter === "Todos") return normalizedExtintores;
-
-        return normalizedExtintores.filter((ext) => {
-            const estado = (ext.estado || "").toLowerCase();
-            const filtro = activeFilter.toLowerCase();
-
-            if (filtro.includes("dispon") || filtro.includes("vigent")) {
-                return (
-                    estado.includes("vigent") ||
-                    estado.includes("dispon") ||
-                    estado.includes("operativ")
-                );
-            }
-            if (
-                filtro.includes("medio") ||
-                filtro.includes("vencer") ||
-                filtro.includes("proxim")
-            ) {
-                return (
-                    estado.includes("por vencer") ||
-                    estado.includes("vencer") ||
-                    estado.includes("medio")
-                );
-            }
-            if (
-                filtro.includes("vaci") ||
-                filtro.includes("vací") ||
-                filtro.includes("vencid")
-            ) {
-                return estado.includes("vencid") || estado.includes("vac");
-            }
-            if (filtro.includes("servicio") || filtro.includes("baja")) {
-                return estado.includes("baja") || estado.includes("fuera");
-            }
-            return estado === filtro;
-        });
-    }, [normalizedExtintores, activeFilter]);
 
     const handleSelectExtintor = (extintor) => {
         setSelectedExtintor(extintor);
@@ -146,22 +119,15 @@ export default function Index(props) {
     };
 
     const renderPagination = () => {
-        const { current_page, last_page, prev_page_url, next_page_url, links } =
-            extintoresPaginator;
+        const { current_page, last_page, prev_page_url, next_page_url, links } = extintoresPaginator;
 
         if (!last_page || last_page <= 1) return null;
 
         return (
             <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-[#D7D4D4] sm:px-6 rounded-b-2xl shadow-xs mt-1 font-['Manrope']">
                 <div className="text-xs text-[#6D6162]">
-                    Página{" "}
-                    <span className="font-semibold text-[#272222]">
-                        {current_page}
-                    </span>{" "}
-                    de{" "}
-                    <span className="font-semibold text-[#272222]">
-                        {last_page}
-                    </span>
+                    Página <span className="font-semibold text-[#272222]">{current_page}</span> de{" "}
+                    <span className="font-semibold text-[#272222]">{last_page}</span>
                 </div>
 
                 <div className="inline-flex items-center gap-1">
@@ -170,11 +136,10 @@ export default function Index(props) {
                         preserveScroll
                         preserveState
                         as={prev_page_url ? "a" : "span"}
-                        className={`p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] transition-colors ${
-                            prev_page_url
-                                ? "hover:bg-[#F1F0F0] cursor-pointer"
-                                : "opacity-40 cursor-not-allowed pointer-events-none"
-                        }`}
+                        className={`p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] transition-colors ${prev_page_url
+                            ? "hover:bg-[#F1F0F0] cursor-pointer"
+                            : "opacity-40 cursor-not-allowed pointer-events-none"
+                            }`}
                     >
                         <ChevronLeft className="w-4 h-4" />
                     </Link>
@@ -187,14 +152,11 @@ export default function Index(props) {
                                 preserveScroll
                                 preserveState
                                 as={link.url ? "a" : "span"}
-                                dangerouslySetInnerHTML={{
-                                    __html: link.label,
-                                }}
-                                className={`w-7 h-7 flex items-center justify-center text-xs font-semibold rounded-lg transition-colors ${
-                                    link.active
-                                        ? "bg-[#C0262D] text-white shadow-xs"
-                                        : "border border-[#D7D4D4] text-[#272222] hover:bg-[#F1F0F0]"
-                                } ${!link.url ? "opacity-40 pointer-events-none" : "cursor-pointer"}`}
+                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                className={`w-7 h-7 flex items-center justify-center text-xs font-semibold rounded-lg transition-colors ${link.active
+                                    ? "bg-[#C0262D] text-white shadow-xs"
+                                    : "border border-[#D7D4D4] text-[#272222] hover:bg-[#F1F0F0]"
+                                    } ${!link.url ? "opacity-40 pointer-events-none" : "cursor-pointer"}`}
                             />
                         ))}
 
@@ -203,11 +165,10 @@ export default function Index(props) {
                         preserveScroll
                         preserveState
                         as={next_page_url ? "a" : "span"}
-                        className={`p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] transition-colors ${
-                            next_page_url
-                                ? "hover:bg-[#F1F0F0] cursor-pointer"
-                                : "opacity-40 cursor-not-allowed pointer-events-none"
-                        }`}
+                        className={`p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] transition-colors ${next_page_url
+                            ? "hover:bg-[#F1F0F0] cursor-pointer"
+                            : "opacity-40 cursor-not-allowed pointer-events-none"
+                            }`}
                     >
                         <ChevronRight className="w-4 h-4" />
                     </Link>
@@ -220,14 +181,40 @@ export default function Index(props) {
         <AdminLayout auth={auth} user={auth?.user}>
             <Head title="Extintores - SIME" />
 
-            <div className="w-full max-w-7xl mx-auto space-y-4 pb-6 overflow-x-hidden">
+            <div className="w-full max-w-7xl mx-auto space-y-4 pb-6 overflow-x-hidden font-['Manrope']">
                 {/* 1. Encabezado */}
                 <ExtintoresHeader onAddNew={handleAddNew} />
 
-                {/* 3. Filtros */}
+                {/* 2. Banner de Notificación */}
+                {flashVisible && (flash?.success || flash?.error) && (
+                    <div
+                        className={`flex items-center justify-between p-3.5 rounded-2xl border shadow-xs transition-all duration-300 ${flash?.success
+                            ? "bg-[#D6F4F2] border-[#1C9691]/40 text-[#10706B]"
+                            : "bg-[#FDEDED] border-[#F9CACB] text-[#C0262D]"
+                            }`}
+                    >
+                        <div className="flex items-center gap-2.5">
+                            {flash?.success ? (
+                                <CheckCircle2 className="w-4 h-4 text-[#1C9691] shrink-0" />
+                            ) : (
+                                <AlertCircle className="w-4 h-4 text-[#C0262D] shrink-0" />
+                            )}
+                            <span className="text-xs font-semibold">{flash.success || flash.error}</span>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setFlashVisible(false)}
+                            className="p-1 rounded-lg transition-colors hover:bg-black/5"
+                        >
+                            <X className="w-3.5 h-3.5" />
+                        </button>
+                    </div>
+                )}
+
+                {/* 3. Filtros conectados al servidor */}
                 <ExtintorFilterPills
                     activeFilter={activeFilter}
-                    onFilterChange={setActiveFilter}
+                    onFilterChange={handleFilterChange}
                 />
 
                 {/* 4. Vista Móvil */}
@@ -240,8 +227,7 @@ export default function Index(props) {
                                     onClick={handleCloseMobileForm}
                                     className="text-xs text-[#C0262D] font-bold inline-flex items-center gap-1.5"
                                 >
-                                    <ArrowLeft className="w-3.5 h-3.5" /> Volver
-                                    a la lista
+                                    <ArrowLeft className="w-3.5 h-3.5" /> Volver a la lista
                                 </button>
                             </div>
                             <ExtintorFormPanel
@@ -256,7 +242,7 @@ export default function Index(props) {
                     ) : (
                         <div>
                             <ExtintoresTable
-                                extintores={filteredExtintores}
+                                extintores={normalizedExtintores}
                                 selectedExtintor={selectedExtintor}
                                 onSelectExtintor={handleSelectExtintor}
                             />
@@ -269,7 +255,7 @@ export default function Index(props) {
                 <div className="hidden md:grid grid-cols-12 gap-6 items-start">
                     <div className="col-span-8">
                         <ExtintoresTable
-                            extintores={filteredExtintores}
+                            extintores={normalizedExtintores}
                             selectedExtintor={selectedExtintor}
                             onSelectExtintor={handleSelectExtintor}
                         />
