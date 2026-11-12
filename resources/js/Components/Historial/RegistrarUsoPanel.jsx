@@ -36,12 +36,12 @@ export default function RegistrarUsoPanel({
 
     // Al seleccionar una fila se precarga solo el extintor; sin selección se limpia
     useEffect(() => {
-        if (evento) {
-            setData("extintor_id", evento.extintor?.id ?? "");
-        } else {
-            reset();
-        }
-        clearErrors();
+    if (evento) {
+        setData("extintor_id", evento.extintor?.id ?? "");  // antes: evento.extintor_id
+    } else {
+        reset();
+    }
+    clearErrors();
     }, [evento]);
 
     const cambiarTipoMotivo = (valor) => {
@@ -97,7 +97,7 @@ export default function RegistrarUsoPanel({
                     <option value="">Selecciona un extintor</option>
                     {extintores.map((x) => (
                         <option key={x.id} value={x.id}>
-                            {x.codigo}
+                            {x.etiqueta_inventario}
                         </option>
                     ))}
                 </select>

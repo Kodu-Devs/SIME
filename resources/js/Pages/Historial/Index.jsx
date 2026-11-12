@@ -4,9 +4,15 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import PublicLayout from "@/Layouts/PublicLayout";
 import ExportarModal from "@/Components/Historial/ExportarModal";
 import HistorialPublicoView from "@/Components/Historial/HistorialPublicoView";
+import HistorialAdminView from "@/Components/Historial/HistorialAdminView";
 import { FileDown } from "lucide-react";
 
-export default function Index({ edificios = [] }) {
+export default function Index({ 
+    edificios = [],
+    eventos = [],
+    extintores = [], 
+    capacitaciones = [], 
+}) {
     const { auth } = usePage().props;
 
     const isAdmin = Boolean(auth?.user);
@@ -37,6 +43,13 @@ export default function Index({ edificios = [] }) {
                             <span>Exportar informe</span>
                         </button>
                     </div>
+
+                    <HistorialAdminView
+                        eventos={eventos}
+                        edificios={edificios}
+                        extintores={extintores}
+                        capacitaciones={capacitaciones}
+                    />
 
                     {/* Modal de exportación creado por Sara */}
                     <ExportarModal

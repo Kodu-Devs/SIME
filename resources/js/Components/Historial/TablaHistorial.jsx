@@ -64,12 +64,26 @@ export default function TablaHistorial({
                             : [evento.tipo_evento, evento.subtipo].filter(Boolean).join(" · ");
 
                         return (
-                            <tr key={evento.id} /* ...igual que antes... */>
+                            <tr 
+                                key={evento.id}
+                                onClick={() => alternarSeleccion(evento)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        e.preventDefault();
+                                        alternarSeleccion(evento);
+                                    }
+                                }}
+                                tabIndex={0}
+                                aria-selected={activo}
+                                className={`cursor-pointer border-b last:border-b-0 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primario-300 ${
+                                    activo ? "bg-primario-100" : "hover:bg-neutro-50"
+                                }`}
+                            >
                                 <td className="px-3 py-3 text-gray-500">{formatearFecha(evento.fecha)}</td>
 
-                                <td className="px-3 py-3 text-gray-900">
-                                    {evento.extintor?.etiqueta_inventario}
-                                </td>
+                                <td className={`px-3 py-3 ${COLOR_EXTINTOR[evento.estado_vencimiento] ?? COLOR_EXTINTOR.default}`}>
+                                {evento.extintor?.etiqueta_inventario}
+                            </td>
 
                                 <td className="px-3 py-3 text-gray-500">{ubicacion}</td>
 
