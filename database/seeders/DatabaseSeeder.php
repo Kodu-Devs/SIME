@@ -19,18 +19,19 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             TipoExtintorSeeder::class,
             InstalacionSeeder::class,
-            
+
             // 2. Tablas intermedias en cascada
             PisoSeeder::class,
             UbicacionSeeder::class,
-            
+
             // 3. Extintores (depende de ubicación y tipo)
             ExtintorSeeder::class,
-            
+
             // 4. Tablas transaccionales y operativas (dependen de usuarios y extintores)
-            CapacitacionSeeder::class,
             EventoUsoSeeder::class,
             MantenimientoSeeder::class,
+            // Después de MantenimientoSeeder: aparta solo extintores sin mantenimiento reciente
+            CapacitacionSeeder::class,
             AlertaSeeder::class,
         ]);
     }

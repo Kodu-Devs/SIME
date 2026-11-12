@@ -3,11 +3,14 @@ import { Head, usePage } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import PublicLayout from "@/Layouts/PublicLayout";
 import ExportarModal from "@/Components/Historial/ExportarModal";
+import HistorialPublicoView from "@/Components/Historial/HistorialPublicoView";
 import { FileDown } from "lucide-react";
 
 export default function Index({ edificios = [] }) {
     const { auth } = usePage().props;
+
     const isAdmin = Boolean(auth?.user);
+
     const Layout = isAdmin ? AdminLayout : PublicLayout;
 
     const [modalExportarAbierto, setModalExportarAbierto] = useState(false);
@@ -43,7 +46,11 @@ export default function Index({ edificios = [] }) {
                     />
                 </div>
             ) : (
-                <div>Vista de Consulta Pública (Solo lectura)</div>
+                <div className="min-h-screen py-8 bg-[#F1F0F0]">
+                    <div className="max-w-[1400px] mx-auto w-full px-4 lg:px-16">
+                        <HistorialPublicoView />
+                    </div>
+                </div>
             )}
         </Layout>
     );

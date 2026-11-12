@@ -21,7 +21,7 @@ class InstalacionSeeder extends Seeder
             ['nombre' => 'Cancha',                          'tipo' => 'Área exterior'],
             ['nombre' => 'Estacionamiento de motocicletas', 'tipo' => 'Área exterior'],
             ['nombre' => 'Parque vehicular',                'tipo' => 'Área exterior'],
-            ['nombre' => 'Vigilancia',                      'tipo' => 'Área exterior'],
+            ['nombre' => 'Almacén 2',                       'tipo' => 'Área exterior'],
             ['nombre' => 'Almacén',                         'tipo' => 'Área exterior'],
         ];
 

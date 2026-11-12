@@ -3,8 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\Capacitacion;
+use App\Models\Extintor;
 use App\Models\Ubicacion;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 
 class CapacitacionSeeder extends Seeder
 {
@@ -19,6 +21,15 @@ class CapacitacionSeeder extends Seeder
 
         // Ubicaciones ordenadas por id: se asignan por posición, sin azar.
         $ubicaciones = Ubicacion::orderBy('id')->get();
+
+        // Mismo criterio que el formulario de agenda (StoreCapacitacionRequest):
+        // 'Medio uso' y sin mantenimiento realizado en la última semana.
+        $extintoresApartables = Extintor::where('estatus', 'Medio uso')
+            ->whereDoesntHave('mantenimientos', function ($consulta) {
+                $consulta->where('fecha_realizada', '>=', now()->subWeek());
+            })
+            ->orderBy('id')
+            ->pluck('id');
 
         $capacitaciones = [
             ['Uso y manejo de extintores',       '2026-03-10 09:00:00'],
@@ -36,12 +47,34 @@ class CapacitacionSeeder extends Seeder
             // firstOrCreate: si la capacitación ya existe, NO le cambia la ubicación
             // withTrashed: con SoftDeletes, firstOrCreate no ve las capacitaciones
             // dadas de baja y crearia un duplicado; asi la baja se respeta y no se repite
-            Capacitacion::withTrashed()->firstOrCreate(
+            $capacitacion = Capacitacion::withTrashed()->firstOrCreate(
                 ['nombre' => $nombre, 'fecha_hora' => $fechaHora],
                 ['ubicacion_id' => $ubicacion->id]
             );
+
+            $this->apartarExtintores($capacitacion, $extintoresApartables, $i);
         }
 
         $this->command->info('Capacitaciones sembradas con éxito.');
+    }
+
+    /**
+     * Aparta hasta 2 extintores por capacitación, por posición y sin azar.
+     * syncWithoutDetaching evita duplicar filas si el seeder se corre de nuevo.
+     *
+     * @param  Collection<int, int>  $extintoresApartables
+     */
+    private function apartarExtintores(Capacitacion $capacitacion, Collection $extintoresApartables, int $posicion): void
+    {
+        if ($capacitacion->trashed() || $extintoresApartables->isEmpty()) {
+            return;
+        }
+
+        $total = $extintoresApartables->count();
+        $ids = collect([$posicion % $total, ($posicion + 1) % $total])
+            ->unique()
+            ->map(fn (int $indice) => $extintoresApartables[$indice]);
+
+        $capacitacion->extintores()->syncWithoutDetaching($ids->all());
     }
 }

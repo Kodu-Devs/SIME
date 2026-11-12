@@ -1,8 +1,8 @@
-import { useEffect } from "react";
 import { Head, Link, router, usePage } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import PublicLayout from "@/Layouts/PublicLayout";
 import VistaIsometrica from "@/Components/Mapa/Planos/VistaIsometrica";
+import Planta from "@/Components/Mapa/Planta";
 
 export default function Edificio({ instalacion }) {
     const { auth } = usePage().props;
@@ -10,17 +10,11 @@ export default function Edificio({ instalacion }) {
     const Layout = isAdmin ? AdminLayout : PublicLayout;
 
     const pisos = instalacion?.pisos || [];
+    const esUnSoloNivel = pisos.length === 1;
     const nombreEdificio =
         instalacion?.nombre === "Vigilancia"
             ? "Almacén 2"
             : instalacion?.nombre;
-
-    // Si la instalación solo tiene un piso ("Nivel único"), abrimos su plano directamente
-    useEffect(() => {
-        if (instalacion?.id && pisos.length === 1) {
-            router.replace(route("mapa.piso", [instalacion.id, pisos[0].id]));
-        }
-    }, [instalacion, pisos]);
 
     const irAPisoPorObjeto = (pisoObj) => {
         if (!pisoObj?.id) return;
@@ -71,13 +65,24 @@ export default function Edificio({ instalacion }) {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Columna Izquierda (2/3): Vista Isométrica 3D */}
+                    {/* Columna Izquierda (2/3): Si es de 1 solo nivel muestra Planta, si tiene varios muestra VistaIsometrica */}
                     <div className="lg:col-span-2">
-                        <VistaIsometrica
-                            edificio={nombreEdificio}
-                            onVolver={() => router.get(route("mapa.index"))}
-                            onSelectPiso={manejarSelectPisoDesdeSVG}
-                        />
+                        {esUnSoloNivel ? (
+                            <Planta
+                                edificio={nombreEdificio}
+                                piso={pisos[0]?.nombre || "Nivel único"}
+                                onVolver={() => router.get(route("mapa.index"))}
+                                onSeleccionarEspacio={() =>
+                                    irAPisoPorObjeto(pisos[0])
+                                }
+                            />
+                        ) : (
+                            <VistaIsometrica
+                                edificio={nombreEdificio}
+                                onVolver={() => router.get(route("mapa.index"))}
+                                onSelectPiso={manejarSelectPisoDesdeSVG}
+                            />
+                        )}
                     </div>
 
                     {/* Columna Derecha (1/3): Selector de Pisos Reales de BD */}
@@ -86,8 +91,9 @@ export default function Edificio({ instalacion }) {
                             {nombreEdificio}
                         </h3>
                         <p className="text-xs text-neutro-600 mt-1 mb-4">
-                            Elige un piso para abrir su plano y consultar sus
-                            ubicaciones:
+                            {esUnSoloNivel
+                                ? "Haz clic en el plano o en el botón inferior para ver el detalle de extintores de esta área:"
+                                : "Elige un piso para abrir su plano y consultar sus ubicaciones:"}
                         </p>
 
                         <div className="space-y-2">
@@ -98,7 +104,11 @@ export default function Edificio({ instalacion }) {
                                     onClick={() => irAPisoPorObjeto(piso)}
                                     className="w-full flex justify-between items-center p-3.5 rounded-lg border border-neutro-100 hover:border-primario-500 hover:bg-primario-100/20 text-etiqueta font-semibold text-neutro-900 transition"
                                 >
-                                    <span>{piso.nombre}</span>
+                                    <span>
+                                        {esUnSoloNivel
+                                            ? `Ver extintores (${piso.nombre})`
+                                            : piso.nombre}
+                                    </span>
                                     <span className="text-neutro-600">›</span>
                                 </button>
                             ))}

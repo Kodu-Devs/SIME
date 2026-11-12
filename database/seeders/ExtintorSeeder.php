@@ -255,7 +255,7 @@ class ExtintorSeeder extends Seeder
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00583', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Edificio C', 'piso' => 'Nivel 1', 'ubicacion' => 'Biblioteca'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00680', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Cafetería y SUM', 'piso' => 'Nivel único', 'ubicacion' => 'SUM'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00703', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Edificio E', 'piso' => 'Planta baja', 'ubicacion' => 'Auditorio'],
-            ['etiqueta_inventario' => 'ITJMM-62007-5100-00740', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Vigilancia', 'piso' => 'Nivel único', 'ubicacion' => 'Cuarto de vigilancia'],
+            ['etiqueta_inventario' => 'ITJMM-62007-5100-00740', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Almacén 2', 'piso' => 'Nivel único', 'ubicacion' => 'Cuarto de vigilancia'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00769', 'tipo' => 'PQS', 'capacidad' => '1 kg', 'instalacion' => 'Almacén', 'piso' => 'Nivel único', 'ubicacion' => 'Almacén general'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00824', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Almacén', 'piso' => 'Nivel único', 'ubicacion' => 'Almacén general'],
             ['etiqueta_inventario' => 'ITJMM-62007-5100-00825', 'tipo' => 'PQS', 'capacidad' => '9 kg', 'instalacion' => 'Edificio B', 'piso' => 'Nivel 1', 'ubicacion' => 'Lab. Redes'],
