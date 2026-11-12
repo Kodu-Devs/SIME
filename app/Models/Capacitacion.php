@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Capacitacion extends Model
 {
+    use HasFactory;
+
     // Baja logica para no perder los eventos de uso ligados a la capacitacion
     use SoftDeletes;
 
@@ -23,8 +26,18 @@ class Capacitacion extends Model
         return $this->belongsTo(Ubicacion::class, 'ubicacion_id');
     }
 
+    public function alertas()
+    {
+        return $this->hasMany(Alerta::class, 'capacitacion_id');
+    }
+
     public function eventosUso()
     {
         return $this->hasMany(EventoUso::class, 'capacitacion_id');
+    }
+
+    public function extintores()
+    {
+        return $this->belongsToMany(Extintor::class, 'capacitacion_extintor')->withTimestamps();
     }
 }

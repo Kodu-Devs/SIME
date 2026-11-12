@@ -35,7 +35,7 @@ export default function Login({ status, canResetPassword }) {
                         <img
                             src="/img/Logo.png"
                             alt="Logo SIME"
-                            className="h-16 w-auto object-contain"
+                            className="h-20 w-auto object-contain brightness-150"
                             onError={(e) => {
                                 e.currentTarget.style.display = "none";
                             }}
