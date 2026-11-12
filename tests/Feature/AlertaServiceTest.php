@@ -6,6 +6,7 @@ use App\Models\TipoExtintor;
 use App\Models\Ubicacion;
 use App\Models\User;
 use App\Services\AlertaService;
+use Illuminate\Support\Carbon;
 use Database\Seeders\InstalacionSeeder;
 use Database\Seeders\PisoSeeder;
 use Database\Seeders\TipoExtintorSeeder;
@@ -59,4 +60,110 @@ test('un extintor en Baja queda sin alertas abiertas', function () {
     AlertaService::evaluarExtintor($this->extintor->fresh());
 
     expect(Alerta::where('extintor_id', $this->extintor->id)->noLeidas()->count())->toBe(0);
+});
+
+// ---------------------------------------------------------------
+// Extintor: estado de vencimiento
+// Las fechas se fijan con travelTo para que el resultado no dependa
+// del día en que se corran las pruebas.
+// ---------------------------------------------------------------
+
+test('un extintor vencido genera alerta urgente y cierra la de por vencer', function () {
+    $this->travelTo(Carbon::parse('2026-06-15 10:00'));
+
+    // Vence en 3 días: queda "por vencer"
+    $this->extintor->update(['fecha_vencimiento' => '2026-06-18']);
+    AlertaService::evaluarExtintor($this->extintor->fresh());
+
+    // Pasa la fecha de vencimiento: ahora está vencido
+    $this->travelTo(Carbon::parse('2026-06-19 10:00'));
+    AlertaService::evaluarExtintor($this->extintor->fresh());
+
+    $abiertas = Alerta::where('extintor_id', $this->extintor->id)->noLeidas();
+
+    expect((clone $abiertas)->where('categoria', 'vencido')->where('tipo', 'Urgente')->count())->toBe(1);
+    expect((clone $abiertas)->where('categoria', 'por_vencer')->count())->toBe(0);
+});
+
+test('un extintor por vencer genera alerta próxima y cierra la de vencido', function () {
+    $this->travelTo(Carbon::parse('2026-06-15 10:00'));
+
+    // Venció ayer
+    $this->extintor->update(['fecha_vencimiento' => '2026-06-14']);
+    AlertaService::evaluarExtintor($this->extintor->fresh());
+
+    // Se corrige la fecha y ahora vence en 5 días
+    $this->extintor->update(['fecha_vencimiento' => '2026-06-20']);
+    AlertaService::evaluarExtintor($this->extintor->fresh());
+
+    $abiertas = Alerta::where('extintor_id', $this->extintor->id)->noLeidas();
+
+    expect((clone $abiertas)->where('categoria', 'por_vencer')->where('tipo', 'Próximo')->count())->toBe(1);
+    expect((clone $abiertas)->where('categoria', 'vencido')->count())->toBe(0);
+});
+
+test('un extintor vigente cierra las alertas de vencido y por vencer', function () {
+    $this->travelTo(Carbon::parse('2026-06-15 10:00'));
+
+    // Alertas abiertas de antes
+    foreach (['vencido', 'por_vencer'] as $categoria) {
+        Alerta::create([
+            'extintor_id' => $this->extintor->id,
+            'user_id' => $this->admin->id,
+            'tipo' => 'Urgente',
+            'categoria' => $categoria,
+            'mensaje' => 'Alerta de prueba',
+            'fecha_generada' => now(),
+            'leida' => false,
+        ]);
+    }
+
+    // Recibe mantenimiento: vence dentro de un mes
+    $this->extintor->update(['fecha_vencimiento' => '2026-07-15']);
+    AlertaService::evaluarExtintor($this->extintor->fresh());
+
+    expect(Alerta::where('extintor_id', $this->extintor->id)->noLeidas()->count())->toBe(0);
+});
+
+test('por vencer incluye el último día del rango y excluye el siguiente', function () {
+    $this->travelTo(Carbon::parse('2026-06-15 10:00'));
+    $dias = config('sime.dias_por_vencer');
+
+    // Justo en el último día del rango: sí es "por vencer"
+    $this->extintor->update(['fecha_vencimiento' => today()->addDays($dias)->toDateString()]);
+    AlertaService::evaluarExtintor($this->extintor->fresh());
+
+    expect(Alerta::where('extintor_id', $this->extintor->id)
+        ->where('categoria', 'por_vencer')->noLeidas()->count())->toBe(1);
+
+    // Un día después: ya es vigente y la alerta se cierra
+    $this->extintor->update(['fecha_vencimiento' => today()->addDays($dias + 1)->toDateString()]);
+    AlertaService::evaluarExtintor($this->extintor->fresh());
+
+    expect(Alerta::where('extintor_id', $this->extintor->id)
+        ->where('categoria', 'por_vencer')->noLeidas()->count())->toBe(0);
+});
+
+// ---------------------------------------------------------------
+// Extintor: estatus
+// ---------------------------------------------------------------
+
+test('un extintor vacío o fuera de servicio genera alerta urgente de estatus', function (string $estatus) {
+    $this->extintor->update(['estatus' => $estatus]);
+    AlertaService::evaluarExtintor($this->extintor->fresh());
+
+    expect(Alerta::where('extintor_id', $this->extintor->id)
+        ->where('categoria', 'estatus')->where('tipo', 'Urgente')
+        ->noLeidas()->count())->toBe(1);
+})->with(['Vacío', 'Fuera de servicio']);
+
+test('al volver a disponible se cierra la alerta de estatus', function () {
+    $this->extintor->update(['estatus' => 'Vacío']);
+    AlertaService::evaluarExtintor($this->extintor->fresh());
+
+    $this->extintor->update(['estatus' => 'Disponible']);
+    AlertaService::evaluarExtintor($this->extintor->fresh());
+
+    expect(Alerta::where('extintor_id', $this->extintor->id)
+        ->where('categoria', 'estatus')->noLeidas()->count())->toBe(0);
 });
