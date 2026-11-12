@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
+import { router, usePage } from "@inertiajs/react";
 
 export default function AgendaSidePanel({
     combos = {},
     eventoSeleccionado = null,
     onCancelMovil,
+    onSuccess,
     tabInicial = "mantenimiento",
 }) {
+    const { errors, flash } = usePage().props;
     const [activeTab, setActiveTab] = useState(tabInicial);
+    const [procesando, setProcesando] = useState(false);
 
     const extintoresCapacitacion =
         combos?.extintores_capacitacion?.length > 0
@@ -63,23 +67,27 @@ export default function AgendaSidePanel({
         extintores_ids: [],
     });
 
+    const limpiarFormularios = () => {
+        setExtintorSeleccionadoId(extintoresMantenimiento[0]?.id || "");
+        setFormMantenimiento({
+            tipo: "",
+            fecha_programada: "",
+            hora_programada: "",
+            descripcion: "",
+        });
+        setFormCapacitacion({
+            nombre: "",
+            fecha: "",
+            hora: "",
+            ubicacion_id: "",
+            extintores_ids: [],
+        });
+    };
+
     useEffect(() => {
         if (!eventoSeleccionado) {
             setActiveTab(tabInicial);
-            setExtintorSeleccionadoId(extintoresMantenimiento[0]?.id || "");
-            setFormMantenimiento({
-                tipo: "",
-                fecha_programada: "",
-                hora_programada: "",
-                descripcion: "",
-            });
-            setFormCapacitacion({
-                nombre: "",
-                fecha: "",
-                hora: "",
-                ubicacion_id: "",
-                extintores_ids: [],
-            });
+            limpiarFormularios();
             return;
         }
 
@@ -128,12 +136,17 @@ export default function AgendaSidePanel({
                     "",
                 );
 
+            const idsSeleccionados =
+                eventoSeleccionado.extintores_id ||
+                eventoSeleccionado.extintores_ids ||
+                [];
+
             setFormCapacitacion({
                 nombre: nombreLimpio,
                 fecha: fechaParte.slice(0, 10),
                 hora: horaParte,
                 ubicacion_id: eventoSeleccionado.ubicacion_id || "",
-                extintores_ids: eventoSeleccionado.extintores_ids || [],
+                extintores_ids: idsSeleccionados,
             });
         }
     }, [eventoSeleccionado, tabInicial]);
@@ -149,6 +162,113 @@ export default function AgendaSidePanel({
 
     const textoTipo =
         extintorSeleccionado?.tipoextintor_nombre || "Polvo químico seco";
+
+    // ==========================================
+    // FUNCIONES DE ENVÍO Y ELIMINACIÓN (INERTIA)
+    // ==========================================
+
+    const handleSubmitMantenimiento = (e) => {
+        e.preventDefault();
+        const fechaCompleta =
+            formMantenimiento.fecha_programada &&
+            formMantenimiento.hora_programada
+                ? `${formMantenimiento.fecha_programada} ${formMantenimiento.hora_programada}:00`
+                : formMantenimiento.fecha_programada;
+
+        const payload = {
+            extintor_id: extintorSeleccionadoId,
+            tipo: formMantenimiento.tipo,
+            descripcion: formMantenimiento.descripcion,
+            fecha_programada: fechaCompleta,
+        };
+
+        setProcesando(true);
+
+        if (
+            eventoSeleccionado &&
+            eventoSeleccionado.clase === "mantenimiento"
+        ) {
+            router.put(
+                `/agenda/mantenimientos/${eventoSeleccionado.id}`,
+                payload,
+                {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        if (onSuccess) onSuccess();
+                    },
+                    onFinish: () => setProcesando(false),
+                },
+            );
+        } else {
+            router.post("/agenda/mantenimientos", payload, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    limpiarFormularios();
+                    if (onSuccess) onSuccess();
+                },
+                onFinish: () => setProcesando(false),
+            });
+        }
+    };
+
+    const handleSubmitCapacitacion = (e) => {
+        e.preventDefault();
+        const fechaCompleta =
+            formCapacitacion.fecha && formCapacitacion.hora
+                ? `${formCapacitacion.fecha} ${formCapacitacion.hora}:00`
+                : formCapacitacion.fecha;
+
+        const payload = {
+            nombre: formCapacitacion.nombre,
+            fecha_hora: fechaCompleta,
+            ubicacion_id: formCapacitacion.ubicacion_id,
+            extintores_id: formCapacitacion.extintores_ids,
+        };
+
+        setProcesando(true);
+
+        if (eventoSeleccionado && eventoSeleccionado.clase === "capacitacion") {
+            router.put(
+                `/agenda/capacitaciones/${eventoSeleccionado.id}`,
+                payload,
+                {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        if (onSuccess) onSuccess();
+                    },
+                    onFinish: () => setProcesando(false),
+                },
+            );
+        } else {
+            router.post("/agenda/capacitaciones", payload, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    limpiarFormularios();
+                    if (onSuccess) onSuccess();
+                },
+                onFinish: () => setProcesando(false),
+            });
+        }
+    };
+
+    const handleEliminar = () => {
+        if (!eventoSeleccionado) return;
+
+        const url =
+            eventoSeleccionado.clase === "capacitacion"
+                ? `/agenda/capacitaciones/${eventoSeleccionado.id}`
+                : `/agenda/mantenimientos/${eventoSeleccionado.id}`;
+
+        setProcesando(true);
+        router.delete(url, {
+            preserveScroll: true,
+            onSuccess: () => {
+                limpiarFormularios();
+                if (onSuccess) onSuccess();
+            },
+            onFinish: () => setProcesando(false),
+        });
+    };
 
     return (
         <aside className="w-full lg:w-80 bg-white border border-neutro-300 rounded-xl p-4 md:p-5 flex flex-col gap-3.5 shadow-sm font-sans shrink-0">
@@ -169,11 +289,23 @@ export default function AgendaSidePanel({
                 )}
             </div>
 
+            {/* Mensajes de error de validación o del controlador */}
+            {Object.keys(errors || {}).length > 0 && (
+                <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg p-2.5">
+                    Complete los campos requeridos correctamente.
+                </div>
+            )}
+            {flash?.error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg p-2.5">
+                    {flash.error}
+                </div>
+            )}
+
             <div className="flex bg-neutro-100 p-1 rounded-lg">
                 <button
                     type="button"
                     onClick={() => setActiveTab("mantenimiento")}
-                    className={`flex-1 py-1.5 text-[11px] md:text-xs font-semibold rounded-md transition ${
+                    className={`flex-1 py-1.5 text-[11px] md:text-xs font-semibold rounded-md transition cursor-pointer ${
                         activeTab === "mantenimiento"
                             ? "bg-white text-neutro-900 shadow-sm"
                             : "text-neutro-600 hover:text-neutro-900"
@@ -185,7 +317,7 @@ export default function AgendaSidePanel({
                 <button
                     type="button"
                     onClick={() => setActiveTab("capacitacion")}
-                    className={`flex-1 py-1.5 text-[11px] md:text-xs font-semibold rounded-md transition ${
+                    className={`flex-1 py-1.5 text-[11px] md:text-xs font-semibold rounded-md transition cursor-pointer ${
                         activeTab === "capacitacion"
                             ? "bg-white text-neutro-900 shadow-sm"
                             : "text-neutro-600 hover:text-neutro-900"
@@ -196,7 +328,10 @@ export default function AgendaSidePanel({
             </div>
 
             {activeTab === "capacitacion" ? (
-                <form className="flex flex-col gap-3">
+                <form
+                    onSubmit={handleSubmitCapacitacion}
+                    className="flex flex-col gap-3"
+                >
                     <div className="flex flex-col gap-1">
                         <label className="text-etiqueta text-neutro-900">
                             Nombre
@@ -268,7 +403,9 @@ export default function AgendaSidePanel({
                                 }
                                 className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
                             >
-                                <option value="" disabled></option>
+                                <option value="" disabled>
+                                    Seleccione una ubicación
+                                </option>
                                 {ubicacionesPlanas.map((ub) => (
                                     <option key={ub.id} value={ub.id}>
                                         {ub.texto}
@@ -339,23 +476,29 @@ export default function AgendaSidePanel({
                         {eventoSeleccionado && (
                             <button
                                 type="button"
-                                className="w-1/3 bg-white hover:bg-red-50 text-red-600 border border-red-600 text-etiqueta px-3 py-2 rounded-lg transition"
+                                disabled={procesando}
+                                onClick={handleEliminar}
+                                className="w-1/3 bg-white hover:bg-red-50 text-red-600 border border-red-600 text-etiqueta px-3 py-2 rounded-lg transition cursor-pointer disabled:opacity-50"
                             >
                                 Eliminar
                             </button>
                         )}
                         <button
-                            type="button"
+                            type="submit"
+                            disabled={procesando}
                             className={`${
                                 eventoSeleccionado ? "w-2/3" : "w-full"
-                            } bg-primario-700 hover:bg-primario-900 text-white text-etiqueta px-5 py-2 rounded-lg transition`}
+                            } bg-primario-700 hover:bg-primario-900 text-white text-etiqueta px-5 py-2 rounded-lg transition cursor-pointer disabled:opacity-50`}
                         >
                             {eventoSeleccionado ? "Guardar cambios" : "Agendar"}
                         </button>
                     </div>
                 </form>
             ) : (
-                <form className="flex flex-col gap-2.5">
+                <form
+                    onSubmit={handleSubmitMantenimiento}
+                    className="flex flex-col gap-2.5"
+                >
                     <div className="flex flex-col gap-1.5">
                         <div className="flex items-center justify-between">
                             <span className="text-etiqueta text-neutro-900">
@@ -477,16 +620,19 @@ export default function AgendaSidePanel({
                         {eventoSeleccionado && (
                             <button
                                 type="button"
-                                className="w-1/3 bg-white hover:bg-red-50 text-red-600 border border-red-600 text-etiqueta px-3 py-2 rounded-lg transition"
+                                disabled={procesando}
+                                onClick={handleEliminar}
+                                className="w-1/3 bg-white hover:bg-red-50 text-red-600 border border-red-600 text-etiqueta px-3 py-2 rounded-lg transition cursor-pointer disabled:opacity-50"
                             >
                                 Eliminar
                             </button>
                         )}
                         <button
-                            type="button"
+                            type="submit"
+                            disabled={procesando}
                             className={`${
                                 eventoSeleccionado ? "w-2/3" : "w-full"
-                            } bg-primario-700 hover:bg-primario-900 text-white text-etiqueta py-2 rounded-lg transition cursor-pointer`}
+                            } bg-primario-700 hover:bg-primario-900 text-white text-etiqueta py-2 rounded-lg transition cursor-pointer disabled:opacity-50`}
                         >
                             {eventoSeleccionado
                                 ? "Guardar cambios"
