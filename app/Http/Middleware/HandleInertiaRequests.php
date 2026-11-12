@@ -33,7 +33,12 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => ['user' => $request->user(),],
-            'alertas' => fn() => $request->user() ? AlertaService::resumenCampana() : null
+            'alertas' => fn() => $request->user() ? AlertaService::resumenCampana() : null, // <-- Aquí va la coma
+
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error'   => fn () => $request->session()->get('error'),
+            ],
         ];
     }
 }
