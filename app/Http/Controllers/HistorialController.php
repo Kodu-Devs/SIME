@@ -58,7 +58,7 @@ class HistorialController extends Controller
                 return [
                     'id' => 'uso_' . $uso->id,
                     'tipo_evento' => 'Uso',
-                    'fecha' => $uso->fecha?->format('Y-m-d H:i:s'), // Formato homologado con Agenda
+                    'fecha' => $uso->fecha?->format('Y-m-d H:i:s'),
                     'estado_vencimiento' => $uso->extintor ? $uso->extintor->estadoVencimiento() : null,
                     'tipo_motivo' => $uso->tipo_motivo,
                     'detalle' => $uso->motivo,
@@ -93,7 +93,7 @@ class HistorialController extends Controller
                 return [
                     'id' => 'mant_' . $mant->id,
                     'tipo_evento' => 'Mantenimiento',
-                    'fecha' => $mant->fecha_realizada?->format('Y-m-d H:i:s'), // Manejo de nulos y formato Agenda
+                    'fecha' => $mant->fecha_realizada?->format('Y-m-d H:i:s'),
                     'estado_vencimiento' => $mant->extintor ? $mant->extintor->estadoVencimiento() : null,
                     'tipo_motivo' => null,
                     'detalle' => $mant->descripcion ?? $mant->tipo,
@@ -113,9 +113,9 @@ class HistorialController extends Controller
         $extintoresParaSelect = Extintor::whereNotIn('estatus', ['Baja', 'Vacío'])
             ->orderBy('etiqueta_inventario')
             ->get(['id', 'etiqueta_inventario']);
-            
-        $capacitacionesParaSelect = Capacitacion::whereDate('fecha', '<=', today())
-            ->orderByDesc('fecha')
+
+        $capacitacionesParaSelect = Capacitacion::where('fecha_hora', '<=', now())
+            ->orderByDesc('fecha_hora')
             ->get(['id', 'nombre']);
 
         return Inertia::render('Historial/Index', [
