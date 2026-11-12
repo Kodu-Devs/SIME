@@ -22,8 +22,14 @@ class CapacitacionSeeder extends Seeder
         // Ubicaciones ordenadas por id: se asignan por posición, sin azar.
         $ubicaciones = Ubicacion::orderBy('id')->get();
 
-        // Solo extintores en 'Medio uso', los únicos que el formulario permite apartar.
-        $extintoresApartables = Extintor::where('estatus', 'Medio uso')->orderBy('id')->pluck('id');
+        // Mismo criterio que el formulario de agenda (StoreCapacitacionRequest):
+        // 'Medio uso' y sin mantenimiento realizado en la última semana.
+        $extintoresApartables = Extintor::where('estatus', 'Medio uso')
+            ->whereDoesntHave('mantenimientos', function ($consulta) {
+                $consulta->where('fecha_realizada', '>=', now()->subWeek());
+            })
+            ->orderBy('id')
+            ->pluck('id');
 
         $capacitaciones = [
             ['Uso y manejo de extintores',       '2026-03-10 09:00:00'],

@@ -4,6 +4,7 @@ use App\Models\Capacitacion;
 use Database\Seeders\CapacitacionSeeder;
 use Database\Seeders\ExtintorSeeder;
 use Database\Seeders\InstalacionSeeder;
+use Database\Seeders\MantenimientoSeeder;
 use Database\Seeders\PisoSeeder;
 use Database\Seeders\TipoExtintorSeeder;
 use Database\Seeders\UbicacionSeeder;
@@ -16,6 +17,7 @@ beforeEach(function () {
         PisoSeeder::class,
         UbicacionSeeder::class,
         ExtintorSeeder::class,
+        MantenimientoSeeder::class,
         CapacitacionSeeder::class,
     ]);
 });
@@ -28,13 +30,16 @@ test('el seeder aparta extintores en cada capacitación', function () {
     );
 });
 
-test('el seeder solo aparta extintores en medio uso', function () {
-    $this->assertDatabaseCount('capacitacion_extintor', 12);
+test('el seeder solo aparta extintores que el formulario también permitiría', function () {
+    expect(DB::table('capacitacion_extintor')->count())->toBeGreaterThan(0);
 
-    Capacitacion::with('extintores')->get()->each(
-        fn (Capacitacion $capacitacion) => $capacitacion->extintores->each(
-            fn ($extintor) => expect($extintor->estatus)->toBe('Medio uso')
-        )
+    Capacitacion::with('extintores.mantenimientos')->get()->each(
+        fn (Capacitacion $capacitacion) => $capacitacion->extintores->each(function ($extintor) {
+            expect($extintor->estatus)->toBe('Medio uso');
+            expect(
+                $extintor->mantenimientos->contains(fn ($mantenimiento) => $mantenimiento->fecha_realizada?->gte(now()->subWeek()))
+            )->toBeFalse();
+        })
     );
 });
 
