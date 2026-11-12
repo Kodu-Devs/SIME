@@ -64,7 +64,7 @@ export default function AgendaSidePanel({
         fecha: "",
         hora: "",
         ubicacion_id: "",
-        extintores_ids: [],
+        extintores_id: [],
     });
 
     const limpiarFormularios = () => {
@@ -80,7 +80,7 @@ export default function AgendaSidePanel({
             fecha: "",
             hora: "",
             ubicacion_id: "",
-            extintores_ids: [],
+            extintores_id: [],
         });
     };
 
@@ -117,7 +117,8 @@ export default function AgendaSidePanel({
             if (!tipoServicio && eventoSeleccionado.titulo) {
                 const partes = eventoSeleccionado.titulo.split("-ITJMM");
                 tipoServicio =
-                    partes[0]?.split("-")[0] || eventoSeleccionado.titulo;
+                    partes[0]?.split("-")[0]?.trim() ||
+                    eventoSeleccionado.titulo;
             }
 
             setFormMantenimiento({
@@ -136,17 +137,12 @@ export default function AgendaSidePanel({
                     "",
                 );
 
-            const idsSeleccionados =
-                eventoSeleccionado.extintores_id ||
-                eventoSeleccionado.extintores_ids ||
-                [];
-
             setFormCapacitacion({
                 nombre: nombreLimpio,
                 fecha: fechaParte.slice(0, 10),
                 hora: horaParte,
                 ubicacion_id: eventoSeleccionado.ubicacion_id || "",
-                extintores_ids: idsSeleccionados,
+                extintores_id: eventoSeleccionado.extintores_id || [],
             });
         }
     }, [eventoSeleccionado, tabInicial]);
@@ -162,10 +158,6 @@ export default function AgendaSidePanel({
 
     const textoTipo =
         extintorSeleccionado?.tipoextintor_nombre || "Polvo químico seco";
-
-    // ==========================================
-    // FUNCIONES DE ENVÍO Y ELIMINACIÓN (INERTIA)
-    // ==========================================
 
     const handleSubmitMantenimiento = (e) => {
         e.preventDefault();
@@ -189,7 +181,7 @@ export default function AgendaSidePanel({
             eventoSeleccionado.clase === "mantenimiento"
         ) {
             router.put(
-                `/agenda/mantenimientos/${eventoSeleccionado.id}`,
+                route("agenda.mantenimientos.update", eventoSeleccionado.id),
                 payload,
                 {
                     preserveScroll: true,
@@ -200,7 +192,7 @@ export default function AgendaSidePanel({
                 },
             );
         } else {
-            router.post("/agenda/mantenimientos", payload, {
+            router.post(route("agenda.mantenimientos.store"), payload, {
                 preserveScroll: true,
                 onSuccess: () => {
                     limpiarFormularios();
@@ -222,14 +214,14 @@ export default function AgendaSidePanel({
             nombre: formCapacitacion.nombre,
             fecha_hora: fechaCompleta,
             ubicacion_id: formCapacitacion.ubicacion_id,
-            extintores_id: formCapacitacion.extintores_ids,
+            extintores_id: formCapacitacion.extintores_id,
         };
 
         setProcesando(true);
 
         if (eventoSeleccionado && eventoSeleccionado.clase === "capacitacion") {
             router.put(
-                `/agenda/capacitaciones/${eventoSeleccionado.id}`,
+                route("agenda.capacitaciones.update", eventoSeleccionado.id),
                 payload,
                 {
                     preserveScroll: true,
@@ -240,7 +232,7 @@ export default function AgendaSidePanel({
                 },
             );
         } else {
-            router.post("/agenda/capacitaciones", payload, {
+            router.post(route("agenda.capacitaciones.store"), payload, {
                 preserveScroll: true,
                 onSuccess: () => {
                     limpiarFormularios();
@@ -254,10 +246,23 @@ export default function AgendaSidePanel({
     const handleEliminar = () => {
         if (!eventoSeleccionado) return;
 
+        const tipoTexto =
+            eventoSeleccionado.clase === "capacitacion"
+                ? "esta capacitación"
+                : "este mantenimiento";
+
+        if (
+            !window.confirm(
+                `¿Estás seguro de que deseas eliminar ${tipoTexto}?`,
+            )
+        ) {
+            return;
+        }
+
         const url =
             eventoSeleccionado.clase === "capacitacion"
-                ? `/agenda/capacitaciones/${eventoSeleccionado.id}`
-                : `/agenda/mantenimientos/${eventoSeleccionado.id}`;
+                ? route("agenda.capacitaciones.destroy", eventoSeleccionado.id)
+                : route("agenda.mantenimientos.destroy", eventoSeleccionado.id);
 
         setProcesando(true);
         router.delete(url, {
@@ -289,12 +294,6 @@ export default function AgendaSidePanel({
                 )}
             </div>
 
-            {/* Mensajes de error de validación o del controlador */}
-            {Object.keys(errors || {}).length > 0 && (
-                <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg p-2.5">
-                    Complete los campos requeridos correctamente.
-                </div>
-            )}
             {flash?.error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg p-2.5">
                     {flash.error}
@@ -348,43 +347,55 @@ export default function AgendaSidePanel({
                             }
                             className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
                         />
+                        {errors?.nombre && (
+                            <span className="text-red-600 text-[11px]">
+                                {errors.nombre}
+                            </span>
+                        )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="flex flex-col gap-1">
-                            <label className="text-etiqueta text-neutro-900">
-                                Fecha
-                            </label>
-                            <input
-                                type="date"
-                                name="fecha"
-                                value={formCapacitacion.fecha}
-                                onChange={(e) =>
-                                    setFormCapacitacion({
-                                        ...formCapacitacion,
-                                        fecha: e.target.value,
-                                    })
-                                }
-                                className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
-                            />
+                    <div className="flex flex-col gap-1">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="flex flex-col gap-1">
+                                <label className="text-etiqueta text-neutro-900">
+                                    Fecha
+                                </label>
+                                <input
+                                    type="date"
+                                    name="fecha"
+                                    value={formCapacitacion.fecha}
+                                    onChange={(e) =>
+                                        setFormCapacitacion({
+                                            ...formCapacitacion,
+                                            fecha: e.target.value,
+                                        })
+                                    }
+                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <label className="text-etiqueta text-neutro-900">
+                                    Hora
+                                </label>
+                                <input
+                                    type="time"
+                                    name="hora"
+                                    value={formCapacitacion.hora}
+                                    onChange={(e) =>
+                                        setFormCapacitacion({
+                                            ...formCapacitacion,
+                                            hora: e.target.value,
+                                        })
+                                    }
+                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                />
+                            </div>
                         </div>
-                        <div className="flex flex-col gap-1">
-                            <label className="text-etiqueta text-neutro-900">
-                                Hora
-                            </label>
-                            <input
-                                type="time"
-                                name="hora"
-                                value={formCapacitacion.hora}
-                                onChange={(e) =>
-                                    setFormCapacitacion({
-                                        ...formCapacitacion,
-                                        hora: e.target.value,
-                                    })
-                                }
-                                className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
-                            />
-                        </div>
+                        {errors?.fecha_hora && (
+                            <span className="text-red-600 text-[11px]">
+                                {errors.fecha_hora}
+                            </span>
+                        )}
                     </div>
 
                     <div className="flex flex-col gap-1">
@@ -426,6 +437,11 @@ export default function AgendaSidePanel({
                                 className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
                             />
                         )}
+                        {errors?.ubicacion_id && (
+                            <span className="text-red-600 text-[11px]">
+                                {errors.ubicacion_id}
+                            </span>
+                        )}
                     </div>
 
                     <div className="flex flex-col gap-1.5 mt-1">
@@ -441,7 +457,7 @@ export default function AgendaSidePanel({
                                 >
                                     <input
                                         type="checkbox"
-                                        checked={formCapacitacion.extintores_ids.some(
+                                        checked={formCapacitacion.extintores_id.some(
                                             (id) =>
                                                 String(id) ===
                                                 String(extintor.id),
@@ -450,12 +466,12 @@ export default function AgendaSidePanel({
                                             const isChecked = e.target.checked;
                                             setFormCapacitacion((prev) => ({
                                                 ...prev,
-                                                extintores_ids: isChecked
+                                                extintores_id: isChecked
                                                     ? [
-                                                          ...prev.extintores_ids,
+                                                          ...prev.extintores_id,
                                                           extintor.id,
                                                       ]
-                                                    : prev.extintores_ids.filter(
+                                                    : prev.extintores_id.filter(
                                                           (id) =>
                                                               String(id) !==
                                                               String(
@@ -470,6 +486,11 @@ export default function AgendaSidePanel({
                                 </label>
                             ))}
                         </div>
+                        {errors?.extintores_id && (
+                            <span className="text-red-600 text-[11px]">
+                                {errors.extintores_id}
+                            </span>
+                        )}
                     </div>
 
                     <div className="flex gap-2 mt-1">
@@ -523,6 +544,11 @@ export default function AgendaSidePanel({
                                 </option>
                             ))}
                         </select>
+                        {errors?.extintor_id && (
+                            <span className="text-red-600 text-[11px]">
+                                {errors.extintor_id}
+                            </span>
+                        )}
                     </div>
 
                     <div className="flex flex-col gap-1">
@@ -546,8 +572,7 @@ export default function AgendaSidePanel({
                             <label className="text-etiqueta text-neutro-900">
                                 Tipo de Servicio
                             </label>
-                            <input
-                                type="text"
+                            <select
                                 name="tipo"
                                 value={formMantenimiento.tipo}
                                 onChange={(e) =>
@@ -556,45 +581,71 @@ export default function AgendaSidePanel({
                                         tipo: e.target.value,
                                     })
                                 }
-                                className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
-                            />
+                                className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0 cursor-pointer"
+                            >
+                                <option value="" disabled>
+                                    Seleccione un tipo
+                                </option>
+                                <option value="Revisión">Revisión</option>
+                                <option value="Relleno de contenido">
+                                    Relleno de contenido
+                                </option>
+                                <option value="Otra">Otra</option>
+                            </select>
+                            {errors?.tipo && (
+                                <span className="text-red-600 text-[11px]">
+                                    {errors.tipo}
+                                </span>
+                            )}
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="flex flex-col gap-1">
-                                <label className="text-etiqueta text-neutro-900">
-                                    Fecha
-                                </label>
-                                <input
-                                    type="date"
-                                    name="fecha_programada"
-                                    value={formMantenimiento.fecha_programada}
-                                    onChange={(e) =>
-                                        setFormMantenimiento({
-                                            ...formMantenimiento,
-                                            fecha_programada: e.target.value,
-                                        })
-                                    }
-                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-center text-neutro-900 focus:border-primario-700 focus:ring-0 cursor-pointer"
-                                />
+                        <div className="flex flex-col gap-1">
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-etiqueta text-neutro-900">
+                                        Fecha
+                                    </label>
+                                    <input
+                                        type="date"
+                                        name="fecha_programada"
+                                        value={
+                                            formMantenimiento.fecha_programada
+                                        }
+                                        onChange={(e) =>
+                                            setFormMantenimiento({
+                                                ...formMantenimiento,
+                                                fecha_programada:
+                                                    e.target.value,
+                                            })
+                                        }
+                                        className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-center text-neutro-900 focus:border-primario-700 focus:ring-0 cursor-pointer"
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-etiqueta text-neutro-900">
+                                        Hora
+                                    </label>
+                                    <input
+                                        type="time"
+                                        name="hora_programada"
+                                        value={
+                                            formMantenimiento.hora_programada
+                                        }
+                                        onChange={(e) =>
+                                            setFormMantenimiento({
+                                                ...formMantenimiento,
+                                                hora_programada: e.target.value,
+                                            })
+                                        }
+                                        className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-center text-neutro-900 focus:border-primario-700 focus:ring-0 cursor-pointer"
+                                    />
+                                </div>
                             </div>
-                            <div className="flex flex-col gap-1">
-                                <label className="text-etiqueta text-neutro-900">
-                                    Hora
-                                </label>
-                                <input
-                                    type="time"
-                                    name="hora_programada"
-                                    value={formMantenimiento.hora_programada}
-                                    onChange={(e) =>
-                                        setFormMantenimiento({
-                                            ...formMantenimiento,
-                                            hora_programada: e.target.value,
-                                        })
-                                    }
-                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-center text-neutro-900 focus:border-primario-700 focus:ring-0 cursor-pointer"
-                                />
-                            </div>
+                            {errors?.fecha_programada && (
+                                <span className="text-red-600 text-[11px]">
+                                    {errors.fecha_programada}
+                                </span>
+                            )}
                         </div>
 
                         <div className="flex flex-col gap-1">
@@ -613,6 +664,11 @@ export default function AgendaSidePanel({
                                 }
                                 className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 resize-none focus:border-primario-700 focus:ring-0"
                             ></textarea>
+                            {errors?.descripcion && (
+                                <span className="text-red-600 text-[11px]">
+                                    {errors.descripcion}
+                                </span>
+                            )}
                         </div>
                     </div>
 
