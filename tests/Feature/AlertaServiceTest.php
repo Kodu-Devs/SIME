@@ -167,3 +167,85 @@ test('al volver a disponible se cierra la alerta de estatus', function () {
     expect(Alerta::where('extintor_id', $this->extintor->id)
         ->where('categoria', 'estatus')->noLeidas()->count())->toBe(0);
 });
+
+// ---------------------------------------------------------------
+// Mantenimiento
+// ---------------------------------------------------------------
+
+test('un mantenimiento atrasado genera alerta urgente y cierra la próxima', function () {
+    $this->travelTo(Carbon::parse('2026-06-15 10:00'));
+
+    // Programado en 2 días: alerta "Próximo"
+    $m = $this->extintor->mantenimientos()->create([
+        'tipo' => 'Revisión',
+        'fecha_programada' => Carbon::parse('2026-06-17 09:00'),
+    ]);
+    AlertaService::evaluarMantenimiento($m);
+
+    // Pasa la fecha sin realizarse: ahora está atrasado
+    $this->travelTo(Carbon::parse('2026-06-18 10:00'));
+    AlertaService::evaluarMantenimiento($m->fresh());
+
+    $abiertas = Alerta::where('mantenimiento_id', $m->id)->where('categoria', 'mantenimiento')->noLeidas();
+
+    expect((clone $abiertas)->where('tipo', 'Urgente')->count())->toBe(1);
+    expect((clone $abiertas)->where('tipo', 'Próximo')->count())->toBe(0);
+});
+
+test('un mantenimiento atrasado reprogramado dentro del rango vuelve a próximo', function () {
+    $this->travelTo(Carbon::parse('2026-06-15 10:00'));
+
+    // Debía hacerse hace 5 días: alerta "Urgente"
+    $m = $this->extintor->mantenimientos()->create([
+        'tipo' => 'Revisión',
+        'fecha_programada' => Carbon::parse('2026-06-10 09:00'),
+    ]);
+    AlertaService::evaluarMantenimiento($m);
+
+    // Se reprograma para dentro de 3 días
+    $m->update(['fecha_programada' => Carbon::parse('2026-06-18 09:00')]);
+    AlertaService::evaluarMantenimiento($m->fresh());
+
+    $abiertas = Alerta::where('mantenimiento_id', $m->id)->where('categoria', 'mantenimiento')->noLeidas();
+
+    expect((clone $abiertas)->where('tipo', 'Próximo')->count())->toBe(1);
+    expect((clone $abiertas)->where('tipo', 'Urgente')->count())->toBe(0);
+});
+
+test('mantenimiento próximo incluye el último día del rango y excluye el siguiente', function () {
+    $this->travelTo(Carbon::parse('2026-06-15 10:00'));
+    $dias = config('sime.dias_por_vencer');
+
+    // Justo en el último día del rango: sí genera "Próximo"
+    $m = $this->extintor->mantenimientos()->create([
+        'tipo' => 'Revisión',
+        'fecha_programada' => today()->addDays($dias)->setTime(9, 0),
+    ]);
+    AlertaService::evaluarMantenimiento($m);
+
+    expect(Alerta::where('mantenimiento_id', $m->id)->where('tipo', 'Próximo')->noLeidas()->count())->toBe(1);
+
+    // Un día después: queda fuera del rango y la alerta se cierra
+    $m->update(['fecha_programada' => today()->addDays($dias + 1)->setTime(9, 0)]);
+    AlertaService::evaluarMantenimiento($m->fresh());
+
+    expect(Alerta::where('mantenimiento_id', $m->id)->noLeidas()->count())->toBe(0);
+});
+
+test('un mantenimiento realizado cierra su alerta', function () {
+    $this->travelTo(Carbon::parse('2026-06-15 10:00'));
+
+    // Atrasado: alerta "Urgente"
+    $m = $this->extintor->mantenimientos()->create([
+        'tipo' => 'Revisión',
+        'fecha_programada' => Carbon::parse('2026-06-10 09:00'),
+    ]);
+    AlertaService::evaluarMantenimiento($m);
+    expect(Alerta::where('mantenimiento_id', $m->id)->noLeidas()->count())->toBe(1);
+
+    // Se realiza hoy
+    $m->update(['fecha_realizada' => today()]);
+    AlertaService::evaluarMantenimiento($m->fresh());
+
+    expect(Alerta::where('mantenimiento_id', $m->id)->noLeidas()->count())->toBe(0);
+});
