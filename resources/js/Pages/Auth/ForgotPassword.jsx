@@ -40,12 +40,12 @@ export default function ForgotPassword({ status }) {
                     {/* Texto Central de Bienvenida */}
                     <div className="my-10 lg:my-0 max-w-lg z-10 space-y-6">
                         <h1 className="text-3xl sm:text-titulo-principal font-bold leading-tight text-white">
-                            ¿Necesitas recuperar tu acceso?{" "}
+                            ¿Necesita recuperar su acceso?{" "}
                         </h1>
                         <p className="text-sm sm:text-base text-white/60 leading-relaxed">
-                            Te enviaremos un enlace seguro a tu correo
-                            registrado para que elijas una nueva contraseña y
-                            vuelvas al panel de administrador.
+                            Le enviaremos un enlace seguro a su correo
+                            registrado para que elija una nueva contraseña y
+                            vuelva al panel de administrador.
                         </p>
                     </div>
 
@@ -70,14 +70,14 @@ export default function ForgotPassword({ status }) {
                         </h2>
 
                         <p className="text-sm text-neutro-600 leading-relaxed mb-6">
-                            ¿Olvidaste tu contraseña? No hay problema. Ingresa
-                            tu correo electrónico registrado y te enviaremos un
-                            enlace seguro para que elijas una nueva.
+                            ¿Olvidó su contraseña? No hay problema. Ingrese su
+                            correo electrónico registrado y le enviaremos un
+                            enlace seguro para que elija una nueva.
                         </p>
 
                         {status && (
                             <div className="mb-6 rounded-lg bg-acento-500/15 border border-acento-500/30 p-3 text-xs font-semibold text-acento-500">
-                                Hemos enviado el enlace de recuperación a tu
+                                Hemos enviado el enlace de recuperación a su
                                 correo electrónico.
                             </div>
                         )}

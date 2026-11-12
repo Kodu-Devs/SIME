@@ -25,19 +25,20 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
 
         ResetPassword::toMailUsing(function (object $notifiable, string $token) {
-        $url = url(route('password.reset', [
-            'token' => $token,
-            'email' => $notifiable->getEmailForPasswordReset(),
-        ], false));
+            $url = url(route('password.reset', [
+                'token' => $token,
+                'email' => $notifiable->getEmailForPasswordReset(),
+            ], false));
 
-        return (new MailMessage)
-            ->subject('Restablecer contraseña - SIME')
-            ->greeting('¡Hola!')
-            ->line('Recibiste este correo porque solicitaste un enlace de recuperación de contraseña para tu cuenta.')
-            ->action('Restablecer contraseña', $url)
-            ->line('Este enlace de recuperación caducará en 60 minutos.')
-            ->line('Si no solicitaste este cambio, puedes ignorar este correo.')
-            ->salutation('Saludos, El equipo de SIME');
-    });
+            return (new MailMessage)
+                ->subject(__('Reset your password'))
+                ->greeting(__('Hello!'))
+                ->line(__('You are receiving this email because we received a password reset request for your account.'))
+                ->action(__('Reset Password'), $url)
+                ->line(__('This password reset link will expire in :count minutes.', [
+                    'count' => config('auth.passwords.' . config('auth.defaults.passwords') . '.expire'),
+                ]))
+                ->line(__('If you did not request a password reset, no further action is required.'));
+        });
     }
 }
