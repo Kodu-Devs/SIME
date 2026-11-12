@@ -15,35 +15,54 @@ use Illuminate\Support\Facades\DB;
 
 class ExtintorController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Se filtran los extintores dados de baja para que no aparezcan en la tabla activa
-        $extintores = Extintor::where('estatus', '!=', 'Baja')
-            ->with(['ubicacion.piso', 'tipoExtintor', 'mantenimientos'])
-            ->paginate(7)
+        $filtro = $request->query('filtro', 'Todos');
+
+        $query = Extintor::where('estatus', '!=', 'Baja')
+            ->with(['ubicacion.piso', 'tipoExtintor', 'mantenimientos']);
+
+        if ($filtro !== 'Todos') {
+            $f = mb_strtolower(trim($filtro), 'UTF-8');
+
+            if (str_contains($f, 'dispon')) {
+                $query->where('estatus', '!=', 'Fuera de servicio')
+                      ->whereDate('fecha_vencimiento', '>', today()->addDays(config('sime.dias_por_vencer', 7)));
+            } elseif (str_contains($f, 'medio')) {
+                $query->where('estatus', '!=', 'Fuera de servicio')
+                      ->whereDate('fecha_vencimiento', '>=', today())
+                      ->whereDate('fecha_vencimiento', '<=', today()->addDays(config('sime.dias_por_vencer', 7)));
+            } elseif (str_contains($f, 'vaci') || str_contains($f, 'vací')) {
+                $query->where('estatus', '!=', 'Fuera de servicio')
+                      ->whereDate('fecha_vencimiento', '<', today());
+            } elseif (str_contains($f, 'fuera') || str_contains($f, 'servicio')) {
+                $query->where('estatus', 'Fuera de servicio');
+            }
+        }
+
+        $extintores = $query->paginate(7)
+            ->appends($request->query())
             ->through(fn ($extintor) => [
                 'id' => $extintor->id,
                 'etiqueta_inventario' => $extintor->etiqueta_inventario,
                 'estatus' => $extintor->estatus,
-                // Directo al método como solicitó el frontend
-                'estado' => $extintor->estadoVencimiento(),
+                'estado' => $extintor->estatus === 'Fuera de servicio'
+                    ? 'Fuera de servicio'
+                    : $extintor->estadoVencimiento(),
                 'capacidad' => $extintor->capacidad,
                 'tipo_nombre' => $extintor->tipoExtintor?->nombre ?? 'No definido',
                 'ubicacion_nombre' => $extintor->ubicacion?->nombre ?? 'Sin ubicación',
                 'piso_numero' => $extintor->ubicacion?->piso?->numero ?? 'N/A',
                 'tipoextintor_id' => $extintor->tipoextintor_id,
                 'ubicacion_id' => $extintor->ubicacion_id,
-                // Campo 1: Solo el mantenimiento pendiente de la agenda
                 'proximo_mantenimiento' => $extintor->mantenimientos
                     ->whereNull('fecha_realizada')
                     ->sortBy('fecha_programada')
                     ->first()?->fecha_programada?->format('d/m/y') 
                     ?? 'Sin programar',
-                // Campo 2: La fecha de vencimiento real (revisión)
                 'proxima_revision' => $extintor->fecha_vencimiento 
                     ? Carbon::parse($extintor->fecha_vencimiento)->format('d/m/y') 
                     : 'Sin programar',
-                // Objeto raw con datos originales para precargar el formulario en edición
                 'raw' => [
                     'id' => $extintor->id,
                     'tipoextintor_id' => $extintor->tipoextintor_id,
@@ -71,6 +90,7 @@ class ExtintorController extends Controller
             'instalaciones' => $instalaciones,
             'capacidades_kg' => Extintor::CAPACIDADES_KG,
             'capacidades_l' => Extintor::CAPACIDADES_L,
+            'filtroActivo' => $filtro,
         ]);
     }
 
