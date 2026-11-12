@@ -5,6 +5,7 @@ use App\Models\Extintor;
 use App\Models\TipoExtintor;
 use App\Models\Ubicacion;
 use App\Models\User;
+use App\Models\Capacitacion;
 use App\Services\AlertaService;
 use Illuminate\Support\Carbon;
 use Database\Seeders\InstalacionSeeder;
@@ -248,4 +249,58 @@ test('un mantenimiento realizado cierra su alerta', function () {
     AlertaService::evaluarMantenimiento($m->fresh());
 
     expect(Alerta::where('mantenimiento_id', $m->id)->noLeidas()->count())->toBe(0);
+});
+
+// ---------------------------------------------------------------
+// Capacitación (rango fijo de 3 días, según la guía de Backend)
+// ---------------------------------------------------------------
+
+test('una capacitación genera alerta informativa solo dentro de los 3 días', function (string $fechaHora, int $esperadas) {
+    $this->travelTo(Carbon::parse('2026-06-15 10:00'));
+
+    $c = Capacitacion::factory()->create(['fecha_hora' => Carbon::parse($fechaHora)]);
+    AlertaService::evaluarCapacitacion($c);
+
+    expect(Alerta::where('capacitacion_id', $c->id)
+        ->where('tipo', 'Informativo')->noLeidas()->count())->toBe($esperadas);
+})->with([
+    'hoy más tarde' => ['2026-06-15 16:00', 1],
+    'a 3 días'      => ['2026-06-18 09:00', 1],
+    'a 4 días'      => ['2026-06-19 09:00', 0],
+]);
+
+test('una capacitación que ya pasó cierra su alerta', function () {
+    $this->travelTo(Carbon::parse('2026-06-15 10:00'));
+
+    // En 2 días: genera la alerta
+    $c = Capacitacion::factory()->create(['fecha_hora' => Carbon::parse('2026-06-17 09:00')]);
+    AlertaService::evaluarCapacitacion($c);
+    expect(Alerta::where('capacitacion_id', $c->id)->noLeidas()->count())->toBe(1);
+
+    // Ya pasó la capacitación
+    $this->travelTo(Carbon::parse('2026-06-18 10:00'));
+    AlertaService::evaluarCapacitacion($c->fresh());
+
+    expect(Alerta::where('capacitacion_id', $c->id)->noLeidas()->count())->toBe(0);
+});
+
+// ---------------------------------------------------------------
+// Duplicados
+// ---------------------------------------------------------------
+
+test('generar no duplica una alerta abierta de la misma categoría', function () {
+    AlertaService::generar('extintor_id', $this->extintor->id, 'Urgente', 'estatus', 'Extintor vacío o fuera de servicio');
+    AlertaService::generar('extintor_id', $this->extintor->id, 'Urgente', 'estatus', 'Extintor vacío o fuera de servicio');
+
+    expect(Alerta::where('extintor_id', $this->extintor->id)->noLeidas()->count())->toBe(1);
+});
+
+test('una alerta ya leída no impide generar una nueva', function () {
+    AlertaService::generar('extintor_id', $this->extintor->id, 'Urgente', 'estatus', 'Extintor vacío o fuera de servicio');
+    Alerta::where('extintor_id', $this->extintor->id)->update(['leida' => true]);
+
+    AlertaService::generar('extintor_id', $this->extintor->id, 'Urgente', 'estatus', 'Extintor vacío o fuera de servicio');
+
+    expect(Alerta::where('extintor_id', $this->extintor->id)->count())->toBe(2);
+    expect(Alerta::where('extintor_id', $this->extintor->id)->noLeidas()->count())->toBe(1);
 });
