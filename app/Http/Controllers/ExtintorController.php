@@ -19,36 +19,30 @@ class ExtintorController extends Controller
     {
         $filtro = $request->query('filtro', 'Todos');
 
+        // Mapeo exacto entre el texto de la píldora (frontend) y el estatus real (BD)
+        $mapa = [
+            'Disponibles'       => 'Disponible',
+            'Medio uso'         => 'Medio uso',
+            'Vacíos'            => 'Vacío',
+            'Fuera de servicio' => 'Fuera de servicio',
+        ];
+
+        // Base: siempre excluimos los dados de baja definitiva
         $query = Extintor::where('estatus', '!=', 'Baja')
             ->with(['ubicacion.piso', 'tipoExtintor', 'mantenimientos']);
 
-        if ($filtro !== 'Todos') {
-            $f = mb_strtolower(trim($filtro), 'UTF-8');
-
-            if (str_contains($f, 'dispon')) {
-                $query->where('estatus', '!=', 'Fuera de servicio')
-                      ->whereDate('fecha_vencimiento', '>', today()->addDays(config('sime.dias_por_vencer', 7)));
-            } elseif (str_contains($f, 'medio')) {
-                $query->where('estatus', '!=', 'Fuera de servicio')
-                      ->whereDate('fecha_vencimiento', '>=', today())
-                      ->whereDate('fecha_vencimiento', '<=', today()->addDays(config('sime.dias_por_vencer', 7)));
-            } elseif (str_contains($f, 'vaci') || str_contains($f, 'vací')) {
-                $query->where('estatus', '!=', 'Fuera de servicio')
-                      ->whereDate('fecha_vencimiento', '<', today());
-            } elseif (str_contains($f, 'fuera') || str_contains($f, 'servicio')) {
-                $query->where('estatus', 'Fuera de servicio');
-            }
+        // Si el filtro existe en nuestro mapa, aplicamos la condición exacta
+        if (isset($mapa[$filtro])) {
+            $query->where('estatus', $mapa[$filtro]);
         }
 
         $extintores = $query->paginate(7)
-            ->appends($request->query())
+            ->withQueryString()
             ->through(fn ($extintor) => [
                 'id' => $extintor->id,
                 'etiqueta_inventario' => $extintor->etiqueta_inventario,
                 'estatus' => $extintor->estatus,
-                'estado' => $extintor->estatus === 'Fuera de servicio'
-                    ? 'Fuera de servicio'
-                    : $extintor->estadoVencimiento(),
+                'estado' => $extintor->estadoVencimiento(), // <-- Regresa a la normalidad
                 'capacidad' => $extintor->capacidad,
                 'tipo_nombre' => $extintor->tipoExtintor?->nombre ?? 'No definido',
                 'ubicacion_nombre' => $extintor->ubicacion?->nombre ?? 'Sin ubicación',
@@ -74,7 +68,6 @@ class ExtintorController extends Controller
                 ]
             ]);
 
-        // Carga de catálogos necesarios para que el frontend arme los selectores
         $tipos = TipoExtintor::select('id', 'nombre', 'unidad')->get();
     
         $instalaciones = Instalacion::select('id', 'nombre')
