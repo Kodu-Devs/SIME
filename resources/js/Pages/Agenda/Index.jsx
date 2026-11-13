@@ -221,6 +221,7 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
                             combos={combos}
                             eventoSeleccionado={eventoSeleccionado}
                             onCancelMovil={cerrarFormularioMovil}
+                            onSuccess={cerrarFormularioMovil}
                         />
                     </div>
                 )}
