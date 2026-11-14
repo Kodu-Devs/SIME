@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\EventoUso;
 use App\Models\Mantenimiento;
 use App\Models\Extintor;
+use App\Models\Capacitacion;
 use App\Exports\InformeExtintoresExport;
 use App\Services\EstatusExtintor;
 use Illuminate\Http\Request;
@@ -18,7 +19,6 @@ use Maatwebsite\Excel\Facades\Excel;
 
 use App\Services\InformesHistorial;
 use Barryvdh\DomPDF\Facade\Pdf;
-
 
 class HistorialController extends Controller
 {
@@ -58,7 +58,8 @@ class HistorialController extends Controller
                 return [
                     'id' => 'uso_' . $uso->id,
                     'tipo_evento' => 'Uso',
-                    'fecha' => $uso->fecha,
+                    'fecha' => $uso->fecha?->format('Y-m-d H:i:s'),
+                    'estado_vencimiento' => $uso->extintor ? $uso->extintor->estadoVencimiento() : null,
                     'tipo_motivo' => $uso->tipo_motivo,
                     'detalle' => $uso->motivo,
                     'subtipo' => $uso->tipo_descarga,
@@ -92,8 +93,9 @@ class HistorialController extends Controller
                 return [
                     'id' => 'mant_' . $mant->id,
                     'tipo_evento' => 'Mantenimiento',
-                    'fecha' => $mant->fecha_realizada,
-                    'tipo_motivo' => null, // Homologado para que el frontend maneje el valor vacío
+                    'fecha' => $mant->fecha_realizada?->format('Y-m-d H:i:s'),
+                    'estado_vencimiento' => $mant->extintor ? $mant->extintor->estadoVencimiento() : null,
+                    'tipo_motivo' => null,
                     'detalle' => $mant->descripcion ?? $mant->tipo,
                     'subtipo' => $mant->tipo,
                     'extintor' => $mant->extintor,
@@ -107,8 +109,19 @@ class HistorialController extends Controller
             ->sortByDesc('fecha')
             ->values();
 
+        // 4. Catálogos para los selects del Front ordenados
+        $extintoresParaSelect = Extintor::whereNotIn('estatus', ['Baja', 'Vacío'])
+            ->orderBy('etiqueta_inventario')
+            ->get(['id', 'etiqueta_inventario']);
+
+        $capacitacionesParaSelect = Capacitacion::where('fecha_hora', '<=', now())
+            ->orderByDesc('fecha_hora')
+            ->get(['id', 'nombre']);
+
         return Inertia::render('Historial/Index', [
             'eventos' => $eventos,
+            'extintores' => $extintoresParaSelect,
+            'capacitaciones' => $capacitacionesParaSelect,
             'filters' => $request->only(['search', 'instalacion_id', 'fecha_inicio', 'fecha_fin']),
             'edificios' => app(InformesHistorial::class)->edificios(),
         ]);
@@ -119,7 +132,6 @@ class HistorialController extends Controller
      */
     public function storeUso(Request $request)
     {
-        // 1. Validaciones con mensaje personalizado
         $validated = $request->validate([
             'extintor_id' => [
                 'required',
@@ -136,26 +148,21 @@ class HistorialController extends Controller
             'extintor_id.exists' => 'El extintor no existe, está vacío o fue dado de baja.',
         ]);
 
-        // Regla: si mandan capacitacion_id, el tipo de motivo DEBE ser Capacitación
         if (!empty($validated['capacitacion_id']) && $validated['tipo_motivo'] !== 'Capacitación') {
             return back()->withErrors(['tipo_motivo' => 'El tipo de motivo debe ser "Capacitación" si se selecciona una.']);
         }
 
-        // 2. Transacción de base de datos
         DB::transaction(function () use ($validated) {
             $validated['user_id'] = Auth::id();
             EventoUso::create($validated);
 
             $extintor = Extintor::findOrFail($validated['extintor_id']);
-            
-            // Llama directo al servicio ahora que ya existe
             EstatusExtintor::trasUso($extintor, $validated['tipo_descarga']);
         });
 
         return redirect()->back()->with('success', 'Uso del extintor registrado correctamente.');
     }
 
-        // Módulo 5 · Exportar: lo programa Sara
     public function exportar(Request $request, InformesHistorial $informes)
     {
         $validated = $request->validate([
