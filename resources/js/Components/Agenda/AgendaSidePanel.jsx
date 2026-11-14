@@ -86,7 +86,7 @@ export default function AgendaSidePanel({
 
     useEffect(() => {
         if (!eventoSeleccionado) {
-            setActiveTab(tabInicial);
+            setActiveTab(tabInicial); // Se cambia dinámicamente según la URL
             limpiarFormularios();
             return;
         }

@@ -41,20 +41,19 @@ export default function CalendarGrid({
         // Contenedor principal relativo.
         <div id="calendar-container" className="w-full relative">
             {/* Contenedor con overflow-x-auto para permitir deslizar el calendario en móviles */}
-            <div className="bg-white border border-neutro-300 rounded-xl overflow-x-auto shadow-md w-full">
-                {/* Forzamos un ancho mínimo (min-w-[700px]) para que no se apriete en celulares */}
-                <div className="min-w-[700px]">
+            <div className="bg-white border border-neutro-300 rounded-xl overflow-hidden shadow-md w-full">
+                <div className="w-full">
                     <div className="grid grid-cols-7 border-b border-neutro-300 bg-neutro-50">
                         {DIAS_SEMANA.map((dia) => (
                             <div
                                 key={dia}
-                                className="py-2 px-2 md:px-3 text-[10px] md:text-xs font-semibold text-neutro-600 uppercase tracking-wider border-r last:border-r-0 border-neutro-200 text-center md:text-left"
+                                className="py-1.5 sm:py-2 px-0.5 md:px-3 text-[10px] md:text-xs font-semibold text-neutro-600 uppercase tracking-wider border-r last:border-r-0 border-neutro-200 text-center md:text-left"
                             >
-                                {dia}
+                                <span className="sm:hidden">{dia[0]}</span>
+                                <span className="hidden sm:inline">{dia}</span>
                             </div>
                         ))}
                     </div>
-
                     <div className="grid grid-cols-7">
                         {celdas.map((celda, index) => {
                             const eventosDia = obtenerEventosDelDia(celda.dia);
@@ -76,7 +75,7 @@ export default function CalendarGrid({
                             return (
                                 <div
                                     key={index}
-                                    className={`h-28 md:h-32 p-1 md:p-1.5 border-b border-r border-neutro-200 flex flex-col transition-colors duration-200 ${
+                                    className={`min-w-0 h-20 sm:h-24 md:h-32 p-0.5 sm:p-1 md:p-1.5 border-b border-r border-neutro-200 flex flex-col transition-colors duration-200 ${
                                         esPosterior
                                             ? "bg-neutro-200/70"
                                             : tieneEventoSeleccionado
@@ -86,19 +85,19 @@ export default function CalendarGrid({
                                 >
                                     {celda.dia ? (
                                         <>
-                                            <div className="mb-1 ml-0.5 flex items-center justify-start">
+                                            <div className="mb-0.5 md:mb-1 sm:ml-0.5 flex items-center justify-center sm:justify-start">
                                                 <span
                                                     className={`flex items-center justify-center text-[10px] md:text-xs font-bold leading-none ${
                                                         esHoy
-                                                            ? "bg-primario-900 text-white w-5 h-5 md:w-6 md:h-6 rounded-full shadow-sm"
-                                                            : "text-neutro-900 w-5 h-5 md:w-6 md:h-6"
+                                                            ? "bg-primario-900 text-white w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full shadow-sm"
+                                                            : "text-neutro-900 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"
                                                     }`}
                                                 >
                                                     {celda.dia}
                                                 </span>
                                             </div>
 
-                                            <div className="flex flex-col gap-1 overflow-y-auto max-h-20 md:max-h-24 pr-0.5">
+                                            <div className="flex flex-col gap-0.5 md:gap-1 overflow-y-auto max-h-14 sm:max-h-16 md:max-h-24 pr-0 md:pr-0.5">
                                                 {eventosDia.map((ev) => {
                                                     const esMantenimiento =
                                                         ev.clase ===
@@ -185,9 +184,9 @@ export default function CalendarGrid({
                                                                     );
                                                                 }
                                                             }}
-                                                            className={`text-left text-[9px] md:text-[11px] px-1 md:px-1.5 py-0.5 md:py-1 rounded transition-all cursor-pointer ${
+                                                            className={`text-left text-[8px] sm:text-[9px] md:text-[11px] px-0.5 sm:px-1 md:px-1.5 py-0.5 md:py-1 rounded transition-all cursor-pointer ${
                                                                 estaSeleccionado
-                                                                    ? "whitespace-normal break-words leading-tight w-[calc(100%-8px)] m-1"
+                                                                    ? "whitespace-normal break-words leading-tight w-full sm:w-[calc(100%-8px)] sm:m-1"
                                                                     : "truncate w-full"
                                                             } ${
                                                                 estaSeleccionado
@@ -204,9 +203,6 @@ export default function CalendarGrid({
                                                                       : ""
                                                             }`}
                                                         >
-                                                            {estaSeleccionado
-                                                                ? "● "
-                                                                : ""}
                                                             {ev.titulo}
                                                         </button>
                                                     );
