@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import PublicLayout from "@/Layouts/PublicLayout";
 import { Head, router, usePage } from "@inertiajs/react";
@@ -9,10 +9,18 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
     const { auth } = usePage().props;
     const isAdmin = Boolean(auth?.user);
 
+    const queryParams = new URLSearchParams(window.location.search);
+    const tabParam = queryParams.get("tab");
+
     const [filtro, setFiltro] = useState(isAdmin ? "todos" : "capacitaciones");
     const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
-    // Estado para intercambiar entre el calendario y el formulario en móvil/tablet
     const [mostrarFormularioMovil, setMostrarFormularioMovil] = useState(false);
+
+    useEffect(() => {
+        if (isAdmin && tabParam) {
+            setMostrarFormularioMovil(true);
+        }
+    }, [isAdmin, tabParam]);
 
     const manejarSeleccionEvento = (ev) => {
         if (
@@ -24,7 +32,6 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
             setMostrarFormularioMovil(false);
         } else {
             setEventoSeleccionado(ev);
-            // Si es Admin y toca un evento en tablet/móvil, abre el formulario lleno
             if (isAdmin) {
                 setMostrarFormularioMovil(true);
             }
@@ -39,6 +46,14 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
     const cerrarFormularioMovil = () => {
         setMostrarFormularioMovil(false);
         setEventoSeleccionado(null);
+
+        if (tabParam) {
+            router.get(
+                route("agenda.index"),
+                { mes: mesActual },
+                { preserveState: true, replace: true },
+            );
+        }
     };
 
     const eventosFiltrados = eventos.filter((ev) => {
@@ -222,6 +237,7 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
                             eventoSeleccionado={eventoSeleccionado}
                             onCancelMovil={cerrarFormularioMovil}
                             onSuccess={cerrarFormularioMovil}
+                            tabInicial={tabParam || "mantenimiento"}
                         />
                     </div>
                 )}
