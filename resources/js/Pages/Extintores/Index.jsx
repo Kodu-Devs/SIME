@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, X } from "lucide-react";
-import { Head, usePage, Link, router } from "@inertiajs/react"; // <-- Agregado router
+import { Head, usePage, Link, router } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import ExtintoresHeader from "@/Components/Extintores/ExtintoresHeader";
 import ExtintorFilterPills from "@/Components/Extintores/ExtintorFilterPills";
@@ -33,23 +33,21 @@ export default function Index(props) {
     const [selectedExtintor, setSelectedExtintor] = useState(null);
     const [isMobileFormOpen, setIsMobileFormOpen] = useState(false);
 
-    // El filtro activo viene sincronizado con la URL desde el backend
+    // El filtro activo viene sincronizado desde el backend
     const activeFilter = props.filtroActivo || "Todos";
 
-    // Petición al servidor cuando se pulsa una píldora de filtro
+    // Petición al servidor sin mandar 'page' para que siempre inicie en la página 1
     const handleFilterChange = (nuevoFiltro) => {
-        router.get(
-            route('extintores.index'),
-            { filtro: nuevoFiltro },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                replace: true,
-            }
-        );
+        const params = nuevoFiltro === "Todos" ? {} : { filtro: nuevoFiltro };
+
+        router.get(route("extintores.index"), params, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
     };
 
-    // Normalización de ubicaciones
+    // Normalización de ubicaciones y separación de estatus vs estado (vigencia)
     const normalizedExtintores = useMemo(() => {
         return extintoresRaw.map((ext) => {
             const areaNombre = ext.ubicacion_nombre || ext.area_nombre || "";
@@ -64,7 +62,8 @@ export default function Index(props) {
                     for (const p of inst.pisos || []) {
                         for (const ub of p.ubicaciones || []) {
                             const matchId = ubicacionId && String(ub.id) === String(ubicacionId);
-                            const matchNombre = ub.nombre && ub.nombre.trim().toLowerCase() === areaNombre.trim().toLowerCase();
+                            const matchNombre =
+                                ub.nombre && ub.nombre.trim().toLowerCase() === areaNombre.trim().toLowerCase();
 
                             if (matchId || matchNombre) {
                                 edificioDetectado = inst.nombre || "";
@@ -78,9 +77,10 @@ export default function Index(props) {
                 }
             }
 
-            const finalPiso = ext.piso_numero && !String(ext.piso_numero).includes("N/A")
-                ? `Piso ${ext.piso_numero}`
-                : pisoDetectado;
+            const finalPiso =
+                ext.piso_numero && !String(ext.piso_numero).includes("N/A")
+                    ? `Piso ${ext.piso_numero}`
+                    : pisoDetectado;
 
             return {
                 id: ext.id,
@@ -95,7 +95,8 @@ export default function Index(props) {
                 piso: finalPiso,
                 proximo_mantenimiento: ext.proximo_mantenimiento || "Sin programar",
                 proxima_revision: ext.proxima_revision || "Sin programar",
-                estado: ext.estado ?? ext.estatus ?? "Disponible",
+                estatus: ext.estatus || "Disponible",
+                estado: ext.estado || "vigente",
                 raw: ext.raw || ext,
             };
         });
@@ -137,8 +138,8 @@ export default function Index(props) {
                         preserveState
                         as={prev_page_url ? "a" : "span"}
                         className={`p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] transition-colors ${prev_page_url
-                            ? "hover:bg-[#F1F0F0] cursor-pointer"
-                            : "opacity-40 cursor-not-allowed pointer-events-none"
+                                ? "hover:bg-[#F1F0F0] cursor-pointer"
+                                : "opacity-40 cursor-not-allowed pointer-events-none"
                             }`}
                     >
                         <ChevronLeft className="w-4 h-4" />
@@ -154,8 +155,8 @@ export default function Index(props) {
                                 as={link.url ? "a" : "span"}
                                 dangerouslySetInnerHTML={{ __html: link.label }}
                                 className={`w-7 h-7 flex items-center justify-center text-xs font-semibold rounded-lg transition-colors ${link.active
-                                    ? "bg-[#C0262D] text-white shadow-xs"
-                                    : "border border-[#D7D4D4] text-[#272222] hover:bg-[#F1F0F0]"
+                                        ? "bg-[#C0262D] text-white shadow-xs"
+                                        : "border border-[#D7D4D4] text-[#272222] hover:bg-[#F1F0F0]"
                                     } ${!link.url ? "opacity-40 pointer-events-none" : "cursor-pointer"}`}
                             />
                         ))}
@@ -166,8 +167,8 @@ export default function Index(props) {
                         preserveState
                         as={next_page_url ? "a" : "span"}
                         className={`p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] transition-colors ${next_page_url
-                            ? "hover:bg-[#F1F0F0] cursor-pointer"
-                            : "opacity-40 cursor-not-allowed pointer-events-none"
+                                ? "hover:bg-[#F1F0F0] cursor-pointer"
+                                : "opacity-40 cursor-not-allowed pointer-events-none"
                             }`}
                     >
                         <ChevronRight className="w-4 h-4" />
@@ -189,8 +190,8 @@ export default function Index(props) {
                 {flashVisible && (flash?.success || flash?.error) && (
                     <div
                         className={`flex items-center justify-between p-3.5 rounded-2xl border shadow-xs transition-all duration-300 ${flash?.success
-                            ? "bg-[#D6F4F2] border-[#1C9691]/40 text-[#10706B]"
-                            : "bg-[#FDEDED] border-[#F9CACB] text-[#C0262D]"
+                                ? "bg-[#D6F4F2] border-[#1C9691]/40 text-[#10706B]"
+                                : "bg-[#FDEDED] border-[#F9CACB] text-[#C0262D]"
                             }`}
                     >
                         <div className="flex items-center gap-2.5">
@@ -212,10 +213,7 @@ export default function Index(props) {
                 )}
 
                 {/* 3. Filtros conectados al servidor */}
-                <ExtintorFilterPills
-                    activeFilter={activeFilter}
-                    onFilterChange={handleFilterChange}
-                />
+                <ExtintorFilterPills activeFilter={activeFilter} onFilterChange={handleFilterChange} />
 
                 {/* 4. Vista Móvil */}
                 <div className="block md:hidden">

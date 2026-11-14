@@ -11,11 +11,11 @@ export default function ExtintoresTable({ extintores = [], selectedExtintor, onS
             label: status || 'Disponible'
         };
 
-        if (s.includes('dispon') || s.includes('operativ') || s.includes('vigent')) {
+        if (s.includes('dispon') || s.includes('operativ')) {
             config = { bg: 'bg-[#D6F4F2]', text: 'text-[#10706B]', dot: 'bg-[#1C9691]', label: 'Disponible' };
-        } else if (s.includes('medio') || s.includes('mantenim') || s.includes('vencer') || s.includes('proxim')) {
+        } else if (s.includes('medio')) {
             config = { bg: 'bg-[#FEEFD9]', text: 'text-[#A05C06]', dot: 'bg-[#F2994A]', label: 'Medio uso' };
-        } else if (s.includes('vac') || s.includes('vencid')) {
+        } else if (s.includes('vac')) {
             config = { bg: 'bg-[#FDEDED]', text: 'text-[#C0262D]', dot: 'bg-[#C0262D]', label: 'Vacío' };
         } else if (s.includes('baja') || s.includes('fuera')) {
             config = { bg: 'bg-[#D7D4D4]', text: 'text-[#272222]', dot: 'bg-[#272222]', label: 'Fuera de servicio' };
@@ -67,8 +67,7 @@ export default function ExtintoresTable({ extintores = [], selectedExtintor, onS
                                         <tr
                                             key={extintor.id}
                                             onClick={() => onSelectExtintor(isSelected ? null : extintor)}
-                                            className={`cursor-pointer transition-colors ${isSelected ? 'bg-[#FDEDED]' : 'hover:bg-[#F1F0F0]'
-                                                }`}
+                                            className={`cursor-pointer transition-colors ${isSelected ? 'bg-[#FDEDED]' : 'hover:bg-[#F1F0F0]'}`}
                                         >
                                             <td className="px-5 py-3.5 font-mono text-[#6D6162] text-[11px]">
                                                 {extintor.codigo}
@@ -88,7 +87,7 @@ export default function ExtintoresTable({ extintores = [], selectedExtintor, onS
                                                 {fechaDisplay}
                                             </td>
                                             <td className="px-5 py-3.5 text-center">
-                                                {renderBadge(extintor.estado)}
+                                                {renderBadge(extintor.estatus)}
                                             </td>
                                         </tr>
                                     );
@@ -125,7 +124,7 @@ export default function ExtintoresTable({ extintores = [], selectedExtintor, onS
                                     <span className="text-[11px] font-mono text-[#6D6162]">
                                         {extintor.codigo}
                                     </span>
-                                    {renderBadge(extintor.estado)}
+                                    {renderBadge(extintor.estatus)}
                                 </div>
 
                                 <div className="flex items-center gap-5 mt-2 text-xs">
