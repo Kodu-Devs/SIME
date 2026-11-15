@@ -77,6 +77,11 @@ class ExtintorController extends Controller
             ])
             ->get();
 
+        $conteos = Extintor::where('estatus', '!=', 'Baja')
+            ->selectRaw('estatus, count(*) as total')
+            ->groupBy('estatus')
+            ->pluck('total', 'estatus');
+
         return Inertia::render('Extintores/Index', [
             'extintores' => $extintores,
             'tipos' => $tipos,
@@ -84,6 +89,7 @@ class ExtintorController extends Controller
             'capacidades_kg' => Extintor::CAPACIDADES_KG,
             'capacidades_l' => Extintor::CAPACIDADES_L,
             'filtroActivo' => $filtro,
+            'conteos' => $conteos,
         ]);
     }
 

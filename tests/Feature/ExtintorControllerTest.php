@@ -76,6 +76,8 @@ class ExtintorControllerTest extends TestCase
         $response->assertInertia(fn (Assert $page) => $page
             ->component('Extintores/Index')
             ->where('filtroActivo', 'Vacíos')
+            ->where('conteos.Disponible', 1) 
+            ->where('conteos.Vacío', 8)     
             ->has('extintores.data', 7) 
             ->where('extintores.data.0.estatus', 'Vacío')
         );
