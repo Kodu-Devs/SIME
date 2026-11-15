@@ -9,6 +9,7 @@ use App\Models\Capacitacion;
 use App\Exports\InformeExtintoresExport;
 use App\Services\EstatusExtintor;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -23,7 +24,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class HistorialController extends Controller
 {
     /**
-     * Muestra el historial unificado de eventos (usos y mantenimientos) con filtros.
+     * Muestra el historial unificado de eventos (usos y mantenimientos) paginado y con filtros.
      */
     public function index(Request $request)
     {
@@ -35,81 +36,101 @@ class HistorialController extends Controller
             ]);
         }
 
+        $tipo = $request->input('tipo', 'todos');
+        if (!in_array($tipo, ['todos', 'usos', 'mantenimientos'], true)) {
+            $tipo = 'todos';
+        }
+
         // 1. Consulta de Eventos de Uso
-        $usos = EventoUso::with(['extintor.ubicacion.piso.instalacion', 'usuario', 'capacitacion'])
-            ->when($request->search, function ($query, $search) {
-                $query->whereHas('extintor', function ($q) use ($search) {
-                    $q->where('etiqueta_inventario', 'like', "%{$search}%");
-                });
-            })
-            ->when($request->instalacion_id, function ($query, $instalacionId) {
-                $query->whereHas('extintor.ubicacion.piso', function ($q) use ($instalacionId) {
-                    $q->where('instalacion_id', $instalacionId);
-                });
-            })
-            ->when($request->fecha_inicio, function ($query, $fechaInicio) {
-                $query->whereDate('fecha', '>=', $fechaInicio);
-            })
-            ->when($request->fecha_fin, function ($query, $fechaFin) {
-                $query->whereDate('fecha', '<=', $fechaFin);
-            })
-            ->get()
-            ->map(function ($uso) {
-                return [
-                    'id' => 'uso_' . $uso->id,
-                    'tipo_evento' => 'Uso',
-                    'fecha' => $uso->fecha?->format('Y-m-d H:i:s'),
-                    'estado_vencimiento' => $uso->extintor ? $uso->extintor->estadoVencimiento() : null,
-                    'tipo_motivo' => $uso->tipo_motivo,
-                    'detalle' => $uso->motivo,
-                    'subtipo' => $uso->tipo_descarga,
-                    'extintor' => $uso->extintor,
-                    'usuario' => $uso->usuario ? $uso->usuario->name : 'Sistema',
-                    'capacitacion' => $uso->capacitacion,
-                ];
-            });
+        $usos = in_array($tipo, ['todos', 'usos'], true)
+            ? EventoUso::with(['extintor.ubicacion.piso.instalacion', 'usuario', 'capacitacion'])
+                ->when($request->search, function ($query, $search) {
+                    $query->whereHas('extintor', function ($q) use ($search) {
+                        $q->where('etiqueta_inventario', 'like', "%{$search}%");
+                    });
+                })
+                ->when($request->instalacion_id, function ($query, $instalacionId) {
+                    $query->whereHas('extintor.ubicacion.piso', function ($q) use ($instalacionId) {
+                        $q->where('instalacion_id', $instalacionId);
+                    });
+                })
+                ->when($request->fecha_inicio, function ($query, $fechaInicio) {
+                    $query->whereDate('fecha', '>=', $fechaInicio);
+                })
+                ->when($request->fecha_fin, function ($query, $fechaFin) {
+                    $query->whereDate('fecha', '<=', $fechaFin);
+                })
+                ->get()
+                ->map(function ($uso) {
+                    return [
+                        'id' => 'uso_' . $uso->id,
+                        'tipo_evento' => 'Uso',
+                        'fecha' => $uso->fecha?->format('Y-m-d H:i:s'),
+                        'estado_vencimiento' => $uso->extintor ? $uso->extintor->estadoVencimiento() : null,
+                        'tipo_motivo' => $uso->tipo_motivo,
+                        'detalle' => $uso->motivo,
+                        'subtipo' => $uso->tipo_descarga,
+                        'extintor' => $uso->extintor,
+                        'usuario' => $uso->usuario ? $uso->usuario->name : 'Sistema',
+                        'capacitacion' => $uso->capacitacion,
+                    ];
+                })
+            : collect();
 
         // 2. Consulta de Mantenimientos (Solo los realizados)
-        $mantenimientos = Mantenimiento::with(['extintor.ubicacion.piso.instalacion'])
-            ->whereNotNull('fecha_realizada')
-            ->when($request->search, function ($query, $search) {
-                $query->whereHas('extintor', function ($q) use ($search) {
-                    $q->where('etiqueta_inventario', 'like', "%{$search}%");
-                });
-            })
-            ->when($request->instalacion_id, function ($query, $instalacionId) {
-                $query->whereHas('extintor.ubicacion.piso', function ($q) use ($instalacionId) {
-                    $q->where('instalacion_id', $instalacionId);
-                });
-            })
-            ->when($request->fecha_inicio, function ($query, $fechaInicio) {
-                $query->whereDate('fecha_realizada', '>=', $fechaInicio);
-            })
-            ->when($request->fecha_fin, function ($query, $fechaFin) {
-                $query->whereDate('fecha_realizada', '<=', $fechaFin);
-            })
-            ->get()
-            ->map(function ($mant) {
-                return [
-                    'id' => 'mant_' . $mant->id,
-                    'tipo_evento' => 'Mantenimiento',
-                    'fecha' => $mant->fecha_realizada?->format('Y-m-d H:i:s'),
-                    'estado_vencimiento' => $mant->extintor ? $mant->extintor->estadoVencimiento() : null,
-                    'tipo_motivo' => null,
-                    'detalle' => $mant->descripcion ?? $mant->tipo,
-                    'subtipo' => $mant->tipo,
-                    'extintor' => $mant->extintor,
-                    'usuario' => 'Personal de Servicio',
-                    'capacitacion' => null,
-                ];
-            });
+        $mantenimientos = in_array($tipo, ['todos', 'mantenimientos'], true)
+            ? Mantenimiento::with(['extintor.ubicacion.piso.instalacion'])
+                ->whereNotNull('fecha_realizada')
+                ->when($request->search, function ($query, $search) {
+                    $query->whereHas('extintor', function ($q) use ($search) {
+                        $q->where('etiqueta_inventario', 'like', "%{$search}%");
+                    });
+                })
+                ->when($request->instalacion_id, function ($query, $instalacionId) {
+                    $query->whereHas('extintor.ubicacion.piso', function ($q) use ($instalacionId) {
+                        $q->where('instalacion_id', $instalacionId);
+                    });
+                })
+                ->when($request->fecha_inicio, function ($query, $fechaInicio) {
+                    $query->whereDate('fecha_realizada', '>=', $fechaInicio);
+                })
+                ->when($request->fecha_fin, function ($query, $fechaFin) {
+                    $query->whereDate('fecha_realizada', '<=', $fechaFin);
+                })
+                ->get()
+                ->map(function ($mant) {
+                    return [
+                        'id' => 'mant_' . $mant->id,
+                        'tipo_evento' => 'Mantenimiento',
+                        'fecha' => $mant->fecha_realizada?->format('Y-m-d H:i:s'),
+                        'estado_vencimiento' => $mant->extintor ? $mant->extintor->estadoVencimiento() : null,
+                        'tipo_motivo' => null,
+                        'detalle' => $mant->descripcion ?? $mant->tipo,
+                        'subtipo' => $mant->tipo,
+                        'extintor' => $mant->extintor,
+                        'usuario' => 'Personal de Servicio',
+                        'capacitacion' => null,
+                    ];
+                })
+            : collect();
 
         // 3. Combinar ambos tipos de eventos en una sola línea de tiempo ordenada
         $eventos = $usos->concat($mantenimientos)
             ->sortByDesc('fecha')
             ->values();
 
-        // 4. Catálogos para los selects del Front ordenados
+        // 4. Paginar la colección combinada (10 por página) manteniendo parámetros de filtro
+        $perPage = 10;
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $eventosPaginados = (new LengthAwarePaginator(
+            $eventos->forPage($page, $perPage)->values(),
+            $eventos->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url()]
+        ))->withQueryString();
+
+        // 5. Catálogos para los selects del Front ordenados
         $extintoresParaSelect = Extintor::whereNotIn('estatus', ['Baja', 'Vacío'])
             ->orderBy('etiqueta_inventario')
             ->get(['id', 'etiqueta_inventario']);
@@ -119,10 +140,16 @@ class HistorialController extends Controller
             ->get(['id', 'nombre']);
 
         return Inertia::render('Historial/Index', [
-            'eventos' => $eventos,
+            'eventos' => $eventosPaginados,
             'extintores' => $extintoresParaSelect,
             'capacitaciones' => $capacitacionesParaSelect,
-            'filters' => $request->only(['search', 'instalacion_id', 'fecha_inicio', 'fecha_fin']),
+            'filters' => [
+                'tipo' => $tipo,
+                'instalacion_id' => $request->input('instalacion_id'),
+                'search' => $request->input('search'),
+                'fecha_inicio' => $request->input('fecha_inicio'),
+                'fecha_fin' => $request->input('fecha_fin'),
+            ],
             'edificios' => app(InformesHistorial::class)->edificios(),
         ]);
     }

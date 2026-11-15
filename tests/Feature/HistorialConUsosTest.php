@@ -41,7 +41,7 @@ test('el historial carga con eventos de uso registrados', function () {
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('Historial/Index')
-            ->has('eventos', 1)
+            ->has('eventos.data', 1)
             ->has('extintores')
             ->has('capacitaciones')
         );
