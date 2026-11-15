@@ -31,4 +31,11 @@ class StoreMantenimientoRequest extends FormRequest
             'fecha_programada' => ['required', 'date', 'after_or_equal:today'],
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'fecha_programada.after_or_equal' => 'El mantenimiento debe programarse a partir de hoy.',
+        ];
+    }
 }

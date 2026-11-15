@@ -15,35 +15,48 @@ use Illuminate\Support\Facades\DB;
 
 class ExtintorController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Se filtran los extintores dados de baja para que no aparezcan en la tabla activa
-        $extintores = Extintor::where('estatus', '!=', 'Baja')
-            ->with(['ubicacion.piso', 'tipoExtintor', 'mantenimientos'])
-            ->paginate(7)
+        $filtro = $request->query('filtro', 'Todos');
+
+        // Mapeo exacto entre el texto de la píldora (frontend) y el estatus real (BD)
+        $mapa = [
+            'Disponibles'       => 'Disponible',
+            'Medio uso'         => 'Medio uso',
+            'Vacíos'            => 'Vacío',
+            'Fuera de servicio' => 'Fuera de servicio',
+        ];
+
+        // Base: siempre excluimos los dados de baja definitiva
+        $query = Extintor::where('estatus', '!=', 'Baja')
+            ->with(['ubicacion.piso', 'tipoExtintor', 'mantenimientos']);
+
+        // Si el filtro existe en nuestro mapa, aplicamos la condición exacta
+        if (isset($mapa[$filtro])) {
+            $query->where('estatus', $mapa[$filtro]);
+        }
+
+        $extintores = $query->paginate(7)
+            ->withQueryString()
             ->through(fn ($extintor) => [
                 'id' => $extintor->id,
                 'etiqueta_inventario' => $extintor->etiqueta_inventario,
                 'estatus' => $extintor->estatus,
-                // Directo al método como solicitó el frontend
-                'estado' => $extintor->estadoVencimiento(),
+                'estado' => $extintor->estadoVencimiento(), // <-- Regresa a la normalidad
                 'capacidad' => $extintor->capacidad,
                 'tipo_nombre' => $extintor->tipoExtintor?->nombre ?? 'No definido',
                 'ubicacion_nombre' => $extintor->ubicacion?->nombre ?? 'Sin ubicación',
                 'piso_numero' => $extintor->ubicacion?->piso?->numero ?? 'N/A',
                 'tipoextintor_id' => $extintor->tipoextintor_id,
                 'ubicacion_id' => $extintor->ubicacion_id,
-                // Campo 1: Solo el mantenimiento pendiente de la agenda
                 'proximo_mantenimiento' => $extintor->mantenimientos
                     ->whereNull('fecha_realizada')
                     ->sortBy('fecha_programada')
                     ->first()?->fecha_programada?->format('d/m/y') 
                     ?? 'Sin programar',
-                // Campo 2: La fecha de vencimiento real (revisión)
                 'proxima_revision' => $extintor->fecha_vencimiento 
                     ? Carbon::parse($extintor->fecha_vencimiento)->format('d/m/y') 
                     : 'Sin programar',
-                // Objeto raw con datos originales para precargar el formulario en edición
                 'raw' => [
                     'id' => $extintor->id,
                     'tipoextintor_id' => $extintor->tipoextintor_id,
@@ -55,7 +68,6 @@ class ExtintorController extends Controller
                 ]
             ]);
 
-        // Carga de catálogos necesarios para que el frontend arme los selectores
         $tipos = TipoExtintor::select('id', 'nombre', 'unidad')->get();
     
         $instalaciones = Instalacion::select('id', 'nombre')
@@ -71,6 +83,7 @@ class ExtintorController extends Controller
             'instalaciones' => $instalaciones,
             'capacidades_kg' => Extintor::CAPACIDADES_KG,
             'capacidades_l' => Extintor::CAPACIDADES_L,
+            'filtroActivo' => $filtro,
         ]);
     }
 
