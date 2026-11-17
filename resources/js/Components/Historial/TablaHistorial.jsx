@@ -15,7 +15,7 @@ const CHIP_DESCARGA = {
 // "2026-11-10" -> "10/11/26" (sin Date, para evitar problemas de zona horaria)
 function formatearFecha(fecha) {
     if (!fecha) return "";
-    const [anio, mes, dia] = fecha.split("-");
+    const [anio, mes, dia] = String(fecha).slice(0, 10).split("-");
     if (!anio || !mes || !dia) return fecha;
     return `${dia}/${mes}/${anio.slice(-2)}`;
 }
@@ -52,11 +52,19 @@ export default function TablaHistorial({
 
                     {eventos.map((evento) => {
                         const activo = seleccionado?.id === evento.id;
-                        const esUso = evento.tipo === "Uso";
-                        const chip = esUso ? CHIP_DESCARGA[evento.tipo_descarga] : null;
+                        const esUso = evento.tipo_evento === "Uso";
+                        const chip = esUso ? CHIP_DESCARGA[evento.subtipo] : null;
+                        const ub = evento.extintor?.ubicacion;
+                        const ubicacion = [ub?.piso?.instalacion?.nombre, ub?.piso?.nombre]
+                            .filter(Boolean)
+                            .join(" - ");
+                        // Línea 1: "Uso · Conato" o "Mantenimiento · Revisión"
+                        const linea1 = esUso
+                            ? [evento.tipo_evento, evento.tipo_motivo].filter(Boolean).join(" · ")
+                            : [evento.tipo_evento, evento.subtipo].filter(Boolean).join(" · ");
 
                         return (
-                            <tr
+                            <tr 
                                 key={evento.id}
                                 onClick={() => alternarSeleccion(evento)}
                                 onKeyDown={(e) => {
@@ -67,46 +75,29 @@ export default function TablaHistorial({
                                 }}
                                 tabIndex={0}
                                 aria-selected={activo}
-                                className={`cursor-pointer border-b last:border-b-0 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300 ${
-                                    activo ? "bg-red-100" : "hover:bg-gray-200"
+                                className={`cursor-pointer border-b last:border-b-0 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primario-300 ${
+                                    activo ? "bg-primario-100" : "hover:bg-neutro-50"
                                 }`}
                             >
-                                <td className="px-3 py-3 text-gray-500">
-                                    {formatearFecha(evento.fecha)}
-                                </td>
+                                <td className="px-3 py-3 text-gray-500">{formatearFecha(evento.fecha)}</td>
 
-                                <td
-                                    className={`px-3 py-3 ${
-                                        COLOR_EXTINTOR[evento.estado_vencimiento] ??
-                                        COLOR_EXTINTOR.default
-                                    }`}
-                                >
-                                    {evento.extintor}
-                                </td>
+                                <td className={`px-3 py-3 ${COLOR_EXTINTOR[evento.estado_vencimiento] ?? COLOR_EXTINTOR.default}`}>
+                                {evento.extintor?.etiqueta_inventario}
+                            </td>
 
-                                <td className="px-3 py-3 text-gray-500">
-                                    {evento.ubicacion}
-                                </td>
+                                <td className="px-3 py-3 text-gray-500">{ubicacion}</td>
 
                                 <td className="px-3 py-3">
-                                    {/* Línea 1: tipo de evento · su tipo (+ chip solo en usos) */}
                                     <div className="flex items-center gap-2 text-gray-900">
-                                        <span>
-                                            {evento.tipo}
-                                            {evento.subtipo && ` · ${evento.subtipo}`}
-                                        </span>
+                                        <span>{linea1}</span>
                                         {chip && (
-                                            <span
-                                                className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${chip.clase}`}
-                                            >
+                                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${chip.clase}`}>
                                                 {chip.texto}
                                             </span>
                                         )}
                                     </div>
-
-                                    {/* Línea 2: descripción y, si hay, nombre de la capacitación */}
                                     <div className="text-gray-500">
-                                        {[evento.descripcion, evento.capacitacion]
+                                        {[evento.detalle, evento.capacitacion?.nombre]
                                             .filter(Boolean)
                                             .join(" · ")}
                                     </div>

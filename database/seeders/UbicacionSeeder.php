@@ -43,7 +43,7 @@ class UbicacionSeeder extends Seeder
             ['Cafetería y SUM', 'Nivel único', 'SUM', 'Sala'],
             ['Parque vehicular', 'Nivel único', 'Estacionamiento', 'Estacionamiento'],
             ['Parque vehicular', 'Nivel único', 'Sprinter', 'Vehículo'],
-            ['Vigilancia', 'Nivel único', 'Cuarto de vigilancia', 'Vigilancia'],
+            ['Almacén 2', 'Nivel único', 'Cuarto de vigilancia', 'Vigilancia'],
             ['Almacén', 'Nivel único', 'Almacén general', 'Almacén'],
         ];
 

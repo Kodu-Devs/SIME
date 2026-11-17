@@ -32,11 +32,14 @@ export default function Croquis({
     };
 
     return (
-        <div className="w-full h-full flex items-center justify-center p-4 bg-white rounded-xl shadow-sm border border-neutro-100">
+        <div className="w-full flex items-center justify-center p-2 bg-white rounded-xl">
             <svg
-                className="w-full h-auto max-h-[600px] object-contain drop-shadow-sm"
+                width="100%"
+                height="auto"
                 viewBox="0 0 876 780"
                 fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-full max-w-[876px] max-h-[600px] block drop-shadow-sm"
             >
                 <rect width="876" height="779.558" rx="20" fill="#D5FDD2" />
 

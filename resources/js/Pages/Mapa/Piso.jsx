@@ -40,6 +40,17 @@ export default function Piso({
             ? "Almacén 2"
             : instalacion?.nombre;
 
+    const esEdificioDeUnPiso =
+        piso?.nombre === "Nivel único" ||
+        piso?.nombre === "Nivel unico" ||
+        [
+            "Cafetería y SUM",
+            "Cafetería",
+            "Almacén",
+            "Almacén 2",
+            "Vigilancia",
+        ].includes(instalacion?.nombre);
+
     const formatearFecha = (fechaStr) => {
         if (!fechaStr) return "Sin fecha";
         const fecha = new Date(fechaStr);
@@ -52,7 +63,7 @@ export default function Piso({
     };
 
     const volverAtras = () => {
-        if (piso?.nombre === "Nivel único") {
+        if (esEdificioDeUnPiso) {
             router.get(route("mapa.index"));
         } else {
             router.get(route("mapa.edificio", instalacion.id));
@@ -79,7 +90,7 @@ export default function Piso({
                             Institución
                         </Link>
                         <span className="text-neutro-300">/</span>
-                        {piso?.nombre === "Nivel único" ? (
+                        {esEdificioDeUnPiso ? (
                             <span className="text-neutro-900 font-bold">
                                 {nombreEdificio}
                             </span>

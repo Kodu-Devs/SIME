@@ -36,12 +36,12 @@ export default function RegistrarUsoPanel({
 
     // Al seleccionar una fila se precarga solo el extintor; sin selección se limpia
     useEffect(() => {
-        if (evento) {
-            setData("extintor_id", evento.extintor_id ?? "");
-        } else {
-            reset();
-        }
-        clearErrors();
+    if (evento) {
+        setData("extintor_id", evento.extintor?.id ?? "");  // antes: evento.extintor_id
+    } else {
+        reset();
+    }
+    clearErrors();
     }, [evento]);
 
     const cambiarTipoMotivo = (valor) => {
@@ -94,10 +94,10 @@ export default function RegistrarUsoPanel({
                     onChange={(e) => setData("extintor_id", e.target.value)}
                     className={selectClass}
                 >
-                    <option value="">Selecciona un extintor</option>
+                    <option value="">Seleccione un extintor</option>
                     {extintores.map((x) => (
                         <option key={x.id} value={x.id}>
-                            {x.codigo}
+                            {x.etiqueta_inventario}
                         </option>
                     ))}
                 </select>
@@ -144,7 +144,7 @@ export default function RegistrarUsoPanel({
                     onChange={(e) => cambiarTipoMotivo(e.target.value)}
                     className={selectClass}
                 >
-                    <option value="">Selecciona un tipo</option>
+                    <option value="">Seleccione un tipo</option>
                     {TIPOS_MOTIVO.map((t) => (
                         <option key={t} value={t}>
                             {t}
@@ -177,7 +177,7 @@ export default function RegistrarUsoPanel({
                 <TextInput
                     id="motivo"
                     value={data.motivo}
-                    placeholder="Escribe el motivo"
+                    placeholder="Escriba el motivo"
                     onChange={(e) => setData("motivo", e.target.value)}
                     className="mt-1 w-full text-xs"
                 />
