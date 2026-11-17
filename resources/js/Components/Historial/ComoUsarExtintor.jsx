@@ -5,7 +5,7 @@ export default function ComoUsarExtintor() {
         /* Aquí igualamos el color exacto: bg-[#e9e9e9] */
         <div className="bg-[#e9e9e9] p-6 rounded-2xl shadow-sm">
             <div>
-                <span className="text-red-500 text-[10px] font-extrabold uppercase tracking-wider mb-1 block">Antes de que lo necesites</span>
+                <span className="text-red-500 text-[10px] font-extrabold uppercase tracking-wider mb-1 block">Antes de que lo necesite</span>
                 <h2 className="text-2xl font-bold text-gray-800 mb-6">Cómo usar un extintor</h2>
             </div>
 
@@ -14,28 +14,28 @@ export default function ComoUsarExtintor() {
                 <div className="flex bg-[#f5f5f5] p-3 rounded-lg items-center shadow-sm">
                     <span className="text-red-500 text-2xl font-bold mr-4">1</span>
                     <div>
-                        <h3 className="font-bold text-sm text-gray-800 leading-tight">Jala el seguro</h3>
-                        <p className="text-xs text-gray-500 mt-0.5">Retira el pasador con el extintor vertical.</p>
+                        <h3 className="font-bold text-sm text-gray-800 leading-tight">Jale el seguro</h3>
+                        <p className="text-xs text-gray-500 mt-0.5">Retire el pasador con el extintor vertical.</p>
                     </div>
                 </div>
                 <div className="flex bg-[#f5f5f5] p-3 rounded-lg items-center shadow-sm">
                     <span className="text-red-500 text-2xl font-bold mr-4">2</span>
                     <div>
-                        <h3 className="font-bold text-sm text-gray-800 leading-tight">Apunta a la base</h3>
-                        <p className="text-xs text-gray-500 mt-0.5">A la base del fuego no a las llamas.</p>
+                        <h3 className="font-bold text-sm text-gray-800 leading-tight">Apunte a la base</h3>
+                        <p className="text-xs text-gray-500 mt-0.5">A la base del fuego, no a las llamas.</p>
                     </div>
                 </div>
                 <div className="flex bg-[#f5f5f5] p-3 rounded-lg items-center shadow-sm">
                     <span className="text-red-500 text-2xl font-bold mr-4">3</span>
                     <div>
-                        <h3 className="font-bold text-sm text-gray-800 leading-tight">Aprieta la palanca</h3>
+                        <h3 className="font-bold text-sm text-gray-800 leading-tight">Apriete la palanca</h3>
                         <p className="text-xs text-gray-500 mt-0.5">Presión continua a 2 o 3 metros.</p>
                     </div>
                 </div>
                 <div className="flex bg-[#f5f5f5] p-3 rounded-lg items-center shadow-sm">
                     <span className="text-red-500 text-2xl font-bold mr-4">4</span>
                     <div>
-                        <h3 className="font-bold text-sm text-gray-800 leading-tight">Barre de lado a lado</h3>
+                        <h3 className="font-bold text-sm text-gray-800 leading-tight">Barra de lado a lado</h3>
                         <p className="text-xs text-gray-500 mt-0.5">En abanico hasta apagarlo.</p>
                     </div>
                 </div>

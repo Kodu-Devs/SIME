@@ -86,14 +86,14 @@ export default function TablaTiposExtintor() {
     };
 
     return (
-        <div className="bg-[#e9e9e9] p-6 rounded-2xl h-full">
-            <div className="grid grid-cols-6 gap-2 h-full">
-                <div className="bg-white border border-gray-200 p-4 rounded-lg flex flex-col justify-center items-center h-24 shadow-sm">
+        <div className="bg-[#e9e9e9] p-4 sm:p-6 rounded-2xl h-full overflow-x-auto">
+            <div className="grid grid-cols-6 gap-2 h-full min-w-[640px] sm:min-w-0">
+                <div className="bg-white border border-gray-200 p-3 sm:p-4 rounded-lg flex flex-col justify-center items-center h-24 shadow-sm">
                     <span className="text-xs font-bold text-gray-500 block leading-tight">Tipo</span>
                     <span className="text-sm font-bold text-gray-800 leading-tight">Agente</span>
                 </div>
                 {['Clase A (Sólidos)', 'Clase B (Líquidos)', 'Clase C (Gases)', 'Clase D (Metales)', 'Clase K/F (Cocinas)'].map((c, i) => (
-                    <div key={i} className="bg-white border border-gray-200 p-4 rounded-lg flex flex-col justify-center items-center h-24 text-center shadow-sm">
+                    <div key={i} className="bg-white border border-gray-200 p-3 sm:p-4 rounded-lg flex flex-col justify-center items-center h-24 text-center shadow-sm">
                         <span className="text-sm font-bold text-gray-800 leading-tight">{c.split(' ')[0]} {c.split(' ')[1]}</span>
                         <span className="text-[11px] text-gray-400 mt-1">{c.split(' ').slice(2).join(' ')}</span>
                     </div>
@@ -101,14 +101,14 @@ export default function TablaTiposExtintor() {
 
                 {agentes.map((agente, idx) => (
                     <React.Fragment key={idx}>
-                        <div className="bg-white border border-gray-200 p-4 rounded-lg flex flex-col justify-center items-center text-center h-24 shadow-sm">
+                        <div className="bg-white border border-gray-200 p-3 sm:p-4 rounded-lg flex flex-col justify-center items-center text-center h-24 shadow-sm">
                             <span className="text-sm font-bold text-gray-800 leading-tight">{agente.nombre.split(' (')[0]}</span>
                             {agente.nombre.includes('(') && (
                                 <span className="text-[10px] text-gray-400 block leading-tight mt-1">({agente.nombre.split('(')[1]}</span>
                             )}
                         </div>
                         {agente.clases.map((c, i) => (
-                            <div key={i} className={`p-4 rounded-lg flex flex-col justify-center items-center h-24 text-center text-xs font-bold shadow-sm transition-all border ${getStatusStyles(c.status)}`}>
+                            <div key={i} className={`p-3 sm:p-4 rounded-lg flex flex-col justify-center items-center h-24 text-center text-xs font-bold shadow-sm transition-all border ${getStatusStyles(c.status)}`}>
                                 <div className="flex items-center justify-center">
                                     {getIcon(c.status)}
                                     <span>{c.texto}</span>

@@ -10,7 +10,6 @@ export default function Index({ edificios = [] }) {
     const { auth } = usePage().props;
     
     const isAdmin = Boolean(auth?.user);
-    
 
     const Layout = isAdmin ? AdminLayout : PublicLayout;
 
@@ -18,7 +17,7 @@ export default function Index({ edificios = [] }) {
 
     return (
         <Layout>
-            <Head title="Historial" />
+            <Head title={isAdmin ? "Historial" : "Aprende más"} />
 
             {isAdmin ? (
                 <div className="max-w-7xl mx-auto space-y-6">

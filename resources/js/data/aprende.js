@@ -18,11 +18,11 @@ export const clasesFuego = [
             { nombre: "Espuma o polvo químico seco (PQS) ABC", desc: "Añaden efecto de sofocación al aislar el oxígeno." }
         ],
         comoSeUsa: [
-            "Aplica el método T-A-P-A apuntando a la base del fuego desde 2 a 3 metros de distancia.",
-            "Una vez apagadas las llamas superficiales, remueve las brasas con una herramienta larga y sigue aplicando el extintor para enfriar el núcleo y evitar que vuelva a encenderse."
+            "Aplique el método T-A-P-A apuntando a la base del fuego desde 2 a 3 metros de distancia.",
+            "Una vez apagadas las llamas superficiales, remueva las brasas con una herramienta larga y siga aplicando el extintor para enfriar el núcleo y evitar que vuelva a encenderse."
         ],
         alertas: [
-            { tipo: "Restricción crítica:", texto: "nunca dispares un extintor de agua si hay cables, motores o equipos eléctricos energizados cerca debido al alto riesgo de electrocución." }
+            { tipo: "Restricción crítica:", texto: "nunca dispare un extintor de agua si hay cables, motores o equipos eléctricos energizados cerca debido al alto riesgo de electrocución." }
         ]
     },
     {
@@ -42,11 +42,11 @@ export const clasesFuego = [
             { nombre: "Estacionamientos y transporte escolar", desc: "Zonas con riesgo de derrames de gasolina o aceite de motor." }
         ],
         comoSeUsa: [
-            "Apunta la boquilla a la base de las llamas y realiza un movimiento de barrido de lado a lado."
+            "Apunte la boquilla a la base de las llamas y realice un movimiento de barrido de lado a lado."
         ],
         alertas: [
-            { tipo: "Regla crítica de seguridad: ¡Nunca uses agua!", texto: "Al ser más densa que los líquidos inflamables, se hunde y provoca que el líquido ardiendo salpique y propague el incendio." },
-            { tipo: "Precaución con CO2:", texto: "sujeta siempre el extintor por las asas o empuñaduras de plástico o madera; nunca toques la boquilla ancha (corneta), ya que durante la descarga se enfría bajo cero y causa quemaduras severas por congelación." }
+            { tipo: "Regla crítica de seguridad: ¡Nunca use agua!", texto: "Al ser más densa que los líquidos inflamables, se hunde y provoca que el líquido ardiendo salpique y propague el incendio." },
+            { tipo: "Precaución con CO2:", texto: "sujete siempre el extintor por las asas o empuñaduras de plástico o madera; nunca toque la boquilla ancha (corneta), ya que durante la descarga se enfría bajo cero y causa quemaduras severas por congelación." }
         ]
     },
     {
@@ -64,10 +64,10 @@ export const clasesFuego = [
         areasComunes: "Centros de datos, cuartos de servidores y telecomunicaciones, subestaciones y tableros eléctricos, laboratorios de cómputo o electrónica, oficinas y talleres con maquinaria eléctrica.",
         ubicacion: "Distancia máxima de recorrido: 23 metros.",
         comoSeUsa: [
-            "Si es seguro hacerlo, corta primero el suministro eléctrico desde el interruptor o tablero general; luego aplica el método T-A-P-A dirigiendo las descargas hacia la base de las llamas o las rejillas del equipo desde una distancia segura."
+            "Si es seguro hacerlo, corte primero el suministro eléctrico desde el interruptor o tablero general; luego aplique el método T-A-P-A dirigiendo las descargas hacia la base de las llamas o las rejillas del equipo desde una distancia segura."
         ],
         alertas: [
-            { tipo: "Regla crítica de seguridad:", texto: "¡Jamás uses agua ni espuma conductora mientras el equipo siga conectado a la corriente! El chorro conduce la electricidad con riesgo de electrocución letal. Tras apagar el fuego, vigila que el calor acumulado no reencienda el aislamiento de los cables." }
+            { tipo: "Regla crítica de seguridad:", texto: "¡Jamás use agua ni espuma conductora mientras el equipo siga conectado a la corriente! El chorro conduce la electricidad con riesgo de electrocución letal. Tras apagar el fuego, vigile que el calor acumulado no reencienda el aislamiento de los cables." }
         ]
     },
     {
@@ -83,13 +83,13 @@ export const clasesFuego = [
         areasComunes: "Industrias metalmecánicas, fundiciones, talleres de maquinado o torno y laboratorios químicos especializados que manipulan metales reactivos.",
         ubicacion: "Se define según el análisis de riesgos, la cantidad de metal y la normativa aplicable (como referencia orientativa, OSHA en EE. UU. indica una distancia máxima de recorrido de 22.9 metros para riesgos Clase D).",
         comoSeUsa: [
-            "Identificar el incendio: confirma sin exponerte al peligro que se trata de un metal combustible y que el extintor está aprobado para ese material.",
-            "Evaluar el riesgo: si el fuego crece, hay mucho humo, riesgo de explosión o no tienes capacitación, evacúa, activa la alarma y llama a emergencias.",
-            "Aplicar el agente: solo si el fuego es incipiente, estás capacitado y tienes vía de escape, aplica el polvo lentamente sin usar un chorro fuerte que disperse el metal ardiendo.",
-            "Vigilar y evitar reignición: no remuevas la capa de polvo ni manipules los residuos calientes; deja la supervisión final al personal capacitado."
+            "Identificar el incendio: confirme sin exponerse al peligro que se trata de un metal combustible y que el extintor está aprobado para ese material.",
+            "Evaluar el riesgo: si el fuego crece, hay mucho humo, riesgo de explosión o no tiene capacitación, evacúe, active la alarma y llame a emergencias.",
+            "Aplicar el agente: solo si el fuego es incipiente, está capacitado y tiene vía de escape, aplique el polvo lentamente sin usar un chorro fuerte que disperse el metal ardiendo.",
+            "Vigilar y evitar reignición: no remueva la capa de polvo ni manipule los residuos calientes; deje la supervisión final al personal capacitado."
         ],
         alertas: [
-            { tipo: "Regla crítica de seguridad: ¡Jamás uses agua!", texto: "El contacto del agua con metales como el magnesio ardiente provoca una reacción explosiva violenta." }
+            { tipo: "Regla crítica de seguridad: ¡Jamás use agua!", texto: "El contacto del agua con metales como el magnesio ardiente provoca una reacción explosiva violenta." }
         ]
     },
     {
@@ -103,7 +103,7 @@ export const clasesFuego = [
             { nombre: "Extintor Clase K con agente químico húmedo", desc: "Se mezcla con la grasa ardiendo y forma una capa de espuma que aísla el combustible del aire y apaga el fuego." }
         ],
         alertas: [
-            { tipo: "Regla crítica de seguridad:", texto: "nunca uses agua, ya que resulta contraproducente y propaga el fuego de aceite." }
+            { tipo: "Regla crítica de seguridad:", texto: "nunca use agua, ya que resulta contraproducente y propaga el fuego de aceite." }
         ]
     }
 ];

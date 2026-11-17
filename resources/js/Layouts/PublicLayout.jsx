@@ -32,7 +32,7 @@ export default function PublicLayout({
         <div className="min-h-screen bg-neutro-50 text-neutro-900 flex flex-col pb-16 md:pb-0">
             {/* 1. BANNER SUPERIOR DE EMERGENCIA 911 */}
             <div className="bg-primario-900 text-white px-4 md:px-8 py-2 text-xs sm:text-etiqueta flex justify-between items-center gap-2">
-                <span>En caso de incendio: Evacúa y llama</span>
+                <span>En caso de incendio: Evacúe y llame</span>
                 <a
                     href="tel:911"
                     className="inline-flex items-center gap-1.5 font-bold bg-primario-700/80 hover:bg-primario-700 px-3 py-1 rounded-full text-xs transition shrink-0"

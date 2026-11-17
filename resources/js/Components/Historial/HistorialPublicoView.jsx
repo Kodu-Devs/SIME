@@ -30,7 +30,7 @@ export default function HistorialPublicoView() {
                                 onClick={() => setMostrarDetalles(true)}
                                 className="w-full bg-[#F24C52] hover:bg-[#C0262D] text-white font-semibold text-[15px] py-4 px-4 rounded-lg transition-colors shadow-sm"
                             >
-                                Ver mas información
+                                Ver más información
                             </button>
                         </div>
                     </div>
@@ -45,7 +45,7 @@ export default function HistorialPublicoView() {
                     </button>
 
                     <div>
-                        <span className="text-[#F24C52] text-[10px] font-bold uppercase tracking-wider mb-1 block">Antes de que lo necesites</span>
+                        <span className="text-[#F24C52] text-[10px] font-bold uppercase tracking-wider mb-1 block">Antes de que lo necesite</span>
                         <h2 className="text-[32px] font-bold text-[#272222] mb-6">Guía de tipos de fuego y extintores</h2>
                         
                         {clasesFuego.map((clase) => (
@@ -135,7 +135,7 @@ export default function HistorialPublicoView() {
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                         </svg>
                                         <p className="text-[15px] text-[#F24C52]">
-                                            <strong className="font-bold">{alerta.tipo}: </strong> {alerta.texto}
+                                            <strong className="font-bold">{alerta.tipo} </strong> {alerta.texto}
                                         </p>
                                     </div>
                                 ))}
