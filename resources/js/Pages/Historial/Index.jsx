@@ -19,7 +19,7 @@ export default function Index({
 
     return (
         <Layout>
-            <Head title="Historial" />
+            <Head title={isAdmin ? "Historial" : "Aprende más"} />
 
             {isAdmin ? (
                 <div className="max-w-7xl mx-auto space-y-6">
