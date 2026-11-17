@@ -33,9 +33,9 @@ export default function Index(props) {
     const [selectedExtintor, setSelectedExtintor] = useState(null);
     const [isMobileFormOpen, setIsMobileFormOpen] = useState(false);
 
-    // El filtro activo viene sincronizado desde el backend
+    // El filtro activo y los conteos globales vienen sincronizados desde el backend
     const activeFilter = props.filtroActivo || "Todos";
-
+    const conteos = props.conteos || {};
     // Petición al servidor sin mandar 'page' para que siempre inicie en la página 1
     const handleFilterChange = (nuevoFiltro) => {
         const params = nuevoFiltro === "Todos" ? {} : { filtro: nuevoFiltro };
@@ -138,8 +138,8 @@ export default function Index(props) {
                         preserveState
                         as={prev_page_url ? "a" : "span"}
                         className={`p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] transition-colors ${prev_page_url
-                                ? "hover:bg-[#F1F0F0] cursor-pointer"
-                                : "opacity-40 cursor-not-allowed pointer-events-none"
+                            ? "hover:bg-[#F1F0F0] cursor-pointer"
+                            : "opacity-40 cursor-not-allowed pointer-events-none"
                             }`}
                     >
                         <ChevronLeft className="w-4 h-4" />
@@ -155,8 +155,8 @@ export default function Index(props) {
                                 as={link.url ? "a" : "span"}
                                 dangerouslySetInnerHTML={{ __html: link.label }}
                                 className={`w-7 h-7 flex items-center justify-center text-xs font-semibold rounded-lg transition-colors ${link.active
-                                        ? "bg-[#C0262D] text-white shadow-xs"
-                                        : "border border-[#D7D4D4] text-[#272222] hover:bg-[#F1F0F0]"
+                                    ? "bg-[#C0262D] text-white shadow-xs"
+                                    : "border border-[#D7D4D4] text-[#272222] hover:bg-[#F1F0F0]"
                                     } ${!link.url ? "opacity-40 pointer-events-none" : "cursor-pointer"}`}
                             />
                         ))}
@@ -167,8 +167,8 @@ export default function Index(props) {
                         preserveState
                         as={next_page_url ? "a" : "span"}
                         className={`p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] transition-colors ${next_page_url
-                                ? "hover:bg-[#F1F0F0] cursor-pointer"
-                                : "opacity-40 cursor-not-allowed pointer-events-none"
+                            ? "hover:bg-[#F1F0F0] cursor-pointer"
+                            : "opacity-40 cursor-not-allowed pointer-events-none"
                             }`}
                     >
                         <ChevronRight className="w-4 h-4" />
@@ -190,8 +190,8 @@ export default function Index(props) {
                 {flashVisible && (flash?.success || flash?.error) && (
                     <div
                         className={`flex items-center justify-between p-3.5 rounded-2xl border shadow-xs transition-all duration-300 ${flash?.success
-                                ? "bg-[#D6F4F2] border-[#1C9691]/40 text-[#10706B]"
-                                : "bg-[#FDEDED] border-[#F9CACB] text-[#C0262D]"
+                            ? "bg-[#D6F4F2] border-[#1C9691]/40 text-[#10706B]"
+                            : "bg-[#FDEDED] border-[#F9CACB] text-[#C0262D]"
                             }`}
                     >
                         <div className="flex items-center gap-2.5">
@@ -213,8 +213,11 @@ export default function Index(props) {
                 )}
 
                 {/* 3. Filtros conectados al servidor */}
-                <ExtintorFilterPills activeFilter={activeFilter} onFilterChange={handleFilterChange} />
-
+                <ExtintorFilterPills
+                    activeFilter={activeFilter}
+                    onFilterChange={handleFilterChange}
+                    conteos={conteos}
+                />
                 {/* 4. Vista Móvil */}
                 <div className="block md:hidden">
                     {isMobileFormOpen ? (
