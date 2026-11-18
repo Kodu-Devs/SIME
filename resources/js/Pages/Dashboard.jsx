@@ -48,9 +48,7 @@ export default function Dashboard({
                             detalle="al día"
                             colorTexto="text-acento-500"
                             onClick={() =>
-                                router.get(route("extintores.index"), {
-                                    filtro: "Disponibles",
-                                })
+                                router.get(route("extintores.index"))
                             }
                         />
                         <TarjetaMetrica

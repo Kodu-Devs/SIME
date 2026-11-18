@@ -183,7 +183,7 @@ const OPCIONES_SISTEMA = [
         keywords: "almacen 2 vigilancia caseta",
         icon: Building2,
         action: () =>
-            router.get(route("mapa.index"), { edificio: "Vigilancia" }),
+            router.get(route("mapa.index"), { edificio: "Almacén 2" }),
     },
 ];
 
