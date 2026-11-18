@@ -1,6 +1,8 @@
+import { router } from "@inertiajs/react";
+
 export default function PanelRecomendaciones({ recomendaciones = [] }) {
     return (
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-xl border border-neutro-100 shadow-sm p-6">
             <div className="flex items-center gap-2 mb-4">
                 <span className="text-xl">💡</span>
                 <h2 className="text-titulo-2 text-neutro-900 font-bold">
@@ -15,12 +17,21 @@ export default function PanelRecomendaciones({ recomendaciones = [] }) {
             ) : (
                 <div className="space-y-3">
                     {recomendaciones.map((r, i) => (
-                        <div
+                        <button
                             key={i}
-                            className="bg-acento-500 bg-opacity-25 text-acento-500 font-semibold p-3 rounded-md text-sm leading-relaxed shadow-md"
+                            type="button"
+                            onClick={() =>
+                                router.get(route("extintores.index"), {
+                                    accion: "nuevo",
+                                })
+                            }
+                            className="w-full text-left bg-acento-500/15 hover:bg-acento-500/25 text-acento-500 font-semibold p-3 rounded-lg text-sm leading-relaxed shadow-xs transition-colors flex items-center justify-between gap-2 cursor-pointer"
                         >
-                            {r.mensaje}
-                        </div>
+                            <span>{r.mensaje}</span>
+                            <span className="text-base font-bold shrink-0">
+                                ›
+                            </span>
+                        </button>
                     ))}
                 </div>
             )}

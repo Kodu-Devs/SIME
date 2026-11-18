@@ -5,7 +5,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title inertia>{{ config('app.name', 'Laravel') }}</title>
+    <title inertia>{{ config('app.name', 'SIME') }}</title>
+
+    <!-- Favicon oficial de SIME -->
+    <link rel="icon" type="image/png" href="{{ asset('img/Logo_S.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('img/Logo_S.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

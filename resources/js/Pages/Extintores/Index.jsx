@@ -1,5 +1,12 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, X } from "lucide-react";
+import {
+    ArrowLeft,
+    ChevronLeft,
+    ChevronRight,
+    CheckCircle2,
+    AlertCircle,
+    X,
+} from "lucide-react";
 import { Head, usePage, Link, router } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import ExtintoresHeader from "@/Components/Extintores/ExtintoresHeader";
@@ -24,7 +31,9 @@ export default function Index(props) {
 
     // Datos paginados recibidos desde ExtintorController
     const extintoresPaginator = props.extintores || {};
-    const extintoresRaw = extintoresPaginator.data || (Array.isArray(props.extintores) ? props.extintores : []);
+    const extintoresRaw =
+        extintoresPaginator.data ||
+        (Array.isArray(props.extintores) ? props.extintores : []);
     const tipos = props.tipos || [];
     const instalaciones = props.instalaciones || [];
     const capacidades_kg = props.capacidades_kg || [];
@@ -61,13 +70,19 @@ export default function Index(props) {
                 for (const inst of instalaciones) {
                     for (const p of inst.pisos || []) {
                         for (const ub of p.ubicaciones || []) {
-                            const matchId = ubicacionId && String(ub.id) === String(ubicacionId);
+                            const matchId =
+                                ubicacionId &&
+                                String(ub.id) === String(ubicacionId);
                             const matchNombre =
-                                ub.nombre && ub.nombre.trim().toLowerCase() === areaNombre.trim().toLowerCase();
+                                ub.nombre &&
+                                ub.nombre.trim().toLowerCase() ===
+                                    areaNombre.trim().toLowerCase();
 
                             if (matchId || matchNombre) {
                                 edificioDetectado = inst.nombre || "";
-                                pisoDetectado = p.nombre || (p.numero ? `Piso ${p.numero}` : "");
+                                pisoDetectado =
+                                    p.nombre ||
+                                    (p.numero ? `Piso ${p.numero}` : "");
                                 break;
                             }
                         }
@@ -93,7 +108,8 @@ export default function Index(props) {
                 ubicacion_id: ubicacionId,
                 edificio: edificioDetectado || "",
                 piso: finalPiso,
-                proximo_mantenimiento: ext.proximo_mantenimiento || "Sin programar",
+                proximo_mantenimiento:
+                    ext.proximo_mantenimiento || "Sin programar",
                 proxima_revision: ext.proxima_revision || "Sin programar",
                 estatus: ext.estatus || "Disponible",
                 estado: ext.estado || "vigente",
@@ -120,15 +136,22 @@ export default function Index(props) {
     };
 
     const renderPagination = () => {
-        const { current_page, last_page, prev_page_url, next_page_url, links } = extintoresPaginator;
+        const { current_page, last_page, prev_page_url, next_page_url, links } =
+            extintoresPaginator;
 
         if (!last_page || last_page <= 1) return null;
 
         return (
             <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-[#D7D4D4] sm:px-6 rounded-b-2xl shadow-xs mt-1 font-['Manrope']">
                 <div className="text-xs text-[#6D6162]">
-                    Página <span className="font-semibold text-[#272222]">{current_page}</span> de{" "}
-                    <span className="font-semibold text-[#272222]">{last_page}</span>
+                    Página{" "}
+                    <span className="font-semibold text-[#272222]">
+                        {current_page}
+                    </span>{" "}
+                    de{" "}
+                    <span className="font-semibold text-[#272222]">
+                        {last_page}
+                    </span>
                 </div>
 
                 <div className="inline-flex items-center gap-1">
@@ -137,39 +160,46 @@ export default function Index(props) {
                         preserveScroll
                         preserveState
                         as={prev_page_url ? "a" : "span"}
-                        className={`p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] transition-colors ${prev_page_url
-                            ? "hover:bg-[#F1F0F0] cursor-pointer"
-                            : "opacity-40 cursor-not-allowed pointer-events-none"
-                            }`}
+                        className={`p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] transition-colors ${
+                            prev_page_url
+                                ? "hover:bg-[#F1F0F0] cursor-pointer"
+                                : "opacity-40 cursor-not-allowed pointer-events-none"
+                        }`}
                     >
                         <ChevronLeft className="w-4 h-4" />
                     </Link>
 
                     {links &&
-                        links.slice(1, -1).map((link, idx) => (
-                            <Link
-                                key={idx}
-                                href={link.url || "#"}
-                                preserveScroll
-                                preserveState
-                                as={link.url ? "a" : "span"}
-                                dangerouslySetInnerHTML={{ __html: link.label }}
-                                className={`w-7 h-7 flex items-center justify-center text-xs font-semibold rounded-lg transition-colors ${link.active
-                                    ? "bg-[#C0262D] text-white shadow-xs"
-                                    : "border border-[#D7D4D4] text-[#272222] hover:bg-[#F1F0F0]"
+                        links
+                            .slice(1, -1)
+                            .map((link, idx) => (
+                                <Link
+                                    key={idx}
+                                    href={link.url || "#"}
+                                    preserveScroll
+                                    preserveState
+                                    as={link.url ? "a" : "span"}
+                                    dangerouslySetInnerHTML={{
+                                        __html: link.label,
+                                    }}
+                                    className={`w-7 h-7 flex items-center justify-center text-xs font-semibold rounded-lg transition-colors ${
+                                        link.active
+                                            ? "bg-[#C0262D] text-white shadow-xs"
+                                            : "border border-[#D7D4D4] text-[#272222] hover:bg-[#F1F0F0]"
                                     } ${!link.url ? "opacity-40 pointer-events-none" : "cursor-pointer"}`}
-                            />
-                        ))}
+                                />
+                            ))}
 
                     <Link
                         href={next_page_url || "#"}
                         preserveScroll
                         preserveState
                         as={next_page_url ? "a" : "span"}
-                        className={`p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] transition-colors ${next_page_url
-                            ? "hover:bg-[#F1F0F0] cursor-pointer"
-                            : "opacity-40 cursor-not-allowed pointer-events-none"
-                            }`}
+                        className={`p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] transition-colors ${
+                            next_page_url
+                                ? "hover:bg-[#F1F0F0] cursor-pointer"
+                                : "opacity-40 cursor-not-allowed pointer-events-none"
+                        }`}
                     >
                         <ChevronRight className="w-4 h-4" />
                     </Link>
@@ -180,7 +210,7 @@ export default function Index(props) {
 
     return (
         <AdminLayout auth={auth} user={auth?.user}>
-            <Head title="Extintores - SIME" />
+            <Head title="Extintores" />
 
             <div className="w-full max-w-7xl mx-auto space-y-4 pb-6 overflow-x-hidden font-['Manrope']">
                 {/* 1. Encabezado */}
@@ -189,10 +219,11 @@ export default function Index(props) {
                 {/* 2. Banner de Notificación */}
                 {flashVisible && (flash?.success || flash?.error) && (
                     <div
-                        className={`flex items-center justify-between p-3.5 rounded-2xl border shadow-xs transition-all duration-300 ${flash?.success
-                            ? "bg-[#D6F4F2] border-[#1C9691]/40 text-[#10706B]"
-                            : "bg-[#FDEDED] border-[#F9CACB] text-[#C0262D]"
-                            }`}
+                        className={`flex items-center justify-between p-3.5 rounded-2xl border shadow-xs transition-all duration-300 ${
+                            flash?.success
+                                ? "bg-[#D6F4F2] border-[#1C9691]/40 text-[#10706B]"
+                                : "bg-[#FDEDED] border-[#F9CACB] text-[#C0262D]"
+                        }`}
                     >
                         <div className="flex items-center gap-2.5">
                             {flash?.success ? (
@@ -200,7 +231,9 @@ export default function Index(props) {
                             ) : (
                                 <AlertCircle className="w-4 h-4 text-[#C0262D] shrink-0" />
                             )}
-                            <span className="text-xs font-semibold">{flash.success || flash.error}</span>
+                            <span className="text-xs font-semibold">
+                                {flash.success || flash.error}
+                            </span>
                         </div>
                         <button
                             type="button"
@@ -228,7 +261,8 @@ export default function Index(props) {
                                     onClick={handleCloseMobileForm}
                                     className="text-xs text-[#C0262D] font-bold inline-flex items-center gap-1.5"
                                 >
-                                    <ArrowLeft className="w-3.5 h-3.5" /> Volver a la lista
+                                    <ArrowLeft className="w-3.5 h-3.5" /> Volver
+                                    a la lista
                                 </button>
                             </div>
                             <ExtintorFormPanel

@@ -12,36 +12,38 @@ export default function Index({
     capacitaciones = [],
 }) {
     const { auth } = usePage().props;
-
     const isAdmin = Boolean(auth?.user);
-
     const Layout = isAdmin ? AdminLayout : PublicLayout;
 
     return (
         <Layout>
             <Head title={isAdmin ? "Historial" : "Aprende más"} />
 
-            {isAdmin ? (
-                <div className="max-w-7xl mx-auto space-y-6">
-                    <h1 className="text-titulo-2 font-bold text-neutro-900">
-                        Historial
-                    </h1>
+            <div className="w-full max-w-7xl mx-auto space-y-6">
+                {isAdmin ? (
+                    <>
+                        <div>
+                            <h1 className="text-titulo-1 font-bold text-neutro-900">
+                                Historial
+                            </h1>
+                            <p className="text-xs text-neutro-600 mt-0.5">
+                                Bitácora de usos, mantenimientos realizados y
+                                exportación de informes
+                            </p>
+                        </div>
 
-                    <HistorialAdminView
-                        eventos={eventos}
-                        filters={filters}
-                        edificios={edificios}
-                        extintores={extintores}
-                        capacitaciones={capacitaciones}
-                    />
-                </div>
-            ) : (
-                <div className="min-h-screen py-8 bg-[#F1F0F0]">
-                    <div className="max-w-[1400px] mx-auto w-full px-4 lg:px-16">
-                        <HistorialPublicoView />
-                    </div>
-                </div>
-            )}
+                        <HistorialAdminView
+                            eventos={eventos}
+                            filters={filters}
+                            edificios={edificios}
+                            extintores={extintores}
+                            capacitaciones={capacitaciones}
+                        />
+                    </>
+                ) : (
+                    <HistorialPublicoView />
+                )}
+            </div>
         </Layout>
     );
 }

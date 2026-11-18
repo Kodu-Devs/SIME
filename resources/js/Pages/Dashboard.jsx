@@ -1,4 +1,4 @@
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import TarjetaMetrica from "@/Components/Dashboard/TarjetaMetrica";
 import BannerAlerta from "@/Components/Dashboard/BannerAlerta";
 import PanelAgenda from "@/Components/Dashboard/PanelAgenda";
@@ -14,7 +14,7 @@ export default function Dashboard({
 }) {
     return (
         <AdminLayout>
-            <Head title="Dashboard" />
+            <Head title="Resumen" />
 
             <div className="w-full max-w-7xl mx-auto">
                 <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6">
@@ -38,30 +38,41 @@ export default function Dashboard({
                             valor={tarjetas.total_extintores}
                             detalle={`En ${tarjetas.total_edificios} edificios`}
                             colorTexto="text-neutro-900"
+                            onClick={() =>
+                                router.get(route("extintores.index"))
+                            }
                         />
                         <TarjetaMetrica
                             titulo="Vigentes"
                             valor={tarjetas.vigentes}
                             detalle="al día"
                             colorTexto="text-acento-500"
+                            onClick={() =>
+                                router.get(route("extintores.index"), {
+                                    filtro: "Disponibles",
+                                })
+                            }
                         />
                         <TarjetaMetrica
                             titulo="Por vencer"
                             valor={tarjetas.por_vencer}
-                            detalle="proximos 7 días"
+                            detalle="próximos 7 días"
                             colorTexto="text-sime-warning"
+                            onClick={() => router.get(route("alertas.index"))}
                         />
                         <TarjetaMetrica
                             titulo="Vencidos"
                             valor={tarjetas.vencidos}
-                            detalle="Requiere atencion"
+                            detalle="Requiere atención"
                             colorTexto="text-primario-500"
+                            onClick={() => router.get(route("alertas.index"))}
                         />
                     </div>
 
                     {alerta_vencido && (
                         <div className="order-4 lg:order-3 lg:col-span-2">
                             <BannerAlerta
+                                id={alerta_vencido.id}
                                 etiqueta={alerta_vencido.etiqueta}
                                 ubicacion={alerta_vencido.ubicacion}
                                 edificio={alerta_vencido.edificio}
