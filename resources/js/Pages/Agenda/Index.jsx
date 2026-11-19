@@ -237,6 +237,7 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
                             eventoSeleccionado={eventoSeleccionado}
                             onCancelMovil={cerrarFormularioMovil}
                             onSuccess={cerrarFormularioMovil}
+                            onClearSelection={() => setEventoSeleccionado(null)}
                             tabInicial={tabParam || "mantenimiento"}
                         />
                     </div>

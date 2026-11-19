@@ -6,6 +6,7 @@ export default function AgendaSidePanel({
     eventoSeleccionado = null,
     onCancelMovil,
     onSuccess,
+    onClearSelection,
     tabInicial = "mantenimiento",
 }) {
     const { errors, flash } = usePage().props;
@@ -84,9 +85,29 @@ export default function AgendaSidePanel({
         });
     };
 
+    const handleCambiarTab = (nuevoTab) => {
+        if (nuevoTab === activeTab) return;
+
+        setActiveTab(nuevoTab);
+
+        if (eventoSeleccionado) {
+            limpiarFormularios();
+            if (onClearSelection) {
+                onClearSelection();
+            } else if (onSuccess) {
+                onSuccess();
+            }
+        }
+    };
+
     useEffect(() => {
         if (!eventoSeleccionado) {
-            setActiveTab(tabInicial); // Se cambia dinámicamente según la URL
+            setActiveTab(tabInicial);
+        }
+    }, [tabInicial]);
+
+    useEffect(() => {
+        if (!eventoSeleccionado) {
             limpiarFormularios();
             return;
         }
@@ -145,7 +166,7 @@ export default function AgendaSidePanel({
                 extintores_id: eventoSeleccionado.extintores_id || [],
             });
         }
-    }, [eventoSeleccionado, tabInicial]);
+    }, [eventoSeleccionado]);
 
     const extintorSeleccionado =
         extintoresMantenimiento.find(
@@ -303,7 +324,7 @@ export default function AgendaSidePanel({
             <div className="flex bg-neutro-100 p-1 rounded-lg">
                 <button
                     type="button"
-                    onClick={() => setActiveTab("mantenimiento")}
+                    onClick={() => handleCambiarTab("mantenimiento")}
                     className={`flex-1 py-1.5 text-[11px] md:text-xs font-semibold rounded-md transition cursor-pointer ${
                         activeTab === "mantenimiento"
                             ? "bg-white text-neutro-900 shadow-sm"
@@ -315,7 +336,7 @@ export default function AgendaSidePanel({
 
                 <button
                     type="button"
-                    onClick={() => setActiveTab("capacitacion")}
+                    onClick={() => handleCambiarTab("capacitacion")}
                     className={`flex-1 py-1.5 text-[11px] md:text-xs font-semibold rounded-md transition cursor-pointer ${
                         activeTab === "capacitacion"
                             ? "bg-white text-neutro-900 shadow-sm"
