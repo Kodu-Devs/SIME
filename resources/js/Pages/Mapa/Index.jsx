@@ -43,8 +43,23 @@ export default function Index({
     }, [instalaciones]);
 
     const irAEdificio = (instalacion) => {
-        if (!instalacion?.id) return;
-        router.get(route("mapa.edificio", instalacion.id));
+        if (!instalacion) return;
+
+        let target = instalacion;
+        if (!target.id && target.nombre && instalaciones.length > 0) {
+            const normalizar = (s = "") =>
+                s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+            target =
+                instalaciones.find(
+                    (i) => normalizar(i.nombre) === normalizar(target.nombre),
+                ) || target;
+        }
+
+        if (!target?.id) {
+            console.warn("No se encontró la instalación en el catálogo:", instalacion);
+            return;
+        }
+        router.get(route("mapa.edificio", target.id));
     };
 
     const instalacionesLista = instalaciones.filter((inst) =>

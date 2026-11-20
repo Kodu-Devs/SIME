@@ -512,6 +512,7 @@ export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
 
                     {/* Zona Inferior: SUM */}
                     <g
+                        data-zona="SUM"
                         onClick={() =>
                             onSeleccionarEspacio?.({
                                 nombre: "SUM",
@@ -540,6 +541,7 @@ export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
 
                     {/* Zona Superior Rectangular: Cafetería (vinculada a "Cocina" en BD) */}
                     <g
+                        data-zona="Cocina"
                         onClick={() =>
                             onSeleccionarEspacio?.({
                                 nombre: "Cocina",

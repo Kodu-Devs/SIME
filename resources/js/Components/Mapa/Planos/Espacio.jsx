@@ -55,6 +55,8 @@ export default function Espacio({
     tipo = "salon",
     label,
     nombre,
+    matchNombre,
+    fill,
     rx = 8,
     customPath,
     textX,
@@ -66,16 +68,19 @@ export default function Espacio({
         nombre !== undefined
             ? nombre
             : label !== undefined
-            ? label
-            : config.defaultLabel;
+              ? label
+              : config.defaultLabel;
+
+    // Identificador de zona tanto en <g> como en <rect>/<path>
+    const zona = matchNombre || texto || tipo;
+
     const centerX = textX !== undefined ? textX : x + width / 2;
     const centerY =
-        textY !== undefined
-            ? textY
-            : y + height / 2 + config.fontSize / 3;
+        textY !== undefined ? textY : y + height / 2 + config.fontSize / 3;
 
     return (
         <g
+            data-zona={zona}
             onClick={onClick}
             className={
                 onClick
@@ -85,18 +90,20 @@ export default function Espacio({
         >
             {customPath ? (
                 <path
+                    data-zona={zona}
                     d={customPath}
-                    fill={config.fill}
+                    fill={fill || config.fill}
                     opacity={config.opacity || 1}
                 />
             ) : (
                 <rect
+                    data-zona={zona}
                     x={x}
                     y={y}
                     width={width}
                     height={height}
                     rx={rx}
-                    fill={config.fill}
+                    fill={fill || config.fill}
                     opacity={config.opacity || 1}
                 />
             )}
