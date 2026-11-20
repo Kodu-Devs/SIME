@@ -146,7 +146,7 @@ export default function AdminLayout({ children }) {
                         <img
                             src="/img/Logo_h.png"
                             alt="Logo SIME"
-                            className="w-24 h-12 object-contain brightness-150"
+                            className="w-24 h-12 object-contain brightness-125"
                         />
                     </Link>
                 </div>

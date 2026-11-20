@@ -70,7 +70,7 @@ export default function Index({ alertas = {} }) {
 
     return (
         <AdminLayout>
-            <Head title="Centro de Notificaciones" />
+            <Head title="Alertas y notificaciones" />
 
             <div className="w-full max-w-7xl mx-auto space-y-6">
                 {/* Encabezado y botón de marcar todas */}

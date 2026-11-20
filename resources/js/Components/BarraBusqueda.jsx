@@ -168,6 +168,23 @@ const OPCIONES_SISTEMA = [
         action: () =>
             router.get(route("mapa.index"), { edificio: "Cafetería y SUM" }),
     },
+    {
+        id: "edif-7",
+        titulo: "Almacén — Ubicación en Mapa",
+        subtitulo: "Nivel único (Almacén general, planta alta y oficinas)",
+        keywords: "almacen general oficinas",
+        icon: Building2,
+        action: () => router.get(route("mapa.index"), { edificio: "Almacén" }),
+    },
+    {
+        id: "edif-8",
+        titulo: "Almacén 2 — Ubicación en Mapa",
+        subtitulo: "Nivel único (Planta abierta)",
+        keywords: "almacen 2 vigilancia caseta",
+        icon: Building2,
+        action: () =>
+            router.get(route("mapa.index"), { edificio: "Almacén 2" }),
+    },
 ];
 
 // Función auxiliar para quitar acentos y pasar a minúsculas

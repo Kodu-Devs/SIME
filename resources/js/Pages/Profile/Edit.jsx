@@ -6,7 +6,7 @@ import UpdateProfileInformationForm from "./Partials/UpdateProfileInformationFor
 export default function Edit() {
     return (
         <AdminLayout>
-            <Head title="Perfil" />
+            <Head title="Mi perfil" />
 
             <div className="w-full max-w-7xl mx-auto space-y-6">
                 {/* Encabezado Principal */}

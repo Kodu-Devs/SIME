@@ -1,6 +1,21 @@
-export default function BannerAlerta({ etiqueta, ubicacion, edificio, piso }) {
+import { router } from "@inertiajs/react";
+
+export default function BannerAlerta({
+    id,
+    etiqueta,
+    ubicacion,
+    edificio,
+    piso,
+}) {
+    const irAProgramarMantenimiento = () => {
+        router.get(route("agenda.index"), {
+            tab: "mantenimiento",
+            extintor: id || etiqueta,
+        });
+    };
+
     return (
-        <div className="bg-red-100 border-l-4 border-primario-500 text-primario-700 p-6 mb-6 rounded shadow-sm flex justify-between items-center">
+        <div className="bg-red-100 border-l-4 border-primario-500 text-primario-700 p-6 rounded-xl shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-4">
             <div>
                 <p className="text-base mt-0.5">
                     ⚠️ <b>{etiqueta} venció su mantenimiento</b>
@@ -10,8 +25,12 @@ export default function BannerAlerta({ etiqueta, ubicacion, edificio, piso }) {
                 </p>
             </div>
 
-            <button className="bg-primario-500 hover:bg-primario-700 text-white font-bold py-2 px-4 rounded text-sm transition-colors">
-                <p>Programar mantenimiento</p>
+            <button
+                type="button"
+                onClick={irAProgramarMantenimiento}
+                className="bg-primario-500 hover:bg-primario-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors cursor-pointer shrink-0"
+            >
+                Programar mantenimiento
             </button>
         </div>
     );
