@@ -6,8 +6,15 @@ export default function Croquis({
     porEdificio = {},
     onSelectEdificio,
 }) {
-    const buscarInstalacion = (...nombresPosibles) =>
-        instalaciones.find((inst) => nombresPosibles.includes(inst.nombre));
+    const normalizar = (str = "") =>
+        str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+
+    const buscarInstalacion = (...nombresPosibles) => {
+        const buscados = nombresPosibles.map(normalizar);
+        return instalaciones.find((inst) =>
+            buscados.includes(normalizar(inst.nombre)),
+        );
+    };
 
     const obtenerTotal = (...nombresPosibles) => {
         if (!instalaciones || instalaciones.length === 0) return null;

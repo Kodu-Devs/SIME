@@ -143,21 +143,37 @@ class MapaController extends Controller
      * @param \App\Models\Ubicacion $ubicacion
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function updatePosicion(Request $request, Ubicacion $ubicacion)
+
+
+   
+    //modificado para que pueda actualizar la posicion de los extintores poor cada uno git
+
+  public function updatePosicion(Request $request, Ubicacion $ubicacion)
     {
         $validated = $request->validate([
-            'x' => 'required|numeric',
-            'y' => 'required|numeric',
+            'extintor_id' => 'required|integer',
+            'x'           => 'nullable|numeric|min:0|max:100',
+            'y'           => 'nullable|numeric|min:0|max:100',
         ]);
+        $posiciones = is_array($ubicacion->posicion) && !isset($ubicacion->posicion['x'])
+            ? $ubicacion->posicion
+            : [];
 
-        $ubicacion->update([
-            'posicion' => [
+        $extId = (string) $validated['extintor_id'];
+
+        if ($validated['x'] !== null && $validated['y'] !== null) {
+            $posiciones[$extId] = [
                 'x' => $validated['x'],
                 'y' => $validated['y'],
-            ]
+            ];
+        } else {
+            unset($posiciones[$extId]);
+        }
+
+        $ubicacion->update([
+            'posicion' => empty($posiciones) ? null : $posiciones,
         ]);
 
-        // Redirección Inertia para rehidratar el estado en segundo plano
-        return back()->with('success', 'Posición actualizada correctamente.');
+        return back()->with('success', 'Posición del extintor actualizada.');
     }
 }
