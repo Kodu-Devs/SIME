@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: deploy-sime-prod
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -16,18 +20,23 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ubuntu
           key: ${{ secrets.VPS_SSH_KEY }}
+          script_stop: true
           script: |
-            cd ~/sime
-            git restore .
-            git pull origin main
+            set -euo pipefail
 
-            # Compilar frontend
-            docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp -v $(pwd):/app -w /app node:20-alpine sh -c "npm install && npm run build"
+            cd ~/sime
+
+            # Sincronización limpia con main (no toca .env, docker-compose.yml ni Dockerfile)
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Compilar frontend de forma exacta sin alterar package-lock.json
+            docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp -v "$(pwd):/app" -w /app node:22-alpine sh -c "npm ci && npm run build"
 
             # Actualizar dependencias de PHP
             docker exec -i sime-app composer install --no-interaction --prefer-dist --optimize-autoloader
 
-            # Ejecutar migraciones sin seeders (--force es obligatorio en producción)
+            # Ejecutar migraciones sin seeders
             docker exec -i sime-app php artisan migrate --force
 
             # Limpiar caché
@@ -36,13 +45,13 @@ jobs:
       - name: Notificar éxito a Discord
         if: success()
         run: |
-          curl -H "Content-Type: application/json" \
+          curl -fsS -H "Content-Type: application/json" \
           -d '{"content": "🚀 **SIME Actualizado**: Se ha desplegado una nueva versión en producción correctamente."}' \
-          ${{ secrets.DISCORD_WEBHOOK }}
+          "${{ secrets.DISCORD_WEBHOOK }}"
 
       - name: Notificar error a Discord
         if: failure()
         run: |
-          curl -H "Content-Type: application/json" \
+          curl -fsS -H "Content-Type: application/json" \
           -d '{"content": "❌ **Error de Despliegue**: Falló la actualización automática de SIME en la VPS. Revisa los logs en GitHub Actions."}' \
-          ${{ secrets.DISCORD_WEBHOOK }}
+          "${{ secrets.DISCORD_WEBHOOK }}"
