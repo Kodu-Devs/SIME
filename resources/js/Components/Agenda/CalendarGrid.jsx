@@ -75,7 +75,7 @@ export default function CalendarGrid({
                             return (
                                 <div
                                     key={index}
-                                    className={`min-w-0 h-20 sm:h-24 md:h-32 p-0.5 sm:p-1 md:p-1.5 border-b border-r border-neutro-200 flex flex-col transition-colors duration-200 ${
+                                    className={`min-w-0 h-20 sm:h-24 md:h-[82px] lg:h-[86px] p-0.5 sm:p-1 border-b border-r border-neutro-200 flex flex-col transition-colors duration-200 ${
                                         esPosterior
                                             ? "bg-neutro-200/70"
                                             : tieneEventoSeleccionado
@@ -85,19 +85,19 @@ export default function CalendarGrid({
                                 >
                                     {celda.dia ? (
                                         <>
-                                            <div className="mb-0.5 md:mb-1 sm:ml-0.5 flex items-center justify-center sm:justify-start">
-                                                <span
-                                                    className={`flex items-center justify-center text-[10px] md:text-xs font-bold leading-none ${
-                                                        esHoy
-                                                            ? "bg-primario-900 text-white w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full shadow-sm"
-                                                            : "text-neutro-900 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"
-                                                    }`}
-                                                >
+                                            <div className="mb-0.5 sm:ml-0.5 flex items-center justify-center sm:justify-start">
+                                              <span
+                                                  className={`flex items-center justify-center text-[10px] md:text-[11px] font-bold leading-none ${
+                                                      esHoy
+                                                          ? "bg-primario-900 text-white w-4 h-4 sm:w-5 sm:h-5 rounded-full shadow-sm"
+                                                          : "text-neutro-900 w-4 h-4 sm:w-5 sm:h-5"
+                                                  }`}
+                                              >
                                                     {celda.dia}
                                                 </span>
                                             </div>
 
-                                            <div className="flex flex-col gap-0.5 md:gap-1 overflow-y-auto max-h-14 sm:max-h-16 md:max-h-24 pr-0 md:pr-0.5">
+                                           <div className="flex flex-col gap-0.5 overflow-y-auto max-h-14 sm:max-h-16 md:max-h-[54px] lg:max-h-[58px] pr-0 md:pr-0.5">
                                                 {eventosDia.map((ev) => {
                                                     const esMantenimiento =
                                                         ev.clase ===
@@ -184,7 +184,7 @@ export default function CalendarGrid({
                                                                     );
                                                                 }
                                                             }}
-                                                            className={`text-left text-[8px] sm:text-[9px] md:text-[11px] px-0.5 sm:px-1 md:px-1.5 py-0.5 md:py-1 rounded transition-all cursor-pointer ${
+                                                            className={`text-left text-[8px] sm:text-[9px] md:text-[10px] px-0.5 sm:px-1 md:px-1.5 py-0.5 rounded transition-all cursor-pointer ${
                                                                 estaSeleccionado
                                                                     ? "whitespace-normal break-words leading-tight w-full sm:w-[calc(100%-8px)] sm:m-1"
                                                                     : "truncate w-full"
