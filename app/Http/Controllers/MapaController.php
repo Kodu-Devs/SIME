@@ -8,7 +8,7 @@ use App\Models\Ubicacion;
 use App\Services\ResumenExtintores;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\Extintor;
+use Illuminate\Validation\Rule;
 
 /**
  * Controlador del Módulo 2: Mapa.
@@ -29,58 +29,11 @@ class MapaController extends Controller
      */
     public function index(ResumenExtintores $resumen)
     {
-        $instalaciones = Instalacion::select('instalaciones.id', 'instalaciones.nombre')
-            // 1. Total de extintores operativos por instalación
-            ->selectSub(function ($query) {
-                $query->from('extintores')
-                    ->join('ubicaciones', 'extintores.ubicacion_id', '=', 'ubicaciones.id')
-                    ->join('pisos', 'ubicaciones.piso_id', '=', 'pisos.id')
-                    ->whereColumn('pisos.instalacion_id', 'instalaciones.id')
-                    ->where('extintores.estatus', '!=', 'Baja')
-                    ->selectRaw('count(*)');
-            }, 'extintores_count')
-
-            // 2. Extintores VENCIDOS por instalación
-            ->selectSub(
-                Extintor::vencidos()
-                    ->join('ubicaciones', 'extintores.ubicacion_id', '=', 'ubicaciones.id')
-                    ->join('pisos', 'ubicaciones.piso_id', '=', 'pisos.id')
-                    ->whereColumn('pisos.instalacion_id', 'instalaciones.id')
-                    ->selectRaw('count(*)'),
-                'vencidos_count'
-            )
-
-            // 3. Extintores POR VENCER por instalación
-            ->selectSub(
-                Extintor::porVencer()
-                    ->join('ubicaciones', 'extintores.ubicacion_id', '=', 'ubicaciones.id')
-                    ->join('pisos', 'ubicaciones.piso_id', '=', 'pisos.id')
-                    ->whereColumn('pisos.instalacion_id', 'instalaciones.id')
-                    ->selectRaw('count(*)'),
-                'por_vencer_count'
-            )
-            ->get();
-
-        // 4. Diccionario por edificio con los 3 estados reales
-        $porEdificio = $instalaciones->mapWithKeys(function ($inst) {
-            $total = (int) ($inst->extintores_count ?? 0);
-            $vencidos = (int) ($inst->vencidos_count ?? 0);
-            $porVencer = (int) ($inst->por_vencer_count ?? 0);
-            $vigentes = max(0, $total - $vencidos - $porVencer);
-
-            return [
-                $inst->nombre => [
-                    'total'      => $total,
-                    'vigentes'   => $vigentes,
-                    'por_vencer' => $porVencer,
-                    'vencidos'   => $vencidos,
-                ],
-            ];
-        });
+        $mapa = $resumen->resumenParaMapa();
 
         return Inertia::render('Mapa/Index', [
-            'porEdificio'   => $porEdificio,
-            'instalaciones' => $instalaciones,
+            'porEdificio'   => $mapa['porEdificio'],
+            'instalaciones' => $mapa['instalaciones'],
             'porEstatus'    => $resumen->porEstatus(),
             'vencidos'      => $resumen->vencidos(),
             'vigentes'      => $resumen->vigentes(),
@@ -167,11 +120,18 @@ class MapaController extends Controller
     public function updatePosicion(Request $request, Ubicacion $ubicacion)
     {
         $validated = $request->validate([
-            'extintor_id' => 'required|integer',
-            'x'           => 'nullable|numeric|min:0|max:100',
-            'y'           => 'nullable|numeric|min:0|max:100',
+            'extintor_id' => [
+                'required',
+                'integer',
+                Rule::exists('extintores', 'id')
+                    ->where('ubicacion_id', $ubicacion->id)
+                    ->where(fn($q) => $q->where('estatus', '!=', 'Baja')),
+            ],
+            'x' => ['nullable', 'required_with:y', 'numeric', 'min:0', 'max:100'],
+            'y' => ['nullable', 'required_with:x', 'numeric', 'min:0', 'max:100'],
         ]);
-        $posiciones = is_array($ubicacion->posicion) && !isset($ubicacion->posicion['x'])
+
+        $posiciones = is_array($ubicacion->posicion) && ! isset($ubicacion->posicion['x'])
             ? $ubicacion->posicion
             : [];
 
@@ -179,8 +139,8 @@ class MapaController extends Controller
 
         if ($validated['x'] !== null && $validated['y'] !== null) {
             $posiciones[$extId] = [
-                'x' => $validated['x'],
-                'y' => $validated['y'],
+                'x' => (float) $validated['x'],
+                'y' => (float) $validated['y'],
             ];
         } else {
             unset($posiciones[$extId]);
