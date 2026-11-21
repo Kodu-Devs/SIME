@@ -297,9 +297,9 @@ export default function AgendaSidePanel({
     };
 
     return (
-        <aside className="w-full lg:w-80 bg-white border border-neutro-300 rounded-xl p-4 md:p-5 flex flex-col gap-3.5 shadow-sm font-sans shrink-0">
+        <aside className="w-full lg:w-80 bg-white border border-neutro-300 rounded-xl p-3.5 flex flex-col gap-2.5 shadow-sm font-sans shrink-0">
             <div className="flex items-center justify-between">
-                <h2 className="text-titulo-2 text-neutro-900">
+                <h2 className="text-base font-bold text-neutro-900 leading-tight">
                     {activeTab === "capacitacion"
                         ? eventoSeleccionado
                             ? "Detalles de Capacitación"
@@ -350,7 +350,7 @@ export default function AgendaSidePanel({
             {activeTab === "capacitacion" ? (
                 <form
                     onSubmit={handleSubmitCapacitacion}
-                    className="flex flex-col gap-3"
+                    className="flex flex-col gap-2"
                 >
                     <div className="flex flex-col gap-1">
                         <label className="text-etiqueta text-neutro-900">
@@ -366,7 +366,7 @@ export default function AgendaSidePanel({
                                     nombre: e.target.value,
                                 })
                             }
-                            className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
+                            className="border border-neutro-300 rounded-md px-3 py-1 text-xs text-neutro-900 focus:border-primario-700 focus:ring-0"
                         />
                         {errors?.nombre && (
                             <span className="text-red-600 text-[11px]">
@@ -391,7 +391,7 @@ export default function AgendaSidePanel({
                                             fecha: e.target.value,
                                         })
                                     }
-                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                    className="border border-neutro-300 rounded-md px-2 py-1 text-xs text-neutro-900 focus:border-primario-700 focus:ring-0"
                                 />
                             </div>
                             <div className="flex flex-col gap-1">
@@ -408,7 +408,7 @@ export default function AgendaSidePanel({
                                             hora: e.target.value,
                                         })
                                     }
-                                    className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                    className="border border-neutro-300 rounded-md px-2 py-1 text-xs text-neutro-900 focus:border-primario-700 focus:ring-0"
                                 />
                             </div>
                         </div>
@@ -433,7 +433,7 @@ export default function AgendaSidePanel({
                                         ubicacion_id: e.target.value,
                                     })
                                 }
-                                className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                className="border border-neutro-300 rounded-md px-3 py-1 text-xs text-neutro-900 focus:border-primario-700 focus:ring-0"
                             >
                                 <option value="" disabled>
                                     Seleccione una ubicación
@@ -455,7 +455,7 @@ export default function AgendaSidePanel({
                                         ubicacion_id: e.target.value,
                                     })
                                 }
-                                className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                className="border border-neutro-300 rounded-md px-3 py-1 text-xs text-neutro-900 focus:border-primario-700 focus:ring-0"
                             />
                         )}
                         {errors?.ubicacion_id && (
@@ -470,7 +470,7 @@ export default function AgendaSidePanel({
                             Extintores para la práctica
                         </span>
 
-                        <div className="max-h-24 overflow-y-auto flex flex-col gap-1.5 pr-1">
+                        <div className="max-h-20 overflow-y-auto flex flex-col gap-1.5 pr-1">
                             {extintoresCapacitacion.map((extintor) => (
                                 <label
                                     key={extintor.id}
@@ -539,7 +539,7 @@ export default function AgendaSidePanel({
             ) : (
                 <form
                     onSubmit={handleSubmitMantenimiento}
-                    className="flex flex-col gap-2.5"
+                    className="flex flex-col gap-2"
                 >
                     <div className="flex flex-col gap-1.5">
                         <div className="flex items-center justify-between">
@@ -576,7 +576,7 @@ export default function AgendaSidePanel({
                         <span className="text-etiqueta text-neutro-900">
                             Datos del extintor
                         </span>
-                        <div className="border border-neutro-300 bg-neutro-50 rounded-lg p-2 text-[11px] md:text-xs text-neutro-600 flex flex-col gap-0.5">
+                        <div className="border border-neutro-300 bg-neutro-50 rounded-lg px-2.5 py-1.5 text-[11px] md:text-xs text-neutro-600 flex flex-col gap-0.5">
                             <span className="font-medium text-neutro-900">
                                 {textoUbicacion}
                             </span>
@@ -584,7 +584,7 @@ export default function AgendaSidePanel({
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-1.5">
                         <span className="text-etiqueta text-neutro-900">
                             Formulario
                         </span>
@@ -602,7 +602,7 @@ export default function AgendaSidePanel({
                                         tipo: e.target.value,
                                     })
                                 }
-                                className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 focus:border-primario-700 focus:ring-0 cursor-pointer"
+                                className="border border-neutro-300 rounded-md px-3 py-1 text-xs text-neutro-900 focus:border-primario-700 focus:ring-0 cursor-pointer"
                             >
                                 <option value="" disabled>
                                     Seleccione un tipo
@@ -639,7 +639,7 @@ export default function AgendaSidePanel({
                                                     e.target.value,
                                             })
                                         }
-                                        className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-center text-neutro-900 focus:border-primario-700 focus:ring-0 cursor-pointer"
+                                        className="border border-neutro-300 rounded-md px-2 py-1 text-xs text-center text-neutro-900 focus:border-primario-700 focus:ring-0 cursor-pointer"
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1">
@@ -658,7 +658,7 @@ export default function AgendaSidePanel({
                                                 hora_programada: e.target.value,
                                             })
                                         }
-                                        className="border border-neutro-300 rounded-md px-2 py-1.5 text-sm text-center text-neutro-900 focus:border-primario-700 focus:ring-0 cursor-pointer"
+                                        className="border border-neutro-300 rounded-md px-2 py-1 text-xs text-center text-neutro-900 focus:border-primario-700 focus:ring-0 cursor-pointer"
                                     />
                                 </div>
                             </div>
@@ -674,17 +674,17 @@ export default function AgendaSidePanel({
                                 Notas / Observaciones
                             </label>
                             <textarea
-                                rows="2"
-                                name="descripcion"
-                                value={formMantenimiento.descripcion}
-                                onChange={(e) =>
-                                    setFormMantenimiento({
-                                        ...formMantenimiento,
-                                        descripcion: e.target.value,
-                                    })
-                                }
-                                className="border border-neutro-300 rounded-md px-3 py-1.5 text-sm text-neutro-900 resize-none focus:border-primario-700 focus:ring-0"
-                            ></textarea>
+                                  rows="1"
+                                  name="descripcion"
+                                  value={formMantenimiento.descripcion}
+                                  onChange={(e) =>
+                                      setFormMantenimiento({
+                                          ...formMantenimiento,
+                                          descripcion: e.target.value,
+                                      })
+                                  }
+                                  className="border border-neutro-300 rounded-md px-3 py-1 text-xs text-neutro-900 resize-none focus:border-primario-700 focus:ring-0"
+                              ></textarea>
                             {errors?.descripcion && (
                                 <span className="text-red-600 text-[11px]">
                                     {errors.descripcion}
