@@ -5,44 +5,53 @@ on:
     branches:
       - main
 
+concurrency:
+  group: deploy-sime-prod
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Conectar por SSH y actualizar VPS
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ubuntu
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            set -euo pipefail
+
             cd ~/sime
-            git restore .
-            git pull origin main
 
-            # Compilar frontend
-            docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp -v $(pwd):/app -w /app node:20-alpine sh -c "npm install && npm run build"
+            # 1. Sincronización estricta con main (respeta .env, docker-compose.yml y Dockerfile)
+            git fetch origin main
+            git reset --hard origin/main
 
-            # Actualizar dependencias de PHP
-            docker exec -i sime-app composer install --no-interaction --prefer-dist --optimize-autoloader
+            # 2. Build determinista del frontend
+            docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp -v "$(pwd):/app" -w /app node:22-alpine sh -c "npm ci && npm run build"
 
-            # Ejecutar migraciones sin seeders (--force es obligatorio en producción)
+            # 3. Dependencias de PHP solo para producción, corriendo con UID de ubuntu para evitar choques en vendor/
+            docker exec -i -u "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer sime-app composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
+
+            # 4. Limpiar cachés viejas de bootstrap, registrar paquetes, migrar y optimizar
+            docker exec -i sime-app rm -f bootstrap/cache/*.php
+            docker exec -i sime-app php artisan package:discover --ansi
             docker exec -i sime-app php artisan migrate --force
-
-            # Limpiar caché
             docker exec -i sime-app php artisan optimize:clear
+            docker exec -i sime-app php artisan optimize
 
       - name: Notificar éxito a Discord
         if: success()
         run: |
-          curl -H "Content-Type: application/json" \
-          -d '{"content": "🚀 **SIME Actualizado**: Se ha desplegado una nueva versión en producción correctamente."}' \
-          ${{ secrets.DISCORD_WEBHOOK }}
+          curl -fsS -H "Content-Type: application/json" \
+          -d '{"content": "🚀 **SIME Actualizado**: Nueva versión desplegada y optimizada en producción."}' \
+          "${{ secrets.DISCORD_WEBHOOK }}"
 
       - name: Notificar error a Discord
         if: failure()
         run: |
-          curl -H "Content-Type: application/json" \
+          curl -fsS -H "Content-Type: application/json" \
           -d '{"content": "❌ **Error de Despliegue**: Falló la actualización automática de SIME en la VPS. Revisa los logs en GitHub Actions."}' \
-          ${{ secrets.DISCORD_WEBHOOK }}
+          "${{ secrets.DISCORD_WEBHOOK }}"

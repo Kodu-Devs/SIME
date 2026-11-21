@@ -22,6 +22,15 @@ const addOneMonth = (dateString) => {
     return `${y}-${m}-${d}`;
 };
 
+const AREAS_EXCLUIDAS = [
+    "glorieta",
+    "cancha",
+    "estacionamiento",
+    "estacionamiento de motocicletas",
+    "parque vehicular",
+    "vigilancia",
+];
+
 export default function ExtintorFormPanel({
     selectedExtintor = null,
     tipos = [],
@@ -58,6 +67,19 @@ export default function ExtintorFormPanel({
     const listaCapacidades = useMemo(() => {
         return esLitros ? capacidades_l : capacidades_kg;
     }, [esLitros, capacidades_l, capacidades_kg]);
+
+    const instalacionesCroquis = useMemo(() => {
+        return instalaciones.filter((inst) => {
+            const nombre = (inst.nombre || "").trim().toLowerCase();
+            if (
+                selectedInstalacionId &&
+                String(inst.id) === String(selectedInstalacionId)
+            ) {
+                return true;
+            }
+            return !AREAS_EXCLUIDAS.includes(nombre);
+        });
+    }, [instalaciones, selectedInstalacionId]);
 
     const pisosDisponibles = useMemo(() => {
         if (!selectedInstalacionId) return [];
@@ -140,8 +162,8 @@ export default function ExtintorFormPanel({
 
             let capActual = String(
                 selectedExtintor.raw?.capacidad ||
-                    selectedExtintor.capacidad ||
-                    "",
+                selectedExtintor.capacidad ||
+                "",
             ).trim();
             const rawFechaInst = selectedExtintor.raw?.fecha_instalacion;
             const fechaInst = rawFechaInst
@@ -328,7 +350,7 @@ export default function ExtintorFormPanel({
                                 className="w-full bg-[#F1F0F0]/60 border border-[#D7D4D4] rounded-xl px-3.5 py-2.5 text-[#272222] [appearance:none] [-webkit-appearance:none] [-moz-appearance:none] bg-none focus:outline-hidden focus:border-[#C0262D] text-xs font-medium pr-9"
                             >
                                 <option value="">[ Edificio ]</option>
-                                {instalaciones.map((inst) => (
+                                {instalacionesCroquis.map((inst) => (
                                     <option key={inst.id} value={inst.id}>
                                         {inst.nombre}
                                     </option>
