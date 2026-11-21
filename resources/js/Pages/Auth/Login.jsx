@@ -111,7 +111,7 @@ export default function Login({ status, canResetPassword }) {
                                     htmlFor="email"
                                     className="block text-titulo-2 font-semibold text-neutro-900 mb-3"
                                 >
-                                    Usuario
+                                    Correo electrónico
                                 </label>
 
                                 <input

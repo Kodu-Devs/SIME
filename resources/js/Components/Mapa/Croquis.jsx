@@ -7,7 +7,11 @@ export default function Croquis({
     onSelectEdificio,
 }) {
     const normalizar = (str = "") =>
-        str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+        str
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
 
     const buscarInstalacion = (...nombresPosibles) => {
         const buscados = nombresPosibles.map(normalizar);
@@ -36,6 +40,33 @@ export default function Croquis({
         } else if (onSelectEdificio && nombresPosibles[0]) {
             onSelectEdificio({ nombre: nombresPosibles[0] });
         }
+    };
+
+    const obtenerEstadisticas = (...nombresPosibles) => {
+        if (!instalaciones || instalaciones.length === 0) return null;
+        const inst = buscarInstalacion(...nombresPosibles);
+        if (!inst) {
+            return { total: 0, vigentes: 0, por_vencer: 0, vencidos: 0 };
+        }
+        const stats = porEdificio[inst.nombre];
+        if (stats) {
+            const total = Number(stats.total ?? 0);
+            const vencidos = Number(stats.vencidos ?? 0);
+            const por_vencer = Number(stats.por_vencer ?? 0);
+            const vigentes =
+                stats.vigentes !== undefined
+                    ? Number(stats.vigentes)
+                    : Math.max(0, total - vencidos - por_vencer);
+            return { total, vigentes, por_vencer, vencidos };
+        }
+        const total = Number(inst.extintores_count ?? 0);
+        const vencidos = Number(inst.vencidos_count ?? 0);
+        return {
+            total,
+            vigentes: Math.max(0, total - vencidos),
+            por_vencer: 0,
+            vencidos,
+        };
     };
 
     return (
@@ -173,6 +204,10 @@ export default function Croquis({
                         "Cafetería y SUM",
                         "Cafetería",
                     )}
+                    estadisticas={obtenerEstadisticas(
+                        "Cafetería y SUM",
+                        "Cafetería",
+                    )}
                     extintores={textoConteo("Cafetería y SUM", "Cafetería")}
                     onClick={() => manejarClic("Cafetería y SUM", "Cafetería")}
                 />
@@ -184,6 +219,7 @@ export default function Croquis({
                     alto={89.39}
                     nombre="C"
                     totalExtintores={obtenerTotal("Edificio C")}
+                    estadisticas={obtenerEstadisticas("Edificio C")}
                     extintores={textoConteo("Edificio C")}
                     onClick={() => manejarClic("Edificio C")}
                 />
@@ -195,6 +231,7 @@ export default function Croquis({
                     alto={85.9}
                     nombre="A"
                     totalExtintores={obtenerTotal("Edificio A")}
+                    estadisticas={obtenerEstadisticas("Edificio A")}
                     extintores={textoConteo("Edificio A")}
                     onClick={() => manejarClic("Edificio A")}
                 />
@@ -206,6 +243,7 @@ export default function Croquis({
                     alto={95.19}
                     nombre="B"
                     totalExtintores={obtenerTotal("Edificio B")}
+                    estadisticas={obtenerEstadisticas("Edificio B")}
                     extintores={textoConteo("Edificio B")}
                     onClick={() => manejarClic("Edificio B")}
                 />
@@ -217,6 +255,7 @@ export default function Croquis({
                     alto={85.9}
                     nombre="E"
                     totalExtintores={obtenerTotal("Edificio E")}
+                    estadisticas={obtenerEstadisticas("Edificio E")}
                     extintores={textoConteo("Edificio E")}
                     onClick={() => manejarClic("Edificio E")}
                 />
@@ -228,6 +267,7 @@ export default function Croquis({
                     alto={75}
                     nombre="D"
                     totalExtintores={obtenerTotal("Edificio D")}
+                    estadisticas={obtenerEstadisticas("Edificio D")}
                     extintores={textoConteo("Edificio D")}
                     onClick={() => manejarClic("Edificio D")}
                 />
@@ -239,6 +279,11 @@ export default function Croquis({
                     alto={78.94}
                     nombre="Almacén 2"
                     totalExtintores={obtenerTotal(
+                        "Almacén 2",
+                        "Almacen 2",
+                        "Vigilancia",
+                    )}
+                    estadisticas={obtenerEstadisticas(
                         "Almacén 2",
                         "Almacen 2",
                         "Vigilancia",
@@ -260,6 +305,7 @@ export default function Croquis({
                     alto={54.56}
                     nombre="Almacén"
                     totalExtintores={obtenerTotal("Almacén", "Almacen")}
+                    estadisticas={obtenerEstadisticas("Almacén", "Almacen")}
                     extintores={textoConteo("Almacén", "Almacen")}
                     onClick={() => manejarClic("Almacén", "Almacen")}
                 />

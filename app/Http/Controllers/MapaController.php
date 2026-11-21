@@ -30,7 +30,7 @@ class MapaController extends Controller
     public function index(ResumenExtintores $resumen)
     {
         $instalaciones = Instalacion::select('instalaciones.id', 'instalaciones.nombre')
-            // 1. Cuenta el total de extintores operativos por instalación saltando tablas intermedias
+            // 1. Total de extintores operativos por instalación
             ->selectSub(function ($query) {
                 $query->from('extintores')
                     ->join('ubicaciones', 'extintores.ubicacion_id', '=', 'ubicaciones.id')
@@ -40,7 +40,7 @@ class MapaController extends Controller
                     ->selectRaw('count(*)');
             }, 'extintores_count')
 
-            // 2. Cuenta los extintores VENCIDOS por instalación utilizando el motor de BD
+            // 2. Extintores VENCIDOS por instalación
             ->selectSub(
                 Extintor::vencidos()
                     ->join('ubicaciones', 'extintores.ubicacion_id', '=', 'ubicaciones.id')
@@ -49,19 +49,35 @@ class MapaController extends Controller
                     ->selectRaw('count(*)'),
                 'vencidos_count'
             )
+
+            // 3. Extintores POR VENCER por instalación
+            ->selectSub(
+                Extintor::porVencer()
+                    ->join('ubicaciones', 'extintores.ubicacion_id', '=', 'ubicaciones.id')
+                    ->join('pisos', 'ubicaciones.piso_id', '=', 'pisos.id')
+                    ->whereColumn('pisos.instalacion_id', 'instalaciones.id')
+                    ->selectRaw('count(*)'),
+                'por_vencer_count'
+            )
             ->get();
 
-        // 3. Adaptador para Frontend: Genera el diccionario {'Edificio A': {total: 5, vencidos: 2}}
+        // 4. Diccionario por edificio con los 3 estados reales
         $porEdificio = $instalaciones->mapWithKeys(function ($inst) {
+            $total = (int) ($inst->extintores_count ?? 0);
+            $vencidos = (int) ($inst->vencidos_count ?? 0);
+            $porVencer = (int) ($inst->por_vencer_count ?? 0);
+            $vigentes = max(0, $total - $vencidos - $porVencer);
+
             return [
                 $inst->nombre => [
-                    'total' => $inst->extintores_count ?? 0,
-                    'vencidos' => $inst->vencidos_count ?? 0
-                ]
+                    'total'      => $total,
+                    'vigentes'   => $vigentes,
+                    'por_vencer' => $porVencer,
+                    'vencidos'   => $vencidos,
+                ],
             ];
         });
 
-        // Se retorna una sola vista con las métricas consolidadas y parseadas
         return Inertia::render('Mapa/Index', [
             'porEdificio'   => $porEdificio,
             'instalaciones' => $instalaciones,
@@ -145,10 +161,10 @@ class MapaController extends Controller
      */
 
 
-   
+
     //modificado para que pueda actualizar la posicion de los extintores poor cada uno git
 
-  public function updatePosicion(Request $request, Ubicacion $ubicacion)
+    public function updatePosicion(Request $request, Ubicacion $ubicacion)
     {
         $validated = $request->validate([
             'extintor_id' => 'required|integer',

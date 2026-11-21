@@ -1,4 +1,5 @@
 import React from "react";
+import { ArrowLeft } from "lucide-react";
 
 // 1. DIBUJOS BASE (Extraemos los rectángulos de cada edificio 1 sola vez)
 const BaseA = () => (
@@ -600,7 +601,7 @@ export default function VistaIsometrica({ edificio, onVolver, onSelectPiso }) {
                             }
                             filter="url(#shadow)"
                             onClick={() => onSelectPiso(nivel.nombre)}
-                            className="cursor-pointer hover:opacity-75 transition-all duration-300"
+                            className="cursor-pointer hover:brightness-95 transition-all duration-200"
                         >
                             <Componente />
                         </g>
@@ -611,21 +612,23 @@ export default function VistaIsometrica({ edificio, onVolver, onSelectPiso }) {
     };
 
     return (
-        <div className="w-full bg-white rounded-xl shadow-sm border border-neutral-100 p-6 flex flex-col items-center">
-            <div className="w-full flex justify-between items-center mb-4 pb-3 border-b border-neutral-100">
+        <div className="w-full bg-white rounded-xl shadow-sm border border-neutro-100 p-4 sm:p-6 flex flex-col items-center">
+            <div className="w-full flex justify-between items-center gap-3 mb-4 pb-3 border-b border-neutro-100">
                 <div>
-                    <h2 className="text-xl font-bold text-neutral-900">
-                        Mapa de la Institucion
+                    <h2 className="text-titulo-2 font-bold text-neutro-900">
+                        {edificio}
                     </h2>
-                    <span className="inline-block mt-1 text-xs text-neutral-500">
-                        {edificio} - Selecciona un nivel
+                    <span className="inline-block mt-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-primario-100 text-primario-700">
+                        Selecciona un nivel
                     </span>
                 </div>
                 <button
+                    type="button"
                     onClick={onVolver}
-                    className="text-xs font-medium bg-neutral-100 hover:bg-neutral-200 text-neutral-700 px-3.5 py-2 rounded-lg transition-colors"
+                    className="group inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-neutro-100 hover:border-primario-300 hover:bg-primario-100/40 text-xs font-semibold text-neutro-900 hover:text-primario-700 shadow-xs transition-all cursor-pointer shrink-0"
                 >
-                    ← Volver al croquis
+                    <ArrowLeft className="w-4 h-4 text-neutro-600 group-hover:text-primario-700 transition-transform duration-200 group-hover:-translate-x-0.5" />
+                    <span>Volver al croquis</span>
                 </button>
             </div>
 
