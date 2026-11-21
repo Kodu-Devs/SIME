@@ -519,7 +519,7 @@ export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
                                 tipo: "taller",
                             })
                         }
-                        className="cursor-pointer hover:opacity-80 transition-opacity"
+                        className="cursor-pointer"
                     >
                         <path
                             d="M606 272C556 536 104 554 32 273C30 264 34 254 42 248L188 142H445L596 249C603 254 607 263 606 272Z"
@@ -548,7 +548,7 @@ export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
                                 tipo: "salon",
                             })
                         }
-                        className="cursor-pointer hover:opacity-80 transition-opacity"
+                        className="cursor-pointer"
                     >
                         <rect
                             x="198"
