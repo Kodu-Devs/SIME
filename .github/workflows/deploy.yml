@@ -35,7 +35,8 @@ jobs:
             # 3. Dependencias de PHP solo para producción, corriendo con UID de ubuntu para evitar choques en vendor/
             docker exec -i -u "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer sime-app composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
-            # 4. Registro de paquetes, migraciones y reconstrucción de caché optimizada
+            # 4. Limpiar cachés viejas de bootstrap, registrar paquetes, migrar y optimizar
+            docker exec -i sime-app rm -f bootstrap/cache/*.php
             docker exec -i sime-app php artisan package:discover --ansi
             docker exec -i sime-app php artisan migrate --force
             docker exec -i sime-app php artisan optimize:clear
