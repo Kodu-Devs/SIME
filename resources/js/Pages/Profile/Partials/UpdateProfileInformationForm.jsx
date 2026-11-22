@@ -46,7 +46,7 @@ export default function UpdateProfileInformationForm({ className = "" }) {
                                 formulario.setData("name", e.target.value)
                             }
                             required
-                            className="w-full rounded-lg border border-neutro-300 px-3.5 py-2 text-sm text-neutro-900 focus:border-primario-700 focus:ring-primario-700 transition"
+                            className="w-full bg-white rounded-lg border border-neutro-100 px-3 py-2 text-xs font-medium text-neutro-900 focus:outline-none focus:border-primario-500 focus:ring-1 focus:ring-primario-500 transition"
                         />
                         <InputError
                             message={formulario.errors.name}
@@ -70,7 +70,7 @@ export default function UpdateProfileInformationForm({ className = "" }) {
                                 formulario.setData("email", e.target.value)
                             }
                             required
-                            className="w-full rounded-lg border border-neutro-300 px-3.5 py-2 text-sm text-neutro-900 focus:border-primario-700 focus:ring-primario-700 transition"
+                            className="w-full bg-white rounded-lg border border-neutro-100 px-3 py-2 text-xs font-medium text-neutro-900 focus:outline-none focus:border-primario-500 focus:ring-1 focus:ring-primario-500 transition"
                         />
                         <InputError
                             message={formulario.errors.email}
@@ -83,7 +83,7 @@ export default function UpdateProfileInformationForm({ className = "" }) {
                     <button
                         type="submit"
                         disabled={formulario.processing}
-                        className="bg-primario-700 hover:bg-primario-900 text-white text-xs font-semibold px-5 py-2.5 rounded-lg transition disabled:opacity-50"
+                        className="bg-primario-500 hover:bg-primario-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                     >
                         Guardar
                     </button>
