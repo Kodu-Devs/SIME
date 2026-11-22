@@ -31,10 +31,12 @@ export default function Dashboard({
                     </div>
 
                     <div className="order-2 lg:order-4 h-full">
-                        <MapaContenedor
-                            instalaciones={instalaciones}
-                            porEdificio={porEdificio}
-                        />
+                        <div className="order-2 lg:order-4 h-full">
+                            <MapaContenedor
+                                instalaciones={instalaciones}
+                                porEdificio={porEdificio}
+                            />
+                        </div>
                     </div>
 
                     <div className="order-3 lg:order-2 lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
