@@ -1,33 +1,15 @@
-import React, { useState, useMemo, useEffect } from "react";
-import {
-    ArrowLeft,
-    ChevronLeft,
-    ChevronRight,
-    CheckCircle2,
-    AlertCircle,
-    X,
-} from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { Head, usePage, Link, router } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
+import FlashBanner from "@/Components/FlashBanner";
 import ExtintoresHeader from "@/Components/Extintores/ExtintoresHeader";
 import ExtintorFilterPills from "@/Components/Extintores/ExtintorFilterPills";
 import ExtintoresTable from "@/Components/Extintores/ExtintoresTable";
 import ExtintorFormPanel from "@/Components/Extintores/ExtintorFormPanel";
 
 export default function Index(props) {
-    const { auth, flash } = usePage().props;
-
-    const [flashVisible, setFlashVisible] = useState(false);
-
-    useEffect(() => {
-        if (flash?.success || flash?.error) {
-            setFlashVisible(true);
-            const timer = setTimeout(() => {
-                setFlashVisible(false);
-            }, 4500);
-            return () => clearTimeout(timer);
-        }
-    }, [flash]);
+    const { auth } = usePage().props;
 
     // Datos paginados recibidos desde ExtintorController
     const extintoresPaginator = props.extintores || {};
@@ -142,14 +124,14 @@ export default function Index(props) {
         if (!last_page || last_page <= 1) return null;
 
         return (
-            <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-[#D7D4D4] sm:px-6 rounded-b-2xl shadow-xs mt-1 font-['Manrope']">
-                <div className="text-xs text-[#6D6162]">
+            <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-neutro-100">
+                <div className="text-xs text-neutro-600">
                     Página{" "}
-                    <span className="font-semibold text-[#272222]">
+                    <span className="font-semibold text-neutro-900">
                         {current_page}
                     </span>{" "}
                     de{" "}
-                    <span className="font-semibold text-[#272222]">
+                    <span className="font-semibold text-neutro-900">
                         {last_page}
                     </span>
                 </div>
@@ -160,9 +142,9 @@ export default function Index(props) {
                         preserveScroll
                         preserveState
                         as={prev_page_url ? "a" : "span"}
-                        className={`p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] transition-colors ${
+                        className={`p-1.5 rounded-lg border border-neutro-100 text-neutro-600 transition-colors ${
                             prev_page_url
-                                ? "hover:bg-[#F1F0F0] cursor-pointer"
+                                ? "hover:bg-neutro-50 cursor-pointer"
                                 : "opacity-40 cursor-not-allowed pointer-events-none"
                         }`}
                     >
@@ -170,34 +152,32 @@ export default function Index(props) {
                     </Link>
 
                     {links &&
-                        links
-                            .slice(1, -1)
-                            .map((link, idx) => (
-                                <Link
-                                    key={idx}
-                                    href={link.url || "#"}
-                                    preserveScroll
-                                    preserveState
-                                    as={link.url ? "a" : "span"}
-                                    dangerouslySetInnerHTML={{
-                                        __html: link.label,
-                                    }}
-                                    className={`w-7 h-7 flex items-center justify-center text-xs font-semibold rounded-lg transition-colors ${
-                                        link.active
-                                            ? "bg-[#C0262D] text-white shadow-xs"
-                                            : "border border-[#D7D4D4] text-[#272222] hover:bg-[#F1F0F0]"
-                                    } ${!link.url ? "opacity-40 pointer-events-none" : "cursor-pointer"}`}
-                                />
-                            ))}
+                        links.slice(1, -1).map((link, idx) => (
+                            <Link
+                                key={idx}
+                                href={link.url || "#"}
+                                preserveScroll
+                                preserveState
+                                as={link.url ? "a" : "span"}
+                                dangerouslySetInnerHTML={{
+                                    __html: link.label,
+                                }}
+                                className={`w-7 h-7 flex items-center justify-center text-xs font-semibold rounded-lg transition-colors ${
+                                    link.active
+                                        ? "bg-primario-500 text-white shadow-xs"
+                                        : "border border-neutro-100 text-neutro-900 hover:bg-neutro-50"
+                                } ${!link.url ? "opacity-40 pointer-events-none" : "cursor-pointer"}`}
+                            />
+                        ))}
 
                     <Link
                         href={next_page_url || "#"}
                         preserveScroll
                         preserveState
                         as={next_page_url ? "a" : "span"}
-                        className={`p-1.5 rounded-lg border border-[#D7D4D4] text-[#6D6162] transition-colors ${
+                        className={`p-1.5 rounded-lg border border-neutro-100 text-neutro-600 transition-colors ${
                             next_page_url
-                                ? "hover:bg-[#F1F0F0] cursor-pointer"
+                                ? "hover:bg-neutro-50 cursor-pointer"
                                 : "opacity-40 cursor-not-allowed pointer-events-none"
                         }`}
                     >
@@ -212,59 +192,30 @@ export default function Index(props) {
         <AdminLayout auth={auth} user={auth?.user}>
             <Head title="Extintores" />
 
-            <div className="w-full max-w-7xl mx-auto space-y-4 pb-6 overflow-x-hidden font-['Manrope']">
-                {/* 1. Encabezado */}
+            <div className="w-full max-w-7xl mx-auto space-y-4 pb-6 overflow-x-hidden">
                 <ExtintoresHeader onAddNew={handleAddNew} />
 
-                {/* 2. Banner de Notificación */}
-                {flashVisible && (flash?.success || flash?.error) && (
-                    <div
-                        className={`flex items-center justify-between p-3.5 rounded-2xl border shadow-xs transition-all duration-300 ${
-                            flash?.success
-                                ? "bg-[#D6F4F2] border-[#1C9691]/40 text-[#10706B]"
-                                : "bg-[#FDEDED] border-[#F9CACB] text-[#C0262D]"
-                        }`}
-                    >
-                        <div className="flex items-center gap-2.5">
-                            {flash?.success ? (
-                                <CheckCircle2 className="w-4 h-4 text-[#1C9691] shrink-0" />
-                            ) : (
-                                <AlertCircle className="w-4 h-4 text-[#C0262D] shrink-0" />
-                            )}
-                            <span className="text-xs font-semibold">
-                                {flash.success || flash.error}
-                            </span>
-                        </div>
-                        <button
-                            type="button"
-                            onClick={() => setFlashVisible(false)}
-                            className="p-1 rounded-lg transition-colors hover:bg-black/5"
-                        >
-                            <X className="w-3.5 h-3.5" />
-                        </button>
-                    </div>
-                )}
+                <FlashBanner />
 
-                {/* 3. Filtros conectados al servidor */}
                 <ExtintorFilterPills
                     activeFilter={activeFilter}
                     onFilterChange={handleFilterChange}
                     conteos={conteos}
                 />
-                {/* 4. Vista Móvil */}
+
+                {/* Vista Móvil */}
                 <div className="block md:hidden">
                     {isMobileFormOpen ? (
-                        <div>
-                            <div className="mb-3">
-                                <button
-                                    type="button"
-                                    onClick={handleCloseMobileForm}
-                                    className="text-xs text-[#C0262D] font-bold inline-flex items-center gap-1.5"
-                                >
-                                    <ArrowLeft className="w-3.5 h-3.5" /> Volver
-                                    a la lista
-                                </button>
-                            </div>
+                        <div className="space-y-3">
+                            <button
+                                type="button"
+                                onClick={handleCloseMobileForm}
+                                className="group inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-neutro-100 hover:border-primario-300 hover:bg-primario-100/40 text-xs font-semibold text-neutro-900 hover:text-primario-700 shadow-xs transition-all cursor-pointer"
+                            >
+                                <ArrowLeft className="w-4 h-4 text-neutro-600 group-hover:text-primario-700 transition-transform duration-200 group-hover:-translate-x-0.5" />
+                                <span>Volver a la lista</span>
+                            </button>
+
                             <ExtintorFormPanel
                                 selectedExtintor={selectedExtintor}
                                 tipos={tipos}
@@ -275,26 +226,24 @@ export default function Index(props) {
                             />
                         </div>
                     ) : (
-                        <div>
-                            <ExtintoresTable
-                                extintores={normalizedExtintores}
-                                selectedExtintor={selectedExtintor}
-                                onSelectExtintor={handleSelectExtintor}
-                            />
-                            {renderPagination()}
-                        </div>
+                        <ExtintoresTable
+                            extintores={normalizedExtintores}
+                            selectedExtintor={selectedExtintor}
+                            onSelectExtintor={handleSelectExtintor}
+                            footer={renderPagination()}
+                        />
                     )}
                 </div>
 
-                {/* 5. Vista Escritorio */}
+                {/* Vista Escritorio */}
                 <div className="hidden md:grid grid-cols-12 gap-6 items-start">
                     <div className="col-span-8">
                         <ExtintoresTable
                             extintores={normalizedExtintores}
                             selectedExtintor={selectedExtintor}
                             onSelectExtintor={handleSelectExtintor}
+                            footer={renderPagination()}
                         />
-                        {renderPagination()}
                     </div>
                     <div className="col-span-4 sticky top-6">
                         <ExtintorFormPanel

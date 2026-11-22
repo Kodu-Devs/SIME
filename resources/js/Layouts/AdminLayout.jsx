@@ -182,7 +182,6 @@ export default function AdminLayout({ children }) {
                     {/* Buscador Global de Comandos (Tu componente BarraBusqueda) */}
                     <BarraBusqueda />
 
-                    {/* Acciones Derecha: Campana de Notificaciones + Menú Administrador */}
                     {/* Acciones Derecha: Ayuda + Campana de Notificaciones + Menú Administrador */}
                     <div className="flex items-center gap-2 sm:gap-3 relative">
                         <a

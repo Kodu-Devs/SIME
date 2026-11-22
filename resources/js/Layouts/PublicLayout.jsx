@@ -79,7 +79,6 @@ export default function PublicLayout({
                     })}
                 </nav>
 
-                {/* Derecha: Botón Acceso Administrador (Visible en Desktop y adaptado en Móvil) */}
                 {/* Derecha: Botón de Ayuda + Acceso Administrador */}
                 <div className="flex items-center gap-2 shrink-0">
                     <a

@@ -41,13 +41,13 @@ export default function CalendarGrid({
         // Contenedor principal relativo.
         <div id="calendar-container" className="w-full relative">
             {/* Contenedor con overflow-x-auto para permitir deslizar el calendario en móviles */}
-            <div className="bg-white border border-neutro-300 rounded-xl overflow-hidden shadow-md w-full">
+            <div className="bg-white border border-neutro-100 rounded-xl overflow-hidden shadow-sm w-full">
                 <div className="w-full">
-                    <div className="grid grid-cols-7 border-b border-neutro-300 bg-neutro-50">
+                    <div className="grid grid-cols-7 border-b border-neutro-100 bg-neutro-50">
                         {DIAS_SEMANA.map((dia) => (
                             <div
                                 key={dia}
-                                className="py-1.5 sm:py-2 px-0.5 md:px-3 text-[10px] md:text-xs font-semibold text-neutro-600 uppercase tracking-wider border-r last:border-r-0 border-neutro-200 text-center md:text-left"
+                                className="py-1.5 sm:py-2 px-0.5 md:px-3 text-[10px] md:text-xs font-semibold text-neutro-600 uppercase tracking-wider border-r last:border-r-0 border-neutro-100 text-center md:text-left"
                             >
                                 <span className="sm:hidden">{dia[0]}</span>
                                 <span className="hidden sm:inline">{dia}</span>
@@ -75,29 +75,29 @@ export default function CalendarGrid({
                             return (
                                 <div
                                     key={index}
-                                    className={`min-w-0 h-20 sm:h-24 md:h-[82px] lg:h-[86px] p-0.5 sm:p-1 border-b border-r border-neutro-200 flex flex-col transition-colors duration-200 ${
+                                    className={`min-w-0 h-20 sm:h-24 md:h-[82px] lg:h-[86px] p-0.5 sm:p-1 border-b border-r border-neutro-100 flex flex-col transition-colors duration-200 ${
                                         esPosterior
-                                            ? "bg-neutro-200/70"
+                                            ? "bg-neutro-50/80"
                                             : tieneEventoSeleccionado
-                                              ? "bg-[#D7D4D4]"
-                                              : "bg-white hover:bg-[#F1F0F0]"
+                                              ? "bg-neutro-100/70"
+                                              : "bg-white hover:bg-neutro-50"
                                     }`}
                                 >
                                     {celda.dia ? (
                                         <>
                                             <div className="mb-0.5 sm:ml-0.5 flex items-center justify-center sm:justify-start">
-                                              <span
-                                                  className={`flex items-center justify-center text-[10px] md:text-[11px] font-bold leading-none ${
-                                                      esHoy
-                                                          ? "bg-primario-900 text-white w-4 h-4 sm:w-5 sm:h-5 rounded-full shadow-sm"
-                                                          : "text-neutro-900 w-4 h-4 sm:w-5 sm:h-5"
-                                                  }`}
-                                              >
+                                                <span
+                                                    className={`flex items-center justify-center text-[10px] md:text-[11px] font-bold leading-none ${
+                                                        esHoy
+                                                            ? "bg-primario-900 text-white w-4 h-4 sm:w-5 sm:h-5 rounded-full shadow-sm"
+                                                            : "text-neutro-900 w-4 h-4 sm:w-5 sm:h-5"
+                                                    }`}
+                                                >
                                                     {celda.dia}
                                                 </span>
                                             </div>
 
-                                           <div className="flex flex-col gap-0.5 overflow-y-auto max-h-14 sm:max-h-16 md:max-h-[54px] lg:max-h-[58px] pr-0 md:pr-0.5">
+                                            <div className="flex flex-col gap-0.5 overflow-y-auto max-h-14 sm:max-h-16 md:max-h-[54px] lg:max-h-[58px] pr-0 md:pr-0.5">
                                                 {eventosDia.map((ev) => {
                                                     const esMantenimiento =
                                                         ev.clase ===
@@ -193,7 +193,7 @@ export default function CalendarGrid({
                                                                     ? "bg-primario-700 text-white ring-2 ring-primario-700 ring-offset-1 md:ring-offset-2 ring-offset-white font-bold shadow-md"
                                                                     : esMantenimiento
                                                                       ? "bg-neutro-900 text-white border-l-2 border-primario-700"
-                                                                      : "bg-[#1b9e85] text-white"
+                                                                      : "bg-acento-500 text-white"
                                                             } ${
                                                                 !estaSeleccionado &&
                                                                 eventoSeleccionado
@@ -220,16 +220,16 @@ export default function CalendarGrid({
             {/* TARJETA FLOTANTE (Solo para Modo Público) */}
             {modoPublico && eventoSeleccionado && (
                 <div
-                    className="absolute z-50 bg-white border border-neutro-300 shadow-xl rounded-xl p-3 md:p-4 w-[260px] md:w-[280px] flex flex-col gap-2 md:gap-3"
+                    className="absolute z-50 bg-white border border-neutro-100 shadow-xl rounded-xl p-3 md:p-4 w-[260px] md:w-[280px] flex flex-col gap-2 md:gap-3"
                     style={{ top: posicionTooltip.y, left: posicionTooltip.x }}
                 >
-                    <div className="flex justify-between items-start border-b border-neutro-200 pb-2">
+                    <div className="flex justify-between items-start border-b border-neutro-100 pb-2">
                         <h3 className="text-xs md:text-sm font-bold text-neutro-900 leading-tight">
                             Detalles del Evento
                         </h3>
                         <button
                             onClick={() => onSelectEvento(eventoSeleccionado)}
-                            className="text-neutro-400 hover:text-neutro-900 font-bold text-base md:text-lg leading-none cursor-pointer"
+                            className="text-neutro-600 hover:text-neutro-900 font-bold text-base md:text-lg leading-none cursor-pointer"
                         >
                             &times;
                         </button>
@@ -237,11 +237,11 @@ export default function CalendarGrid({
 
                     <div className="flex flex-col gap-2">
                         <div>
-                            <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-neutro-500">
+                            <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-neutro-600">
                                 Evento
                             </span>
                             <p
-                                className={`text-[11px] md:text-xs font-bold mt-0.5 ${eventoSeleccionado.clase === "mantenimiento" ? "text-neutro-900" : "text-[#1b9e85]"}`}
+                                className={`text-[11px] md:text-xs font-bold mt-0.5 ${eventoSeleccionado.clase === "mantenimiento" ? "text-neutro-900" : "text-acento-500"}`}
                             >
                                 {eventoSeleccionado.titulo}
                             </p>
@@ -249,7 +249,7 @@ export default function CalendarGrid({
 
                         <div className="grid grid-cols-2 gap-2 md:gap-3">
                             <div>
-                                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-neutro-500">
+                                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-neutro-600">
                                     Fecha
                                 </span>
                                 <p className="text-[11px] md:text-xs text-neutro-900 font-medium mt-0.5">
@@ -257,7 +257,7 @@ export default function CalendarGrid({
                                 </p>
                             </div>
                             <div>
-                                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-neutro-500">
+                                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-neutro-600">
                                     Hora
                                 </span>
                                 <p className="text-[11px] md:text-xs text-neutro-900 font-medium mt-0.5">
@@ -270,7 +270,7 @@ export default function CalendarGrid({
                         </div>
 
                         <div>
-                            <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-neutro-500">
+                            <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-neutro-600">
                                 Estado
                             </span>
                             <div className="mt-1">
@@ -286,10 +286,10 @@ export default function CalendarGrid({
 
                         {eventoSeleccionado.descripcion && (
                             <div>
-                                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-neutro-500">
+                                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-neutro-600">
                                     Observaciones
                                 </span>
-                                <p className="text-[10px] md:text-xs text-neutro-700 bg-neutro-50 p-2 rounded-md border border-neutro-200 mt-1 leading-relaxed">
+                                <p className="text-[10px] md:text-xs text-neutro-900 bg-neutro-50 p-2 rounded-md border border-neutro-100 mt-1 leading-relaxed">
                                     {eventoSeleccionado.descripcion}
                                 </p>
                             </div>

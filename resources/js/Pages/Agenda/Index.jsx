@@ -4,6 +4,8 @@ import PublicLayout from "@/Layouts/PublicLayout";
 import { Head, router, usePage } from "@inertiajs/react";
 import CalendarGrid from "@/Components/Agenda/CalendarGrid";
 import AgendaSidePanel from "@/Components/Agenda/AgendaSidePanel";
+import { ArrowLeft, Plus } from "lucide-react";
+import FlashBanner from "@/Components/FlashBanner";
 
 export default function Index({ eventos = [], mesActual, combos = {} }) {
     const { auth } = usePage().props;
@@ -92,7 +94,7 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
         <div className="w-full max-w-7xl mx-auto space-y-4">
             <Head title="Agenda" />
 
-            {/* Encabezado con botón "+ Añadir" visible solo en móvil/tablet para Admin */}
+            {/* Encabezado con botón "+ Añadir" unificado (solo móvil/tablet para Admin) */}
             <div className="flex items-center justify-between gap-4">
                 <div>
                     <h1 className="text-titulo-1 font-bold text-neutro-900">
@@ -109,24 +111,27 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
                     <button
                         type="button"
                         onClick={abrirFormularioVacio}
-                        className="lg:hidden bg-primario-700 hover:bg-primario-900 text-white text-xs md:text-sm font-semibold px-4 py-2 rounded-lg shadow-sm transition cursor-pointer shrink-0"
+                        className="lg:hidden inline-flex items-center gap-1.5 bg-primario-500 hover:bg-primario-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer shrink-0"
                     >
-                        + Añadir
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Añadir</span>
                     </button>
                 )}
             </div>
 
+            {isAdmin && <FlashBanner />}
+
             {/* Barra de filtros y selector de mes */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
                 {isAdmin ? (
                     <div className="flex flex-wrap items-center gap-2">
                         <button
                             type="button"
                             onClick={() => setFiltro("todos")}
-                            className={`px-3.5 py-1 rounded-full text-xs font-semibold border transition cursor-pointer ${
+                            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition cursor-pointer ${
                                 filtro === "todos"
-                                    ? "bg-neutro-900 text-white border-transparent"
-                                    : "bg-white border-neutro-300 text-neutro-600 hover:bg-neutro-100"
+                                    ? "bg-neutro-900 text-white border-neutro-900"
+                                    : "bg-white text-neutro-600 border-neutro-100 hover:bg-neutro-50 hover:text-neutro-900"
                             }`}
                         >
                             Todos
@@ -134,13 +139,19 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
                         <button
                             type="button"
                             onClick={() => setFiltro("mantenimientos")}
-                            className={`px-3.5 py-1 rounded-full text-xs font-semibold border flex items-center gap-1.5 transition cursor-pointer ${
+                            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition cursor-pointer ${
                                 filtro === "mantenimientos"
-                                    ? "bg-neutro-900 text-white border-transparent"
-                                    : "bg-white border-neutro-300 text-neutro-600 hover:bg-neutro-100"
+                                    ? "bg-neutro-900 text-white border-neutro-900"
+                                    : "bg-white text-neutro-600 border-neutro-100 hover:bg-neutro-50 hover:text-neutro-900"
                             }`}
                         >
-                            <span className="w-2 h-2 rounded-full bg-neutro-900 inline-block"></span>
+                            <span
+                                className={`w-2 h-2 rounded-full inline-block ${
+                                    filtro === "mantenimientos"
+                                        ? "bg-white"
+                                        : "bg-neutro-900"
+                                }`}
+                            />
                             <span className="hidden sm:inline">
                                 Mantenimientos
                             </span>
@@ -149,13 +160,13 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
                         <button
                             type="button"
                             onClick={() => setFiltro("capacitaciones")}
-                            className={`px-3.5 py-1 rounded-full text-xs font-semibold border flex items-center gap-1.5 transition cursor-pointer ${
+                            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition cursor-pointer ${
                                 filtro === "capacitaciones"
-                                    ? "bg-neutro-900 text-white border-transparent"
-                                    : "bg-white border-neutro-300 text-neutro-600 hover:bg-neutro-100"
+                                    ? "bg-neutro-900 text-white border-neutro-900"
+                                    : "bg-white text-neutro-600 border-neutro-100 hover:bg-neutro-50 hover:text-neutro-900"
                             }`}
                         >
-                            <span className="w-2 h-2 rounded-full bg-[#1b9e85] inline-block"></span>
+                            <span className="w-2 h-2 rounded-full bg-acento-500 inline-block" />
                             <span className="hidden sm:inline">
                                 Capacitaciones
                             </span>
@@ -163,13 +174,13 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
                         </button>
                     </div>
                 ) : (
-                    <div className="px-3.5 py-1 rounded-full text-xs font-semibold border border-neutro-300 bg-white text-neutro-600 flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-[#1b9e85] inline-block"></span>
+                    <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border border-neutro-100 bg-white text-neutro-600">
+                        <span className="w-2 h-2 rounded-full bg-acento-500 inline-block" />
                         Capacitaciones
                     </div>
                 )}
 
-                {/* El selector de mes se oculta en móvil si el formulario está abierto */}
+                {/* Selector de mes */}
                 <div
                     className={`items-center gap-2 md:gap-3 text-sm font-semibold text-neutro-900 w-full sm:w-auto justify-between sm:justify-end ${
                         isAdmin && mostrarFormularioMovil
@@ -197,9 +208,8 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
                 </div>
             </div>
 
-            {/* Contenedor Principal:En escritorio muestra ambos; en móvil/tablet alterna entre calendario y formulario */}
-            <div className="flex flex-col lg:flex-row items-start gap-4 md:gap-6">
-                {/* Calendario:En móvil/tablet se oculta cuando el formulario está activo */}
+            {/* Contenedor Principal */}
+            <div className="flex flex-col lg:flex-row items-start gap-6">
                 <div
                     className={`w-full lg:flex-1 min-w-0 ${
                         isAdmin && mostrarFormularioMovil
@@ -216,20 +226,19 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
                     />
                 </div>
 
-                {/* Panel Lateral Admin:En escritorio siempre está fijo a la derecha; en móvil/tablet reemplaza al calendario */}
                 {isAdmin && (
                     <div
-                        className={`w-full lg:w-80 shrink-0 ${
+                        className={`w-full lg:w-80 shrink-0 lg:sticky lg:top-6 ${
                             mostrarFormularioMovil ? "block" : "hidden lg:block"
                         }`}
                     >
-                        {/* Botón para regresar al calendario (solo en móvil/tablet) */}
                         <button
                             type="button"
                             onClick={cerrarFormularioMovil}
-                            className="lg:hidden mb-3 inline-flex items-center gap-1.5 text-xs font-semibold text-primario-700 hover:text-primario-900 cursor-pointer"
+                            className="lg:hidden mb-3 group inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-neutro-100 hover:border-primario-300 hover:bg-primario-100/40 text-xs font-semibold text-neutro-900 hover:text-primario-700 shadow-xs transition-all cursor-pointer"
                         >
-                            <span>&larr;</span> Volver al calendario
+                            <ArrowLeft className="w-4 h-4 text-neutro-600 group-hover:text-primario-700 transition-transform duration-200 group-hover:-translate-x-0.5" />
+                            <span>Volver al calendario</span>
                         </button>
 
                         <AgendaSidePanel
