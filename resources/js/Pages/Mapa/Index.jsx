@@ -95,7 +95,7 @@ export default function Index({
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Columna Izquierda (2/3): Croquis Interactivo */}
                     <div className="lg:col-span-2">
-                        <div className="bg-white rounded-xl p-6 shadow-sm border border-neutro-100 min-h-[420px]">
+                        <div className="bg-white rounded-xl p-5 shadow-sm border border-neutro-100 min-h-[420px]">
                             <Croquis
                                 instalaciones={instalaciones}
                                 porEdificio={porEdificio}
@@ -105,7 +105,7 @@ export default function Index({
                     </div>
 
                     {/* Columna Derecha (1/3): Resumen e Instalaciones desde BD */}
-                    <div className="bg-white rounded-xl p-6 shadow-sm border border-neutro-100 flex flex-col h-full">
+                    <div className="bg-white rounded-xl p-5 shadow-sm border border-neutro-100 flex flex-col h-full">
                         <div className="flex-1">
                             <h3 className="text-titulo-2 font-bold text-neutro-900">
                                 Toda la institución
@@ -147,7 +147,7 @@ export default function Index({
                             </p>
 
                             {/* Lista dinámica armada con la prop instalaciones y porEdificio */}
-                            <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+                            <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
                                 {instalacionesLista.map((inst) => {
                                     const stats =
                                         porEdificio[inst.nombre] || {};
