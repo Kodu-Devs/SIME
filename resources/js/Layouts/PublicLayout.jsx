@@ -6,6 +6,7 @@ import {
     Phone,
     AlertTriangle,
     ShieldCheck,
+    HelpCircle,
 } from "lucide-react";
 
 export default function PublicLayout({
@@ -79,16 +80,30 @@ export default function PublicLayout({
                 </nav>
 
                 {/* Derecha: Botón Acceso Administrador (Visible en Desktop y adaptado en Móvil) */}
-                <Link
-                    href={route("login")}
-                    className="inline-flex items-center gap-2 rounded-lg border border-neutro-100 px-3 sm:px-4 py-2 text-xs sm:text-etiqueta text-neutro-900 hover:bg-neutro-50 transition shrink-0"
-                >
-                    <ShieldCheck className="w-4 h-4 text-primario-700 shrink-0" />
-                    <span className="hidden sm:inline">
-                        Acceso Administrador
-                    </span>
-                    <span className="sm:hidden font-semibold">Admin</span>
-                </Link>
+                {/* Derecha: Botón de Ayuda + Acceso Administrador */}
+                <div className="flex items-center gap-2 shrink-0">
+                    <a
+                        href="/manuales/manual-usuario.pdf"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Manual de usuario"
+                        aria-label="Abrir manual de usuario"
+                        className="p-2 rounded-full text-neutro-600 hover:bg-neutro-50 hover:text-neutro-900 transition"
+                    >
+                        <HelpCircle className="w-5 h-5" />
+                    </a>
+
+                    <Link
+                        href={route("login")}
+                        className="inline-flex items-center gap-2 rounded-lg border border-neutro-100 px-3 sm:px-4 py-2 text-xs sm:text-etiqueta text-neutro-900 hover:bg-neutro-50 transition shrink-0"
+                    >
+                        <ShieldCheck className="w-4 h-4 text-primario-700 shrink-0" />
+                        <span className="hidden sm:inline">
+                            Acceso Administrador
+                        </span>
+                        <span className="sm:hidden font-semibold">Admin</span>
+                    </Link>
+                </div>
             </header>
 
             {/* 3. CONTENIDO DE LA VISTA PÚBLICA */}

@@ -613,7 +613,7 @@ export default function VistaIsometrica({ edificio, onVolver, onSelectPiso }) {
 
     return (
         <div className="w-full bg-white rounded-xl shadow-sm border border-neutro-100 p-4 sm:p-6 flex flex-col items-center">
-            <div className="w-full flex justify-between items-center gap-3 mb-4 pb-3 border-b border-neutro-100">
+            <div className="w-full flex justify-between items-center gap-3 mb-3 pb-3 border-b border-neutro-100">
                 <div>
                     <h2 className="text-titulo-2 font-bold text-neutro-900">
                         {edificio}

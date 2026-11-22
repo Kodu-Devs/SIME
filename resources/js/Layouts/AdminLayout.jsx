@@ -18,6 +18,7 @@ import {
     Clock,
     Info,
     ArrowRight,
+    HelpCircle,
 } from "lucide-react";
 
 export default function AdminLayout({ children }) {
@@ -182,7 +183,19 @@ export default function AdminLayout({ children }) {
                     <BarraBusqueda />
 
                     {/* Acciones Derecha: Campana de Notificaciones + Menú Administrador */}
-                    <div className="flex items-center gap-3 relative">
+                    {/* Acciones Derecha: Ayuda + Campana de Notificaciones + Menú Administrador */}
+                    <div className="flex items-center gap-2 sm:gap-3 relative">
+                        <a
+                            href="/manuales/manual-administrador.pdf"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Manual de administrador"
+                            aria-label="Abrir manual de administrador"
+                            className="p-2 rounded-full text-neutro-600 hover:bg-neutro-50 hover:text-neutro-900 transition"
+                        >
+                            <HelpCircle className="w-5 h-5" />
+                        </a>
+
                         <div ref={popoverRef} className="relative">
                             <button
                                 type="button"
