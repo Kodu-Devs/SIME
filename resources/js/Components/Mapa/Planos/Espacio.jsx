@@ -75,18 +75,52 @@ export default function Espacio({
     const zona = matchNombre || texto || tipo;
 
     const centerX = textX !== undefined ? textX : x + width / 2;
-    const centerY =
-        textY !== undefined ? textY : y + height / 2 + config.fontSize / 3;
+    const centerY = textY !== undefined ? textY : y + height / 2;
+
+    // 1. Detectar si el cuarto es angosto y alto (ej. Oficina de cómputo, Administración)
+    const anchoEstimado = texto.length * (config.fontSize * 0.6);
+    const rotarVertical =
+        width > 0 &&
+        height > 0 &&
+        width <= 80 &&
+        height >= width * 1.8 &&
+        anchoEstimado > width - 8;
+
+    // 2. Dividir en líneas si no rota y el texto excede el ancho del cuarto (ej. Lab. Programación)
+    const lineas = (() => {
+        if (!texto || rotarVertical || !width || anchoEstimado <= width - 12) {
+            return [texto];
+        }
+        const maxChars = Math.max(
+            6,
+            Math.floor((width - 12) / (config.fontSize * 0.6)),
+        );
+        const palabras = texto.split(" ");
+        const resultado = [];
+        let actual = "";
+
+        palabras.forEach((palabra) => {
+            const prueba = actual ? `${actual} ${palabra}` : palabra;
+            if (prueba.length <= maxChars || !actual) {
+                actual = prueba;
+            } else {
+                resultado.push(actual);
+                actual = palabra;
+            }
+        });
+        if (actual) resultado.push(actual);
+        return resultado;
+    })();
+
+    const altoLinea = config.fontSize + 3;
+    const yInicial =
+        centerY - ((lineas.length - 1) * altoLinea) / 2 + config.fontSize / 3;
 
     return (
         <g
             data-zona={zona}
             onClick={onClick}
-            className={
-                onClick
-                    ? "cursor-pointer hover:opacity-80 transition-opacity"
-                    : ""
-            }
+            className={onClick ? "group cursor-pointer" : ""}
         >
             {customPath ? (
                 <path
@@ -110,15 +144,32 @@ export default function Espacio({
             {texto && (
                 <text
                     x={centerX}
-                    y={centerY}
+                    y={rotarVertical ? centerY + config.fontSize / 3 : yInicial}
                     textAnchor="middle"
                     fill={config.textColor}
-                    fontSize={config.fontSize}
+                    fontSize={
+                        rotarVertical
+                            ? Math.min(config.fontSize, 12)
+                            : config.fontSize
+                    }
                     fontWeight="bold"
                     fontFamily="Manrope, sans-serif"
+                    transform={
+                        rotarVertical
+                            ? `rotate(-90 ${centerX} ${centerY})`
+                            : undefined
+                    }
                     className="select-none pointer-events-none"
                 >
-                    {texto}
+                    {lineas.map((linea, idx) => (
+                        <tspan
+                            key={idx}
+                            x={centerX}
+                            dy={idx === 0 ? 0 : altoLinea}
+                        >
+                            {linea}
+                        </tspan>
+                    ))}
                 </text>
             )}
         </g>

@@ -3,6 +3,7 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import PublicLayout from "@/Layouts/PublicLayout";
 import VistaIsometrica from "@/Components/Mapa/Planos/VistaIsometrica";
 import Planta from "@/Components/Mapa/Planta";
+import MapaBreadcrumbs from "@/Components/Mapa/MapaBreadcrumbs";
 
 export default function Edificio({ instalacion }) {
     const { auth } = usePage().props;
@@ -50,18 +51,12 @@ export default function Edificio({ instalacion }) {
                             : "¿Dónde está el extintor más cercano?"}
                     </h1>
 
-                    <div className="flex items-center gap-2 text-xs text-neutro-600 mt-1">
-                        <Link
-                            href={route("mapa.index")}
-                            className="text-primario-500 hover:underline font-semibold"
-                        >
-                            Institución
-                        </Link>
-                        <span className="text-neutro-300">/</span>
-                        <span className="text-neutro-900 font-bold">
-                            {nombreEdificio}
-                        </span>
-                    </div>
+                    <MapaBreadcrumbs
+                        items={[
+                            { label: "Institución", href: route("mapa.index") },
+                            { label: nombreEdificio },
+                        ]}
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

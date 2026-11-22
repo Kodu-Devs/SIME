@@ -65,7 +65,7 @@ class ResumenExtintores
     {
         return Instalacion::where('tipo', 'Edificio')->count();
     }
-        public function extintorVencidoUrgente(): ?array
+    public function extintorVencidoUrgente(): ?array
     {
         $extintor = Extintor::vencidos()
             ->join('ubicaciones', 'extintores.ubicacion_id', '=', 'ubicaciones.id')
@@ -107,7 +107,7 @@ class ResumenExtintores
             ->orderBy('fecha_programada')
             ->limit($limite)
             ->get()
-            ->map(fn ($m) => [
+            ->map(fn($m) => [
                 'id'        => $m->id,
                 'clase'     => 'mantenimiento',
                 'titulo'    => $m->tipo . ' ' . ($m->extintor->etiqueta_inventario ?? ''),
@@ -120,7 +120,7 @@ class ResumenExtintores
             ->orderBy('fecha_hora')
             ->limit($limite)
             ->get()
-            ->map(fn ($c) => [
+            ->map(fn($c) => [
                 'id'        => $c->id,
                 'clase'     => 'capacitacion',
                 'titulo'    => $c->nombre,
@@ -132,8 +132,62 @@ class ResumenExtintores
             ->concat($capacitaciones)
             ->sortBy('fecha')
             ->take($limite)
-            ->map(fn ($e) => [...$e, 'fecha' => $e['fecha']->toDateString()])
+            ->map(fn($e) => [...$e, 'fecha' => $e['fecha']->toDateString()])
             ->values()
             ->all();
+    }
+    /**
+     * Devuelve las instalaciones y el desglose de estados por edificio
+     * para alimentar el Croquis tanto en Mapa como en Dashboard.
+     */
+    public function resumenParaMapa(): array
+    {
+        $instalaciones = Instalacion::select('instalaciones.id', 'instalaciones.nombre')
+            ->selectSub(function ($query) {
+                $query->from('extintores')
+                    ->join('ubicaciones', 'extintores.ubicacion_id', '=', 'ubicaciones.id')
+                    ->join('pisos', 'ubicaciones.piso_id', '=', 'pisos.id')
+                    ->whereColumn('pisos.instalacion_id', 'instalaciones.id')
+                    ->where('extintores.estatus', '!=', 'Baja')
+                    ->selectRaw('count(*)');
+            }, 'extintores_count')
+            ->selectSub(
+                Extintor::vencidos()
+                    ->join('ubicaciones', 'extintores.ubicacion_id', '=', 'ubicaciones.id')
+                    ->join('pisos', 'ubicaciones.piso_id', '=', 'pisos.id')
+                    ->whereColumn('pisos.instalacion_id', 'instalaciones.id')
+                    ->selectRaw('count(*)'),
+                'vencidos_count'
+            )
+            ->selectSub(
+                Extintor::porVencer()
+                    ->join('ubicaciones', 'extintores.ubicacion_id', '=', 'ubicaciones.id')
+                    ->join('pisos', 'ubicaciones.piso_id', '=', 'pisos.id')
+                    ->whereColumn('pisos.instalacion_id', 'instalaciones.id')
+                    ->selectRaw('count(*)'),
+                'por_vencer_count'
+            )
+            ->get();
+
+        $porEdificio = $instalaciones->mapWithKeys(function ($inst) {
+            $total = (int) ($inst->extintores_count ?? 0);
+            $vencidos = (int) ($inst->vencidos_count ?? 0);
+            $porVencer = (int) ($inst->por_vencer_count ?? 0);
+            $vigentes = max(0, $total - $vencidos - $porVencer);
+
+            return [
+                $inst->nombre => [
+                    'total'      => $total,
+                    'vigentes'   => $vigentes,
+                    'por_vencer' => $porVencer,
+                    'vencidos'   => $vencidos,
+                ],
+            ];
+        });
+
+        return [
+            'instalaciones' => $instalaciones,
+            'porEdificio'   => $porEdificio,
+        ];
     }
 }

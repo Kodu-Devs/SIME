@@ -3,6 +3,7 @@ import { Head, Link, router, usePage } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import PublicLayout from "@/Layouts/PublicLayout";
 import Planta from "@/Components/Mapa/Planta";
+import MapaBreadcrumbs from "@/Components/Mapa/MapaBreadcrumbs";
 import {
     MapPin,
     Flame,
@@ -17,19 +18,19 @@ const ESTILOS_ESTADO = {
         texto: "Vigente",
         badge: "bg-acento-500/15 text-acento-500 border-acento-500/30",
         punto: "bg-acento-500",
-        hex: "#10b981",
+        hex: "#1C9691",
     },
     por_vencer: {
         texto: "Por vencer",
         badge: "bg-amber-100 text-amber-800 border-amber-300",
         punto: "bg-amber-500",
-        hex: "#f59e0b",
+        hex: "#F59E0B",
     },
     vencido: {
         texto: "Vencido",
         badge: "bg-primario-100 text-primario-700 border-primario-300",
         punto: "bg-primario-500",
-        hex: "#ef4444",
+        hex: "#F24C52",
     },
 };
 
@@ -43,6 +44,22 @@ export default function Piso({
     const Layout = isAdmin ? AdminLayout : PublicLayout;
 
     const contenedorPlanoRef = useRef(null);
+    const tarjetasExtintorRef = useRef({});
+
+    const enfocarExtintorEnPanel = (extId) => {
+        setExtintorActivoId(extId);
+
+        requestAnimationFrame(() => {
+            const tarjeta = tarjetasExtintorRef.current[extId];
+            if (tarjeta) {
+                tarjeta.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                    inline: "nearest",
+                });
+            }
+        });
+    };
     const [extintorActivoId, setExtintorActivoId] = useState(null);
     const [extintorAQuitar, setExtintorAQuitar] = useState(null);
     const [extintorParaColocar, setExtintorParaColocar] = useState(null);
@@ -216,36 +233,32 @@ export default function Piso({
                             : "¿Dónde está el extintor más cercano?"}
                     </h1>
 
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-neutro-600 mt-1">
-                        <Link
-                            href={route("mapa.index")}
-                            className="text-primario-500 hover:underline font-semibold"
-                        >
-                            Institución
-                        </Link>
-                        <span className="text-neutro-300">/</span>
-                        {esEdificioDeUnPiso ? (
-                            <span className="text-neutro-900 font-bold">
-                                {nombreEdificio}
-                            </span>
-                        ) : (
-                            <>
-                                <Link
-                                    href={route(
-                                        "mapa.edificio",
-                                        instalacion?.id,
-                                    )}
-                                    className="text-primario-500 hover:underline font-semibold"
-                                >
-                                    {nombreEdificio}
-                                </Link>
-                                <span className="text-neutro-300">/</span>
-                                <span className="text-neutro-900 font-bold">
-                                    {piso?.nombre}
-                                </span>
-                            </>
-                        )}
-                    </div>
+                    <MapaBreadcrumbs
+                        items={
+                            esEdificioDeUnPiso
+                                ? [
+                                      {
+                                          label: "Institución",
+                                          href: route("mapa.index"),
+                                      },
+                                      { label: nombreEdificio },
+                                  ]
+                                : [
+                                      {
+                                          label: "Institución",
+                                          href: route("mapa.index"),
+                                      },
+                                      {
+                                          label: nombreEdificio,
+                                          href: route(
+                                              "mapa.edificio",
+                                              instalacion?.id,
+                                          ),
+                                      },
+                                      { label: piso?.nombre },
+                                  ]
+                        }
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -261,7 +274,7 @@ export default function Piso({
                                 setExtintorParaColocar(null)
                             }
                             onSeleccionarExtintor={(ext) =>
-                                setExtintorActivoId(ext.id)
+                                enfocarExtintorEnPanel(ext.id)
                             }
                             onVolver={volverAtras}
                             onSeleccionarEspacio={(espacio) => {
@@ -276,7 +289,9 @@ export default function Piso({
                                             ) && espacio?.nombre,
                                 );
                                 if (match?.extintores?.[0]) {
-                                    setExtintorActivoId(match.extintores[0].id);
+                                    enfocarExtintorEnPanel(
+                                        match.extintores[0].id,
+                                    );
                                 }
                             }}
                             isAdmin={isAdmin}
@@ -443,6 +458,24 @@ export default function Piso({
                                                             return (
                                                                 <div
                                                                     key={ext.id}
+                                                                    ref={(
+                                                                        el,
+                                                                    ) => {
+                                                                        if (
+                                                                            el
+                                                                        ) {
+                                                                            tarjetasExtintorRef.current[
+                                                                                ext.id
+                                                                            ] =
+                                                                                el;
+                                                                        } else {
+                                                                            delete tarjetasExtintorRef
+                                                                                .current[
+                                                                                ext
+                                                                                    .id
+                                                                            ];
+                                                                        }
+                                                                    }}
                                                                     draggable={
                                                                         isAdmin
                                                                     }

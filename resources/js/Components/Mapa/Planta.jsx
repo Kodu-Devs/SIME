@@ -2,7 +2,13 @@ import React, { useRef, useState } from "react";
 import PlantaBaja from "@/Components/Mapa/Planos/PlantaBaja";
 import PlantaAlta from "@/Components/Mapa/Planos/PlantaAlta";
 import NivelesEdificioE from "@/Components/Mapa/Planos/Niveles";
-import { FireExtinguisher, Crosshair, X, AlertCircle } from "lucide-react";
+import {
+    FireExtinguisher,
+    Crosshair,
+    X,
+    AlertCircle,
+    ArrowLeft,
+} from "lucide-react";
 
 const normalizarTexto = (texto = "") =>
     texto
@@ -38,6 +44,16 @@ export default function Planta({
     const esPlantaAltaABCD =
         (piso === "Nivel 1" || piso === "Planta alta") &&
         edificio !== "Edificio E";
+
+    const esCafeteria =
+        edificio === "Cafetería y SUM" || edificio === "Cafetería";
+
+    // Mantiene la caja de coordenadas (planoRef) pegada al borde real del SVG sin espacio sobrante
+    const claseAspectoPlano = esCafeteria
+        ? "max-w-[580px] aspect-[668/530]"
+        : esPlantaBajaOUnica
+          ? "max-w-[816px] aspect-[876/493]"
+          : "max-w-[824px] aspect-[876/489]";
 
     const obtenerColorExtintor = (estado) => {
         if (estado === "vencido") {
@@ -233,9 +249,10 @@ export default function Planta({
                 <button
                     type="button"
                     onClick={onVolver}
-                    className="text-xs font-medium bg-neutro-100 hover:bg-neutro-300/40 text-neutro-900 px-3.5 py-2 rounded-lg transition-colors"
+                    className="group inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-neutro-100 hover:border-primario-300 hover:bg-primario-100/40 text-xs font-semibold text-neutro-900 hover:text-primario-700 shadow-xs transition-all cursor-pointer shrink-0"
                 >
-                    ← Volver
+                    <ArrowLeft className="w-4 h-4 text-neutro-600 group-hover:text-primario-700 transition-transform duration-200 group-hover:-translate-x-0.5" />
+                    <span>Volver</span>
                 </button>
             </div>
 
@@ -281,109 +298,119 @@ export default function Planta({
                 </div>
             )}
 
+            {/* Marco exterior visual */}
             <div
-                ref={planoRef}
-                onClick={manejarClickPlano}
-                className={`w-full flex justify-center items-center min-h-[340px] sm:min-h-[440px] rounded-xl p-2 border relative overflow-hidden transition-all duration-200 ${
+                className={`w-full flex justify-center items-center rounded-xl p-2 sm:p-3 border overflow-hidden transition-all duration-200 ${
                     isDraggingOver || extintorParaColocar
-                        ? "bg-primario-50/20 border-primario-500 ring-2 ring-primario-500 cursor-crosshair"
+                        ? "bg-primario-50/20 border-primario-500 ring-2 ring-primario-500"
                         : "bg-neutro-50 border-neutro-100"
                 }`}
-                onDragOver={(e) => {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = "move";
-                    setIsDraggingOver(true);
-                }}
-                onDragLeave={() => setIsDraggingOver(false)}
-                onDrop={manejarDrop}
             >
-                {esPlantaBajaOUnica && (
-                    <PlantaBaja
-                        edificio={edificio}
-                        onSeleccionarEspacio={
-                            extintorParaColocar
-                                ? undefined
-                                : onSeleccionarEspacio
-                        }
-                    />
-                )}
-
-                {esPlantaAltaABCD && (
-                    <PlantaAlta
-                        edificio={edificio}
-                        onSeleccionarEspacio={
-                            extintorParaColocar
-                                ? undefined
-                                : onSeleccionarEspacio
-                        }
-                    />
-                )}
-
-                {esNivelSuperiorE && (
-                    <NivelesEdificioE
-                        piso={piso}
-                        onSeleccionarEspacio={
-                            extintorParaColocar
-                                ? undefined
-                                : onSeleccionarEspacio
-                        }
-                    />
-                )}
-
-                {!esPlantaBajaOUnica &&
-                    !esPlantaAltaABCD &&
-                    !esNivelSuperiorE && (
-                        <div className="text-neutro-600 text-sm">
-                            Plano de {piso} en preparación
-                        </div>
+                {/* Contenedor interno exacto del SVG: referencia única para Drop, Click y Pines */}
+                <div
+                    ref={planoRef}
+                    onClick={manejarClickPlano}
+                    onDragOver={(e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = "move";
+                        setIsDraggingOver(true);
+                    }}
+                    onDragLeave={() => setIsDraggingOver(false)}
+                    onDrop={manejarDrop}
+                    className={`relative w-full ${claseAspectoPlano} ${
+                        isDraggingOver || extintorParaColocar
+                            ? "cursor-crosshair"
+                            : ""
+                    }`}
+                >
+                    {esPlantaBajaOUnica && (
+                        <PlantaBaja
+                            edificio={edificio}
+                            onSeleccionarEspacio={
+                                extintorParaColocar
+                                    ? undefined
+                                    : onSeleccionarEspacio
+                            }
+                        />
                     )}
 
-                {/* Pines individuales por cada extintor ubicado */}
-                {extintoresUbicados.map((ext) => {
-                    const colorClase = obtenerColorExtintor(ext.estado);
-                    const activo = extintorActivoId === ext.id;
+                    {esPlantaAltaABCD && (
+                        <PlantaAlta
+                            edificio={edificio}
+                            onSeleccionarEspacio={
+                                extintorParaColocar
+                                    ? undefined
+                                    : onSeleccionarEspacio
+                            }
+                        />
+                    )}
 
-                    return (
-                        <button
-                            key={ext.id}
-                            type="button"
-                            draggable={isAdmin}
-                            onDragStart={(e) => {
-                                if (!isAdmin) return;
-                                e.stopPropagation();
-                                e.dataTransfer.setData(
-                                    "application/json",
-                                    JSON.stringify({
-                                        ubicacionId: ext.ubicacionId,
-                                        extintorId: ext.id,
-                                    }),
-                                );
-                                e.dataTransfer.effectAllowed = "move";
-                            }}
-                            onClick={(e) => {
-                                if (extintorParaColocar) return;
-                                e.stopPropagation();
-                                onSeleccionarExtintor?.(ext);
-                            }}
-                            style={{
-                                left: `${ext.coord.x}%`,
-                                top: `${ext.coord.y}%`,
-                            }}
-                            title={`${ext.etiqueta} — ${ext.ubicacionNombre} (${ext.tipo} ${ext.capacidad})`}
-                            className={`absolute -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-2 shadow-md flex items-center justify-center transition-transform ${colorClase} ${
-                                activo
-                                    ? "scale-125 ring-2 ring-neutro-900 z-20"
-                                    : "hover:scale-110 z-10"
-                            } ${
-                                isAdmin
-                                    ? "cursor-grab active:cursor-grabbing"
-                                    : "cursor-pointer"
-                            }`}
-                        >
-                            <FireExtinguisher className="w-4 h-4 stroke-[2.2]" />
-                        </button>
-                    );
-                })}
+                    {esNivelSuperiorE && (
+                        <NivelesEdificioE
+                            piso={piso}
+                            onSeleccionarEspacio={
+                                extintorParaColocar
+                                    ? undefined
+                                    : onSeleccionarEspacio
+                            }
+                        />
+                    )}
+
+                    {!esPlantaBajaOUnica &&
+                        !esPlantaAltaABCD &&
+                        !esNivelSuperiorE && (
+                            <div className="w-full h-full flex items-center justify-center text-neutro-600 text-sm">
+                                Plano de {piso} en preparación
+                            </div>
+                        )}
+
+                    {/* Pines individuales por cada extintor ubicado */}
+                    {extintoresUbicados.map((ext) => {
+                        const colorClase = obtenerColorExtintor(ext.estado);
+                        const activo = extintorActivoId === ext.id;
+
+                        return (
+                            <button
+                                key={ext.id}
+                                type="button"
+                                draggable={isAdmin}
+                                onDragStart={(e) => {
+                                    if (!isAdmin) return;
+                                    e.stopPropagation();
+                                    e.dataTransfer.setData(
+                                        "application/json",
+                                        JSON.stringify({
+                                            ubicacionId: ext.ubicacionId,
+                                            extintorId: ext.id,
+                                        }),
+                                    );
+                                    e.dataTransfer.effectAllowed = "move";
+                                }}
+                                onClick={(e) => {
+                                    if (extintorParaColocar) return;
+                                    e.stopPropagation();
+                                    onSeleccionarExtintor?.(ext);
+                                }}
+                                style={{
+                                    left: `${ext.coord.x}%`,
+                                    top: `${ext.coord.y}%`,
+                                }}
+                                title={`${ext.etiqueta} — ${ext.ubicacionNombre} (${ext.tipo} ${ext.capacidad})`}
+                                className={`absolute -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-2 shadow-md flex items-center justify-center transition-transform ${colorClase} ${
+                                    activo
+                                        ? "scale-125 ring-2 ring-neutro-900 z-20"
+                                        : "hover:scale-110 z-10"
+                                } ${
+                                    isAdmin
+                                        ? "cursor-grab active:cursor-grabbing"
+                                        : "cursor-pointer"
+                                }`}
+                            >
+                                <FireExtinguisher className="w-4 h-4 stroke-[2.2]" />
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );
