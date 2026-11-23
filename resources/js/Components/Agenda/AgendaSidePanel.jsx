@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
+import { X } from "lucide-react";
 import { router, usePage } from "@inertiajs/react";
 
 export default function AgendaSidePanel({
     combos = {},
     eventoSeleccionado = null,
+    extintorInicial = null,
     onCancelMovil,
     onSuccess,
     onClearSelection,
     tabInicial = "mantenimiento",
 }) {
-    const { errors, flash } = usePage().props;
+    const { errors } = usePage().props;
     const [activeTab, setActiveTab] = useState(tabInicial);
     const [procesando, setProcesando] = useState(false);
 
@@ -168,6 +170,29 @@ export default function AgendaSidePanel({
         }
     }, [eventoSeleccionado]);
 
+    useEffect(() => {
+        if (eventoSeleccionado || !extintorInicial) return;
+
+        const buscado = String(extintorInicial).trim().toLowerCase();
+        const encontrado = extintoresMantenimiento.find(
+            (ext) =>
+                String(ext.id) === buscado ||
+                String(ext.etiqueta_inventario || "")
+                    .trim()
+                    .toLowerCase() === buscado,
+        );
+
+        if (encontrado) {
+            setActiveTab("mantenimiento");
+            setExtintorSeleccionadoId(encontrado.id);
+        }
+    }, [extintorInicial, eventoSeleccionado, extintoresMantenimiento]);
+
+    const handleCancelarEdicion = () => {
+        limpiarFormularios();
+        onClearSelection?.();
+    };
+
     const extintorSeleccionado =
         extintoresMantenimiento.find(
             (ext) => ext.id.toString() === extintorSeleccionadoId.toString(),
@@ -296,38 +321,49 @@ export default function AgendaSidePanel({
         });
     };
 
+    const inputClass =
+        "w-full bg-white border border-neutro-100 rounded-lg px-3 py-2 text-xs text-neutro-900 font-medium focus:outline-none focus:border-primario-500 focus:ring-1 focus:ring-primario-500";
+
     return (
-        <aside className="w-full lg:w-80 bg-white border border-neutro-300 rounded-xl p-3.5 flex flex-col gap-2.5 shadow-sm font-sans shrink-0">
-            <div className="flex items-center justify-between">
-                <h2 className="text-base font-bold text-neutro-900 leading-tight">
-                    {activeTab === "capacitacion"
-                        ? eventoSeleccionado
-                            ? "Detalles de Capacitación"
-                            : "Nueva Capacitación"
-                        : eventoSeleccionado
-                          ? "Detalles de Mantenimiento"
-                          : "Programar Mantenimiento"}
-                </h2>
-                {eventoSeleccionado && (
-                    <span className="text-[11px] font-semibold bg-neutro-100 text-neutro-600 px-2 py-0.5 rounded-full">
-                        Edición
-                    </span>
-                )}
+        <aside className="w-full bg-white border border-neutro-100 rounded-xl p-5 flex flex-col gap-3.5 shadow-sm shrink-0">
+            <div>
+                <div className="flex items-start justify-between gap-2">
+                    <h2 className="text-base font-bold text-neutro-900 leading-tight">
+                        {activeTab === "capacitacion"
+                            ? eventoSeleccionado
+                                ? "Detalles de Capacitación"
+                                : "Nueva Capacitación"
+                            : eventoSeleccionado
+                              ? "Detalles de Mantenimiento"
+                              : "Programar Mantenimiento"}
+                    </h2>
+
+                    {eventoSeleccionado && (
+                        <button
+                            type="button"
+                            onClick={handleCancelarEdicion}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-neutro-100 bg-neutro-50 hover:bg-primario-100 hover:border-primario-300 hover:text-primario-700 text-[11px] font-semibold text-neutro-600 transition-colors cursor-pointer shrink-0"
+                        >
+                            <X className="w-3.5 h-3.5" />
+                            <span>Cancelar</span>
+                        </button>
+                    )}
+                </div>
+
+                <span className="inline-block mt-2 bg-acento-500/15 text-acento-500 text-[11px] font-semibold px-3 py-0.5 rounded-full">
+                    {eventoSeleccionado
+                        ? "Modo edición · Evento seleccionado"
+                        : "Modo creación · Sin selección"}
+                </span>
             </div>
 
-            {flash?.error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg p-2.5">
-                    {flash.error}
-                </div>
-            )}
-
-            <div className="flex bg-neutro-100 p-1 rounded-lg">
+            <div className="flex bg-neutro-50 border border-neutro-100 p-1 rounded-lg">
                 <button
                     type="button"
                     onClick={() => handleCambiarTab("mantenimiento")}
-                    className={`flex-1 py-1.5 text-[11px] md:text-xs font-semibold rounded-md transition cursor-pointer ${
+                    className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition cursor-pointer ${
                         activeTab === "mantenimiento"
-                            ? "bg-white text-neutro-900 shadow-sm"
+                            ? "bg-white text-neutro-900 shadow-xs"
                             : "text-neutro-600 hover:text-neutro-900"
                     }`}
                 >
@@ -337,9 +373,9 @@ export default function AgendaSidePanel({
                 <button
                     type="button"
                     onClick={() => handleCambiarTab("capacitacion")}
-                    className={`flex-1 py-1.5 text-[11px] md:text-xs font-semibold rounded-md transition cursor-pointer ${
+                    className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition cursor-pointer ${
                         activeTab === "capacitacion"
-                            ? "bg-white text-neutro-900 shadow-sm"
+                            ? "bg-white text-neutro-900 shadow-xs"
                             : "text-neutro-600 hover:text-neutro-900"
                     }`}
                 >
@@ -350,10 +386,10 @@ export default function AgendaSidePanel({
             {activeTab === "capacitacion" ? (
                 <form
                     onSubmit={handleSubmitCapacitacion}
-                    className="flex flex-col gap-2"
+                    className="flex flex-col gap-3 text-xs"
                 >
-                    <div className="flex flex-col gap-1">
-                        <label className="text-etiqueta text-neutro-900">
+                    <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-neutro-900">
                             Nombre
                         </label>
                         <input
@@ -366,19 +402,19 @@ export default function AgendaSidePanel({
                                     nombre: e.target.value,
                                 })
                             }
-                            className="border border-neutro-300 rounded-md px-3 py-1 text-xs text-neutro-900 focus:border-primario-700 focus:ring-0"
+                            className={inputClass}
                         />
                         {errors?.nombre && (
-                            <span className="text-red-600 text-[11px]">
+                            <span className="text-primario-700 text-[11px]">
                                 {errors.nombre}
                             </span>
                         )}
                     </div>
 
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-1.5">
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="flex flex-col gap-1">
-                                <label className="text-etiqueta text-neutro-900">
+                            <div className="flex flex-col gap-1.5">
+                                <label className="font-bold text-neutro-900">
                                     Fecha
                                 </label>
                                 <input
@@ -391,11 +427,11 @@ export default function AgendaSidePanel({
                                             fecha: e.target.value,
                                         })
                                     }
-                                    className="border border-neutro-300 rounded-md px-2 py-1 text-xs text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                    className={inputClass}
                                 />
                             </div>
-                            <div className="flex flex-col gap-1">
-                                <label className="text-etiqueta text-neutro-900">
+                            <div className="flex flex-col gap-1.5">
+                                <label className="font-bold text-neutro-900">
                                     Hora
                                 </label>
                                 <input
@@ -408,19 +444,19 @@ export default function AgendaSidePanel({
                                             hora: e.target.value,
                                         })
                                     }
-                                    className="border border-neutro-300 rounded-md px-2 py-1 text-xs text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                    className={inputClass}
                                 />
                             </div>
                         </div>
                         {errors?.fecha_hora && (
-                            <span className="text-red-600 text-[11px]">
+                            <span className="text-primario-700 text-[11px]">
                                 {errors.fecha_hora}
                             </span>
                         )}
                     </div>
 
-                    <div className="flex flex-col gap-1">
-                        <label className="text-etiqueta text-neutro-900">
+                    <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-neutro-900">
                             Lugar
                         </label>
                         {ubicacionesPlanas.length > 0 ? (
@@ -433,7 +469,7 @@ export default function AgendaSidePanel({
                                         ubicacion_id: e.target.value,
                                     })
                                 }
-                                className="border border-neutro-300 rounded-md px-3 py-1 text-xs text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                className={inputClass}
                             >
                                 <option value="" disabled>
                                     Seleccione una ubicación
@@ -455,26 +491,26 @@ export default function AgendaSidePanel({
                                         ubicacion_id: e.target.value,
                                     })
                                 }
-                                className="border border-neutro-300 rounded-md px-3 py-1 text-xs text-neutro-900 focus:border-primario-700 focus:ring-0"
+                                className={inputClass}
                             />
                         )}
                         {errors?.ubicacion_id && (
-                            <span className="text-red-600 text-[11px]">
+                            <span className="text-primario-700 text-[11px]">
                                 {errors.ubicacion_id}
                             </span>
                         )}
                     </div>
 
-                    <div className="flex flex-col gap-1.5 mt-1">
-                        <span className="text-xs font-bold text-neutro-300 uppercase">
+                    <div className="flex flex-col gap-1.5">
+                        <span className="text-[11px] font-bold text-neutro-600 uppercase tracking-wider">
                             Extintores para la práctica
                         </span>
 
-                        <div className="max-h-20 overflow-y-auto flex flex-col gap-1.5 pr-1">
+                        <div className="max-h-24 overflow-y-auto flex flex-col gap-1.5 p-2.5 bg-neutro-50 border border-neutro-100 rounded-lg">
                             {extintoresCapacitacion.map((extintor) => (
                                 <label
                                     key={extintor.id}
-                                    className="flex items-center gap-2 text-[11px] md:text-xs text-neutro-900 cursor-pointer"
+                                    className="flex items-center gap-2 text-xs text-neutro-900 cursor-pointer"
                                 >
                                     <input
                                         type="checkbox"
@@ -501,26 +537,28 @@ export default function AgendaSidePanel({
                                                       ),
                                             }));
                                         }}
-                                        className="rounded border-neutro-300 text-primario-700 focus:ring-0 cursor-pointer"
+                                        className="rounded border-neutro-300 text-primario-500 focus:ring-primario-500 cursor-pointer"
                                     />
-                                    {extintor.etiqueta_inventario}
+                                    <span className="font-mono text-[11px]">
+                                        {extintor.etiqueta_inventario}
+                                    </span>
                                 </label>
                             ))}
                         </div>
                         {errors?.extintores_id && (
-                            <span className="text-red-600 text-[11px]">
+                            <span className="text-primario-700 text-[11px]">
                                 {errors.extintores_id}
                             </span>
                         )}
                     </div>
 
-                    <div className="flex gap-2 mt-1">
+                    <div className="pt-1 flex gap-2.5">
                         {eventoSeleccionado && (
                             <button
                                 type="button"
                                 disabled={procesando}
                                 onClick={handleEliminar}
-                                className="w-1/3 bg-white hover:bg-red-50 text-red-600 border border-red-600 text-etiqueta px-3 py-2 rounded-lg transition cursor-pointer disabled:opacity-50"
+                                className="w-1/3 bg-white hover:bg-primario-100 text-primario-700 border border-primario-700 text-xs font-bold px-3 py-2.5 rounded-xl transition cursor-pointer disabled:opacity-50"
                             >
                                 Eliminar
                             </button>
@@ -530,7 +568,7 @@ export default function AgendaSidePanel({
                             disabled={procesando}
                             className={`${
                                 eventoSeleccionado ? "w-2/3" : "w-full"
-                            } bg-primario-700 hover:bg-primario-900 text-white text-etiqueta px-5 py-2 rounded-lg transition cursor-pointer disabled:opacity-50`}
+                            } bg-primario-500 hover:bg-primario-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50`}
                         >
                             {eventoSeleccionado ? "Guardar cambios" : "Agendar"}
                         </button>
@@ -539,14 +577,14 @@ export default function AgendaSidePanel({
             ) : (
                 <form
                     onSubmit={handleSubmitMantenimiento}
-                    className="flex flex-col gap-2"
+                    className="flex flex-col gap-3 text-xs"
                 >
                     <div className="flex flex-col gap-1.5">
-                        <div className="flex items-center justify-between">
-                            <span className="text-etiqueta text-neutro-900">
-                                Seleccionar Extintor
-                            </span>
-                            <span className="bg-[#1b9e85] text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
+                        <div className="flex items-center justify-between gap-2">
+                            <label className="font-bold text-neutro-900">
+                                Seleccionar extintor
+                            </label>
+                            <span className="bg-acento-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                                 {extintorSeleccionado?.estatus || "Pendiente"}
                             </span>
                         </div>
@@ -557,7 +595,7 @@ export default function AgendaSidePanel({
                             onChange={(e) =>
                                 setExtintorSeleccionadoId(e.target.value)
                             }
-                            className="w-full bg-neutro-100 border border-neutro-300 text-neutro-900 text-xs font-semibold px-3 py-1.5 rounded-md focus:border-primario-700 focus:ring-0 cursor-pointer"
+                            className={`${inputClass} cursor-pointer`}
                         >
                             {extintoresMantenimiento.map((ext) => (
                                 <option key={ext.id} value={ext.id}>
@@ -566,18 +604,18 @@ export default function AgendaSidePanel({
                             ))}
                         </select>
                         {errors?.extintor_id && (
-                            <span className="text-red-600 text-[11px]">
+                            <span className="text-primario-700 text-[11px]">
                                 {errors.extintor_id}
                             </span>
                         )}
                     </div>
 
                     <div className="flex flex-col gap-1">
-                        <span className="text-etiqueta text-neutro-900">
+                        <span className="font-bold text-neutro-900">
                             Datos del extintor
                         </span>
-                        <div className="border border-neutro-300 bg-neutro-50 rounded-lg px-2.5 py-1.5 text-[11px] md:text-xs text-neutro-600 flex flex-col gap-0.5">
-                            <span className="font-medium text-neutro-900">
+                        <div className="border border-neutro-100 bg-neutro-50 rounded-lg px-3 py-2 text-[11px] text-neutro-600 flex flex-col gap-0.5">
+                            <span className="font-semibold text-neutro-900">
                                 {textoUbicacion}
                             </span>
                             <span>Tipo: {textoTipo}</span>
@@ -585,121 +623,110 @@ export default function AgendaSidePanel({
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <span className="text-etiqueta text-neutro-900">
-                            Formulario
-                        </span>
-
-                        <div className="flex flex-col gap-1">
-                            <label className="text-etiqueta text-neutro-900">
-                                Tipo de Servicio
-                            </label>
-                            <select
-                                name="tipo"
-                                value={formMantenimiento.tipo}
-                                onChange={(e) =>
-                                    setFormMantenimiento({
-                                        ...formMantenimiento,
-                                        tipo: e.target.value,
-                                    })
-                                }
-                                className="border border-neutro-300 rounded-md px-3 py-1 text-xs text-neutro-900 focus:border-primario-700 focus:ring-0 cursor-pointer"
-                            >
-                                <option value="" disabled>
-                                    Seleccione un tipo
-                                </option>
-                                <option value="Revisión">Revisión</option>
-                                <option value="Relleno de contenido">
-                                    Relleno de contenido
-                                </option>
-                                <option value="Otra">Otra</option>
-                            </select>
-                            {errors?.tipo && (
-                                <span className="text-red-600 text-[11px]">
-                                    {errors.tipo}
-                                </span>
-                            )}
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-etiqueta text-neutro-900">
-                                        Fecha
-                                    </label>
-                                    <input
-                                        type="date"
-                                        name="fecha_programada"
-                                        value={
-                                            formMantenimiento.fecha_programada
-                                        }
-                                        onChange={(e) =>
-                                            setFormMantenimiento({
-                                                ...formMantenimiento,
-                                                fecha_programada:
-                                                    e.target.value,
-                                            })
-                                        }
-                                        className="border border-neutro-300 rounded-md px-2 py-1 text-xs text-center text-neutro-900 focus:border-primario-700 focus:ring-0 cursor-pointer"
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-etiqueta text-neutro-900">
-                                        Hora
-                                    </label>
-                                    <input
-                                        type="time"
-                                        name="hora_programada"
-                                        value={
-                                            formMantenimiento.hora_programada
-                                        }
-                                        onChange={(e) =>
-                                            setFormMantenimiento({
-                                                ...formMantenimiento,
-                                                hora_programada: e.target.value,
-                                            })
-                                        }
-                                        className="border border-neutro-300 rounded-md px-2 py-1 text-xs text-center text-neutro-900 focus:border-primario-700 focus:ring-0 cursor-pointer"
-                                    />
-                                </div>
-                            </div>
-                            {errors?.fecha_programada && (
-                                <span className="text-red-600 text-[11px]">
-                                    {errors.fecha_programada}
-                                </span>
-                            )}
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                            <label className="text-etiqueta text-neutro-900">
-                                Notas / Observaciones
-                            </label>
-                            <textarea
-                                  rows="1"
-                                  name="descripcion"
-                                  value={formMantenimiento.descripcion}
-                                  onChange={(e) =>
-                                      setFormMantenimiento({
-                                          ...formMantenimiento,
-                                          descripcion: e.target.value,
-                                      })
-                                  }
-                                  className="border border-neutro-300 rounded-md px-3 py-1 text-xs text-neutro-900 resize-none focus:border-primario-700 focus:ring-0"
-                              ></textarea>
-                            {errors?.descripcion && (
-                                <span className="text-red-600 text-[11px]">
-                                    {errors.descripcion}
-                                </span>
-                            )}
-                        </div>
+                        <label className="font-bold text-neutro-900">
+                            Tipo de servicio
+                        </label>
+                        <select
+                            name="tipo"
+                            value={formMantenimiento.tipo}
+                            onChange={(e) =>
+                                setFormMantenimiento({
+                                    ...formMantenimiento,
+                                    tipo: e.target.value,
+                                })
+                            }
+                            className={`${inputClass} cursor-pointer`}
+                        >
+                            <option value="" disabled>
+                                Seleccione un tipo
+                            </option>
+                            <option value="Revisión">Revisión</option>
+                            <option value="Relleno de contenido">
+                                Relleno de contenido
+                            </option>
+                            <option value="Otra">Otra</option>
+                        </select>
+                        {errors?.tipo && (
+                            <span className="text-primario-700 text-[11px]">
+                                {errors.tipo}
+                            </span>
+                        )}
                     </div>
 
-                    <div className="flex gap-2 mt-1">
+                    <div className="flex flex-col gap-1.5">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="flex flex-col gap-1.5">
+                                <label className="font-bold text-neutro-900">
+                                    Fecha
+                                </label>
+                                <input
+                                    type="date"
+                                    name="fecha_programada"
+                                    value={formMantenimiento.fecha_programada}
+                                    onChange={(e) =>
+                                        setFormMantenimiento({
+                                            ...formMantenimiento,
+                                            fecha_programada: e.target.value,
+                                        })
+                                    }
+                                    className={`${inputClass} cursor-pointer`}
+                                />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <label className="font-bold text-neutro-900">
+                                    Hora
+                                </label>
+                                <input
+                                    type="time"
+                                    name="hora_programada"
+                                    value={formMantenimiento.hora_programada}
+                                    onChange={(e) =>
+                                        setFormMantenimiento({
+                                            ...formMantenimiento,
+                                            hora_programada: e.target.value,
+                                        })
+                                    }
+                                    className={`${inputClass} cursor-pointer`}
+                                />
+                            </div>
+                        </div>
+                        {errors?.fecha_programada && (
+                            <span className="text-primario-700 text-[11px]">
+                                {errors.fecha_programada}
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-neutro-900">
+                            Notas / Observaciones
+                        </label>
+                        <textarea
+                            rows="2"
+                            name="descripcion"
+                            value={formMantenimiento.descripcion}
+                            onChange={(e) =>
+                                setFormMantenimiento({
+                                    ...formMantenimiento,
+                                    descripcion: e.target.value,
+                                })
+                            }
+                            className={`${inputClass} resize-none`}
+                        />
+                        {errors?.descripcion && (
+                            <span className="text-primario-700 text-[11px]">
+                                {errors.descripcion}
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="pt-1 flex gap-2.5">
                         {eventoSeleccionado && (
                             <button
                                 type="button"
                                 disabled={procesando}
                                 onClick={handleEliminar}
-                                className="w-1/3 bg-white hover:bg-red-50 text-red-600 border border-red-600 text-etiqueta px-3 py-2 rounded-lg transition cursor-pointer disabled:opacity-50"
+                                className="w-1/3 bg-white hover:bg-primario-100 text-primario-700 border border-primario-700 text-xs font-bold px-3 py-2.5 rounded-xl transition cursor-pointer disabled:opacity-50"
                             >
                                 Eliminar
                             </button>
@@ -709,11 +736,11 @@ export default function AgendaSidePanel({
                             disabled={procesando}
                             className={`${
                                 eventoSeleccionado ? "w-2/3" : "w-full"
-                            } bg-primario-700 hover:bg-primario-900 text-white text-etiqueta py-2 rounded-lg transition cursor-pointer disabled:opacity-50`}
+                            } bg-primario-500 hover:bg-primario-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50`}
                         >
                             {eventoSeleccionado
                                 ? "Guardar cambios"
-                                : "Guardar Mantenimiento"}
+                                : "Guardar mantenimiento"}
                         </button>
                     </div>
                 </form>

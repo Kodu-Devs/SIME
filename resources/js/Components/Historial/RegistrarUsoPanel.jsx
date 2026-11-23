@@ -1,70 +1,44 @@
-import { useEffect } from "react";
 import { useForm } from "@inertiajs/react";
-import InputLabel from "@/Components/InputLabel";
-import TextInput from "@/Components/TextInput";
 import InputError from "@/Components/InputError";
 
-// Valores oficiales (el backend los valida tal cual)
 const TIPOS_MOTIVO = ["Conato", "Simulacro", "Capacitación", "Otro"];
 const TIPOS_DESCARGA = [
     { valor: "total", etiqueta: "Total" },
     { valor: "parcial", etiqueta: "Parcial" },
 ];
 
-const selectClass =
-    "mt-1 w-full rounded-md border-gray-300 text-xs shadow-sm focus:border-indigo-500 focus:ring-indigo-500";
+const inputClass =
+    "mt-1 w-full bg-white rounded-lg border border-neutro-100 px-3 py-2 text-xs text-neutro-900 font-medium focus:outline-none focus:border-primario-500 focus:ring-1 focus:ring-primario-500 disabled:bg-neutro-50 disabled:text-neutro-300 disabled:cursor-not-allowed";
 
-// yyyy-mm-dd en hora local, para bloquear fechas futuras en el input
 const hoy = () => new Date().toLocaleDateString("en-CA");
 
 export default function RegistrarUsoPanel({
-    evento = null,
-    extintores = [], // [{ id, codigo }]  (TODO: confirmar nombre de prop con Emiliano)
-    capacitaciones = [], // [{ id, nombre }] (TODO: confirmar)
+    extintores = [],
+    capacitaciones = [],
     onGuardado,
-    rutaGuardar = null, // TODO: ruta (la agregan Diego/Ulises)
+    rutaGuardar = null,
 }) {
-    const { data, setData, post, processing, errors, reset, clearErrors } =
-        useForm({
-            extintor_id: "",
-            tipo_descarga: "",
-            fecha: "",
-            tipo_motivo: "",
-            motivo: "", // descripción del motivo
-            capacitacion_id: "",
-        });
-
-    // Al seleccionar una fila se precarga solo el extintor; sin selección se limpia
-    useEffect(() => {
-    if (evento) {
-        setData("extintor_id", evento.extintor?.id ?? "");  // antes: evento.extintor_id
-    } else {
-        reset();
-    }
-    clearErrors();
-    }, [evento]);
-
+    const { data, setData, post, processing, errors, reset } = useForm({
+        extintor_id: "",
+        tipo_descarga: "",
+        fecha: "",
+        tipo_motivo: "",
+        motivo: "",
+        capacitacion_id: "",
+    });
+    const esCapacitacion = data.tipo_motivo === "Capacitación";
     const cambiarTipoMotivo = (valor) => {
-        // Si deja de ser Capacitación, se quita la capacitación elegida
         setData({
             ...data,
             tipo_motivo: valor,
-            capacitacion_id: valor === "Capacitación" ? data.capacitacion_id : "",
-        });
-    };
-
-    const cambiarCapacitacion = (valor) => {
-        // Elegir una capacitación fuerza el tipo de motivo
-        setData({
-            ...data,
-            capacitacion_id: valor,
-            tipo_motivo: valor ? "Capacitación" : data.tipo_motivo,
+            capacitacion_id:
+                valor === "Capacitación" ? data.capacitacion_id : "",
         });
     };
 
     const enviar = (e) => {
         e.preventDefault();
-        if (!rutaGuardar) return; // TODO: ruta
+        if (!rutaGuardar) return;
 
         post(rutaGuardar, {
             preserveScroll: true,
@@ -78,21 +52,26 @@ export default function RegistrarUsoPanel({
     return (
         <form
             onSubmit={enviar}
-            className="w-64 rounded border bg-white p-4 shadow-sm"
+            className="w-full bg-white rounded-xl border border-neutro-100 shadow-sm p-5 text-xs space-y-3.5"
         >
-            <h2 className="text-sm font-semibold">Registrar uso</h2>
+            <div>
+                <h2 className="text-base font-bold text-neutro-900 leading-tight">
+                    Registrar uso
+                </h2>
+            </div>
 
-            <span className="mt-2 inline-block rounded bg-teal-50 px-2 py-1 text-xs text-teal-700">
-                Exclusivo del administrador
-            </span>
-
-            <div className="mt-3">
-                <InputLabel htmlFor="extintor_id" value="Extintor" />
+            <div>
+                <label
+                    htmlFor="extintor_id"
+                    className="block font-bold text-neutro-900"
+                >
+                    Extintor
+                </label>
                 <select
                     id="extintor_id"
                     value={data.extintor_id}
                     onChange={(e) => setData("extintor_id", e.target.value)}
-                    className={selectClass}
+                    className={inputClass}
                 >
                     <option value="">Seleccione un extintor</option>
                     {extintores.map((x) => (
@@ -104,45 +83,63 @@ export default function RegistrarUsoPanel({
                 <InputError message={errors.extintor_id} className="mt-1" />
             </div>
 
-            <div className="mt-3">
-                <InputLabel value="Tipo de descarga" />
-                <div className="mt-1 flex gap-4">
+            <div>
+                <span className="block font-bold text-neutro-900">
+                    Tipo de descarga
+                </span>
+                <div className="mt-1.5 flex gap-4">
                     {TIPOS_DESCARGA.map((t) => (
-                        <label key={t.valor} className="flex items-center gap-1 text-xs">
+                        <label
+                            key={t.valor}
+                            className="flex items-center gap-1.5 text-xs text-neutro-900 cursor-pointer"
+                        >
                             <input
                                 type="radio"
                                 name="tipo_descarga"
                                 value={t.valor}
                                 checked={data.tipo_descarga === t.valor}
-                                onChange={(e) => setData("tipo_descarga", e.target.value)}
+                                onChange={(e) =>
+                                    setData("tipo_descarga", e.target.value)
+                                }
+                                className="border-neutro-300 text-primario-500 focus:ring-primario-500 cursor-pointer"
                             />
-                            {t.etiqueta}
+                            <span>{t.etiqueta}</span>
                         </label>
                     ))}
                 </div>
                 <InputError message={errors.tipo_descarga} className="mt-1" />
             </div>
 
-            <div className="mt-3">
-                <InputLabel htmlFor="fecha" value="Fecha" />
-                <TextInput
+            <div>
+                <label
+                    htmlFor="fecha"
+                    className="block font-bold text-neutro-900"
+                >
+                    Fecha
+                </label>
+                <input
                     id="fecha"
                     type="date"
                     max={hoy()}
                     value={data.fecha}
                     onChange={(e) => setData("fecha", e.target.value)}
-                    className="mt-1 w-full text-xs"
+                    className={inputClass}
                 />
                 <InputError message={errors.fecha} className="mt-1" />
             </div>
 
-            <div className="mt-3">
-                <InputLabel htmlFor="tipo_motivo" value="Tipo de motivo" />
+            <div>
+                <label
+                    htmlFor="tipo_motivo"
+                    className="block font-bold text-neutro-900"
+                >
+                    Tipo de motivo
+                </label>
                 <select
                     id="tipo_motivo"
                     value={data.tipo_motivo}
                     onChange={(e) => cambiarTipoMotivo(e.target.value)}
-                    className={selectClass}
+                    className={inputClass}
                 >
                     <option value="">Seleccione un tipo</option>
                     {TIPOS_MOTIVO.map((t) => (
@@ -154,15 +151,25 @@ export default function RegistrarUsoPanel({
                 <InputError message={errors.tipo_motivo} className="mt-1" />
             </div>
 
-            <div className="mt-3">
-                <InputLabel htmlFor="capacitacion_id" value="Capacitación (opcional)" />
+            <div>
+                <label
+                    htmlFor="capacitacion_id"
+                    className="block font-bold text-neutro-900"
+                >
+                    Capacitación (opcional)
+                </label>
                 <select
                     id="capacitacion_id"
                     value={data.capacitacion_id}
-                    onChange={(e) => cambiarCapacitacion(e.target.value)}
-                    className={selectClass}
+                    disabled={!esCapacitacion}
+                    onChange={(e) => setData("capacitacion_id", e.target.value)}
+                    className={inputClass}
                 >
-                    <option value="">Ninguna</option>
+                    <option value="">
+                        {esCapacitacion
+                            ? "Ninguna"
+                            : 'Disponible solo con motivo "Capacitación"'}
+                    </option>
                     {capacitaciones.map((c) => (
                         <option key={c.id} value={c.id}>
                             {c.nombre}
@@ -172,28 +179,34 @@ export default function RegistrarUsoPanel({
                 <InputError message={errors.capacitacion_id} className="mt-1" />
             </div>
 
-            <div className="mt-3">
-                <InputLabel htmlFor="motivo" value="Descripción (motivo)" />
-                <TextInput
+            <div>
+                <label
+                    htmlFor="motivo"
+                    className="block font-bold text-neutro-900"
+                >
+                    Descripción (motivo)
+                </label>
+                <input
                     id="motivo"
+                    type="text"
                     value={data.motivo}
                     placeholder="Escriba el motivo"
                     onChange={(e) => setData("motivo", e.target.value)}
-                    className="mt-1 w-full text-xs"
+                    className={inputClass}
                 />
                 <InputError message={errors.motivo} className="mt-1" />
             </div>
 
-            <p className="mt-3 text-xs text-green-700">
+            <p className="text-[11px] text-acento-500 bg-acento-500/10 rounded-lg px-3 py-2 leading-relaxed">
                 Este registro alimenta los próximos mantenimientos y las
                 recomendaciones.
             </p>
 
-            <div className="mt-3 flex justify-end">
+            <div className="pt-1">
                 <button
                     type="submit"
                     disabled={processing}
-                    className="rounded-md bg-red-700 px-4 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-red-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="w-full rounded-xl bg-primario-500 hover:bg-primario-700 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                 >
                     Guardar uso
                 </button>

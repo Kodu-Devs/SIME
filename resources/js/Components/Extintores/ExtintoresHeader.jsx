@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 
 export default function ExtintoresHeader({ onAddNew }) {
     return (
-        <div className="flex items-center justify-between mb-4 font-['Manrope']">
+        <div className="flex items-center justify-between gap-4">
             <div>
                 <h1 className="text-titulo-1 font-bold text-neutro-900">
                     Extintores
@@ -12,16 +12,16 @@ export default function ExtintoresHeader({ onAddNew }) {
                     Inventario completo de equipos registrados
                 </p>
             </div>
-            {/* Botón rápido visible exclusivamente en móviles */}
+
             {onAddNew && (
-                <div className="block md:hidden">
+                <div className="block md:hidden shrink-0">
                     <button
                         type="button"
                         onClick={onAddNew}
-                        className="inline-flex items-center gap-1 bg-[#F24C52] hover:bg-[#C0262D] text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-xs transition-colors"
+                        className="inline-flex items-center gap-1.5 bg-primario-500 hover:bg-primario-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer"
                     >
                         <Plus className="w-3.5 h-3.5" />
-                        Añadir
+                        <span>Añadir</span>
                     </button>
                 </div>
             )}

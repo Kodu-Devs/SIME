@@ -1,15 +1,34 @@
-import React from 'react';
+import React from "react";
 
-export default function ExtintorFilterPills({ activeFilter, onFilterChange, conteos = {} }) {
+export default function ExtintorFilterPills({
+    activeFilter,
+    onFilterChange,
+    conteos = {},
+}) {
     const allFilters = [
-        { name: 'Todos' },
-        { name: 'Disponibles', estatusKey: 'Disponible', dotColor: 'bg-[#1C9691]' },
-        { name: 'Medio uso', estatusKey: 'Medio uso', dotColor: 'bg-[#F2994A]' },
-        { name: 'Vacíos', estatusKey: 'Vacío', dotColor: 'bg-[#C0262D]' },
-        { name: 'Fuera de servicio', estatusKey: 'Fuera de servicio', dotColor: 'bg-[#6D6162]' },
+        { name: "Todos" },
+        {
+            name: "Disponibles",
+            estatusKey: "Disponible",
+            dotColor: "bg-acento-500",
+        },
+        {
+            name: "Medio uso",
+            estatusKey: "Medio uso",
+            dotColor: "bg-sime-warning",
+        },
+        { name: "Vacíos", estatusKey: "Vacío", dotColor: "bg-primario-700" },
+        {
+            name: "Fuera de servicio",
+            estatusKey: "Fuera de servicio",
+            dotColor: "bg-neutro-600",
+        },
     ];
 
-    const totalGlobal = Object.values(conteos).reduce((acc, val) => acc + (Number(val) || 0), 0);
+    const totalGlobal = Object.values(conteos).reduce(
+        (acc, val) => acc + (Number(val) || 0),
+        0,
+    );
 
     const visibleFilters = allFilters.filter((filter) => {
         if (!filter.estatusKey) return true;
@@ -17,8 +36,8 @@ export default function ExtintorFilterPills({ activeFilter, onFilterChange, cont
     });
 
     return (
-        <div className="w-full mb-4 font-['Manrope']">
-            <div className="flex flex-wrap items-center justify-start gap-2.5">
+        <div className="w-full">
+            <div className="flex flex-wrap items-center justify-start gap-2">
                 {visibleFilters.map((filter) => {
                     const isActive = activeFilter === filter.name;
                     const count = filter.estatusKey
@@ -30,13 +49,16 @@ export default function ExtintorFilterPills({ activeFilter, onFilterChange, cont
                             key={filter.name}
                             type="button"
                             onClick={() => onFilterChange(filter.name)}
-                            className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all shadow-xs ${isActive
-                                    ? 'bg-[#272222] text-white border border-[#272222]'
-                                    : 'bg-white text-[#272222] border border-[#D7D4D4] hover:bg-[#F1F0F0]'
-                                }`}
+                            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition cursor-pointer ${
+                                isActive
+                                    ? "bg-neutro-900 text-white border-neutro-900"
+                                    : "bg-white text-neutro-600 border-neutro-100 hover:bg-neutro-50 hover:text-neutro-900"
+                            }`}
                         >
                             {filter.dotColor && (
-                                <span className={`w-2 h-2 rounded-full ${filter.dotColor}`} />
+                                <span
+                                    className={`w-2 h-2 rounded-full ${filter.dotColor}`}
+                                />
                             )}
                             <span>
                                 {filter.name} ({count})

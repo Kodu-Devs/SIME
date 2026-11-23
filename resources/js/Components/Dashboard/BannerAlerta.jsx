@@ -28,7 +28,7 @@ export default function BannerAlerta({
             <button
                 type="button"
                 onClick={irAProgramarMantenimiento}
-                className="bg-primario-500 hover:bg-primario-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors cursor-pointer shrink-0"
+                className="bg-primario-500 hover:bg-primario-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-xs transition-colors cursor-pointer shrink-0"
             >
                 Programar mantenimiento
             </button>

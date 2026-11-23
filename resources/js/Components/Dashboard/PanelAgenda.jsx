@@ -34,6 +34,8 @@ export default function PanelAgenda({ eventos = [] }) {
                 evento.clase === "capacitacion"
                     ? "capacitacion"
                     : "mantenimiento",
+            evento: evento.id,
+            clase: evento.clase,
         });
     };
 

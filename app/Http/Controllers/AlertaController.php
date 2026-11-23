@@ -54,7 +54,9 @@ class AlertaController extends Controller
                 ];
             })->groupBy(['tipo', 'categoria']);
 
-        return Inertia::render('Alertas/Index', ['alertas' => $alertas]);
+        return Inertia::render('Alertas/Index', [
+            'alertasAgrupadas' => $alertas,
+        ]);
     }
 
 
