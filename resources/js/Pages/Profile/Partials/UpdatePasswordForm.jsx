@@ -1,24 +1,41 @@
-import InputError from "@/Components/InputError";
+import { useEffect, useState } from "react";
 import { useForm } from "@inertiajs/react";
+import { CheckCircle2, X } from "lucide-react";
+import InputError from "@/Components/InputError";
 
 export default function UpdatePasswordForm({ className = "" }) {
+    const [guardado, setGuardado] = useState(false);
+
     const formClave = useForm({
         current_password: "",
         password: "",
         password_confirmation: "",
     });
 
+    useEffect(() => {
+        if (!guardado) return;
+        const timer = setTimeout(() => setGuardado(false), 4500);
+        return () => clearTimeout(timer);
+    }, [guardado]);
+
     const enviarCambioClave = (e) => {
         e.preventDefault();
+        setGuardado(false);
 
         formClave.put(route("password.update"), {
             preserveScroll: true,
-            onSuccess: () => formClave.reset(),
+            onSuccess: () => {
+                formClave.reset();
+                setGuardado(true);
+            },
             onError: () => {
                 formClave.reset("password", "password_confirmation");
             },
         });
     };
+
+    const inputClass =
+        "w-full bg-white rounded-lg border border-neutro-100 px-3 py-2 text-xs font-medium text-neutro-900 focus:outline-none focus:border-primario-500 focus:ring-1 focus:ring-primario-500 transition";
 
     return (
         <section className={className}>
@@ -32,9 +49,8 @@ export default function UpdatePasswordForm({ className = "" }) {
                 </p>
             </div>
 
-            <form onSubmit={enviarCambioClave} className="space-y-5">
+            <form onSubmit={enviarCambioClave} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Columna 1: Contraseña actual */}
                     <div>
                         <label
                             htmlFor="clave-actual"
@@ -53,7 +69,7 @@ export default function UpdatePasswordForm({ className = "" }) {
                                 )
                             }
                             autoComplete="current-password"
-                            className="w-full bg-white rounded-lg border border-neutro-100 px-3 py-2 text-xs font-medium text-neutro-900 focus:outline-none focus:border-primario-500 focus:ring-1 focus:ring-primario-500 transition"
+                            className={inputClass}
                         />
                         <InputError
                             message={formClave.errors.current_password}
@@ -61,7 +77,6 @@ export default function UpdatePasswordForm({ className = "" }) {
                         />
                     </div>
 
-                    {/* Columna 2: Nueva contraseña */}
                     <div>
                         <label
                             htmlFor="clave-nueva"
@@ -77,7 +92,7 @@ export default function UpdatePasswordForm({ className = "" }) {
                                 formClave.setData("password", e.target.value)
                             }
                             autoComplete="new-password"
-                            className="w-full bg-white rounded-lg border border-neutro-100 px-3 py-2 text-xs font-medium text-neutro-900 focus:outline-none focus:border-primario-500 focus:ring-1 focus:ring-primario-500 transition"
+                            className={inputClass}
                         />
                         <InputError
                             message={formClave.errors.password}
@@ -85,7 +100,6 @@ export default function UpdatePasswordForm({ className = "" }) {
                         />
                     </div>
 
-                    {/* Columna 3: Confirmar contraseña */}
                     <div>
                         <label
                             htmlFor="clave-confirmacion"
@@ -104,7 +118,7 @@ export default function UpdatePasswordForm({ className = "" }) {
                                 )
                             }
                             autoComplete="new-password"
-                            className="w-full bg-white rounded-lg border border-neutro-100 px-3 py-2 text-xs font-medium text-neutro-900 focus:outline-none focus:border-primario-500 focus:ring-1 focus:ring-primario-500 transition"
+                            className={inputClass}
                         />
                         <InputError
                             message={formClave.errors.password_confirmation}
@@ -113,7 +127,26 @@ export default function UpdatePasswordForm({ className = "" }) {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4">
+                {guardado && (
+                    <div className="flex items-center justify-between gap-3 rounded-xl border border-acento-500/30 bg-acento-500/15 px-4 py-3 text-[#10706B]">
+                        <div className="flex items-center gap-2.5">
+                            <CheckCircle2 className="h-4 w-4 shrink-0 text-acento-500" />
+                            <span className="text-xs font-semibold">
+                                Contraseña actualizada correctamente.
+                            </span>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setGuardado(false)}
+                            aria-label="Cerrar aviso"
+                            className="rounded-lg p-1 transition-colors hover:bg-black/5 cursor-pointer"
+                        >
+                            <X className="h-3.5 w-3.5" />
+                        </button>
+                    </div>
+                )}
+
+                <div>
                     <button
                         type="submit"
                         disabled={formClave.processing}
@@ -121,12 +154,6 @@ export default function UpdatePasswordForm({ className = "" }) {
                     >
                         Guardar
                     </button>
-
-                    {formClave.recentlySuccessful && (
-                        <span className="text-xs font-semibold text-acento-500">
-                            Contraseña actualizada.
-                        </span>
-                    )}
                 </div>
             </form>
         </section>

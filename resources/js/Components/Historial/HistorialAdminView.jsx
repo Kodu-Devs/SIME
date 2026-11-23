@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, router } from "@inertiajs/react";
+import { useState, useEffect, useRef } from "react";
+import { Link, router, usePage } from "@inertiajs/react";
 import {
     ArrowLeft,
     ChevronLeft,
@@ -12,7 +12,6 @@ import TablaHistorial from "@/Components/Historial/TablaHistorial";
 import RegistrarUsoPanel from "@/Components/Historial/RegistrarUsoPanel";
 import ExportarModal from "@/Components/Historial/ExportarModal";
 
-// Valores que valida el backend en el parámetro `tipo`
 const FILTROS = [
     { valor: "todos", etiqueta: "Todos los eventos" },
     { valor: "usos", etiqueta: "Usos" },
@@ -98,15 +97,38 @@ export default function HistorialAdminView({
     extintores = [],
     capacitaciones = [],
 }) {
-    const [seleccionado, setSeleccionado] = useState(null);
+    const { url } = usePage();
     const [exportarAbierto, setExportarAbierto] = useState(false);
     const [mostrarFormularioMovil, setMostrarFormularioMovil] = useState(false);
+    const formPanelRef = useRef(null);
 
     const lista = Array.isArray(eventos) ? eventos : (eventos.data ?? []);
     const paginador = Array.isArray(eventos) ? null : eventos;
 
     const tipo = filters?.tipo ?? "todos";
     const instalacionId = filters?.instalacion_id ?? "";
+
+    useEffect(() => {
+        const queryString = url.includes("?") ? url.split("?")[1] : "";
+        const params = new URLSearchParams(queryString);
+        if (params.get("accion") !== "registrar-uso") return;
+
+        setMostrarFormularioMovil(true);
+
+        params.delete("accion");
+        const nuevaQuery = params.toString();
+        const nuevaUrl = nuevaQuery
+            ? `${window.location.pathname}?${nuevaQuery}`
+            : window.location.pathname;
+        window.history.replaceState(window.history.state, "", nuevaUrl);
+
+        requestAnimationFrame(() => {
+            formPanelRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+            });
+        });
+    }, [url]);
 
     const aplicarFiltros = (cambios) => {
         const todos = {
@@ -132,30 +154,11 @@ export default function HistorialAdminView({
         });
     };
 
-    const seleccionadoVisible = lista.some((e) => e.id === seleccionado?.id)
-        ? seleccionado
-        : null;
-
-    const manejarSeleccion = (evento) => {
-        setSeleccionado(evento);
-        if (evento) {
-            setMostrarFormularioMovil(true);
-        }
-    };
-
-    const abrirFormularioVacio = () => {
-        setSeleccionado(null);
-        setMostrarFormularioMovil(true);
-    };
-
-    const cerrarFormularioMovil = () => {
-        setSeleccionado(null);
-        setMostrarFormularioMovil(false);
-    };
+    const abrirFormularioMovil = () => setMostrarFormularioMovil(true);
+    const cerrarFormularioMovil = () => setMostrarFormularioMovil(false);
 
     return (
         <div className="space-y-4">
-            {/* Encabezado principal + botón "+ Añadir" en móvil/tablet */}
             <div className="flex items-center justify-between gap-4">
                 <div>
                     <h1 className="text-titulo-1 font-bold text-neutro-900">
@@ -169,7 +172,7 @@ export default function HistorialAdminView({
 
                 <button
                     type="button"
-                    onClick={abrirFormularioVacio}
+                    onClick={abrirFormularioMovil}
                     className="lg:hidden inline-flex items-center gap-1.5 bg-primario-500 hover:bg-primario-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer shrink-0"
                 >
                     <Plus className="w-3.5 h-3.5" />
@@ -179,7 +182,6 @@ export default function HistorialAdminView({
 
             <FlashBanner />
 
-            {/* Barra de filtros y acciones */}
             <div className="flex flex-wrap items-center gap-2">
                 {FILTROS.map((f) => (
                     <button
@@ -224,7 +226,6 @@ export default function HistorialAdminView({
                 </div>
             </div>
 
-            {/* Contenido principal: tabla + panel lateral (colapsable en móvil/tablet) */}
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
                 <div
                     className={`w-full lg:flex-1 min-w-0 ${
@@ -233,8 +234,6 @@ export default function HistorialAdminView({
                 >
                     <TablaHistorial
                         eventos={lista}
-                        seleccionado={seleccionadoVisible}
-                        onSeleccionar={manejarSeleccion}
                         footer={
                             paginador ? (
                                 <Paginacion paginador={paginador} />
@@ -244,6 +243,7 @@ export default function HistorialAdminView({
                 </div>
 
                 <div
+                    ref={formPanelRef}
                     className={`w-full lg:w-80 shrink-0 lg:sticky lg:top-6 ${
                         mostrarFormularioMovil ? "block" : "hidden lg:block"
                     }`}
@@ -258,7 +258,6 @@ export default function HistorialAdminView({
                     </button>
 
                     <RegistrarUsoPanel
-                        evento={seleccionadoVisible}
                         extintores={extintores}
                         capacitaciones={capacitaciones}
                         rutaGuardar={route("historial.usos.store")}

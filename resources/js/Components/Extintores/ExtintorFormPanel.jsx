@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useForm } from "@inertiajs/react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 
 const getToday = () => {
     const now = new Date();
@@ -265,18 +265,31 @@ export default function ExtintorFormPanel({
         <div className="bg-white rounded-xl border border-neutro-100 shadow-sm p-5 overflow-hidden">
             {/* Header del Panel alineado a la izquierda */}
             <div>
-                <h3 className="font-bold text-neutro-900 text-base leading-tight">
-                    {isEditing
-                        ? `Modificar ${selectedExtintor.codigo}`
-                        : "Registrar nuevo extintor"}
-                </h3>
+                <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-bold text-neutro-900 text-base leading-tight">
+                        {isEditing
+                            ? `Modificar ${selectedExtintor.codigo}`
+                            : "Registrar nuevo extintor"}
+                    </h3>
+
+                    {isEditing && (
+                        <button
+                            type="button"
+                            onClick={handleCancel}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-neutro-100 bg-neutro-50 hover:bg-primario-100 hover:border-primario-300 hover:text-primario-700 text-[11px] font-semibold text-neutro-600 transition-colors cursor-pointer shrink-0"
+                        >
+                            <X className="w-3.5 h-3.5" />
+                            <span>Cancelar</span>
+                        </button>
+                    )}
+                </div>
+
                 <span className="inline-block mt-2 bg-acento-500/15 text-acento-500 text-[11px] font-semibold px-3 py-0.5 rounded-full">
                     {isEditing
                         ? "Modo edición · Extintor seleccionado"
                         : "Modo creación · Sin selección"}
                 </span>
             </div>
-
             <form onSubmit={handleSubmit} className="mt-5 space-y-3.5 text-xs">
                 {/* Tipo */}
                 <div>

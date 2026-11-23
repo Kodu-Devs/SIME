@@ -9,7 +9,6 @@ export default function Edit() {
             <Head title="Mi perfil" />
 
             <div className="w-full max-w-7xl mx-auto space-y-4">
-                {/* Encabezado Principal */}
                 <div>
                     <h1 className="text-titulo-1 font-bold text-neutro-900">
                         Perfil
@@ -19,12 +18,10 @@ export default function Edit() {
                     </p>
                 </div>
 
-                {/* Tarjeta 1: Datos de Perfil */}
                 <div className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-neutro-100">
                     <UpdateProfileInformationForm />
                 </div>
 
-                {/* Tarjeta 2: Actualizar Contraseña */}
                 <div className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-neutro-100">
                     <UpdatePasswordForm />
                 </div>

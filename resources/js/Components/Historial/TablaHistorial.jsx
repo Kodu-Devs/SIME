@@ -1,4 +1,3 @@
-// Estado de vencimiento oficial: vigente · por_vencer · vencido (ya viene calculado)
 const COLOR_EXTINTOR = {
     por_vencer: "text-orange-600",
     vencido: "text-red-600",
@@ -10,7 +9,6 @@ const CHIP_DESCARGA = {
     parcial: { texto: "Parcial", clase: "bg-amber-100 text-amber-700" },
 };
 
-// "2026-11-10" -> "10/11/26" (sin Date, para evitar problemas de zona horaria)
 function formatearFecha(fecha) {
     if (!fecha) return "";
     const [anio, mes, dia] = String(fecha).slice(0, 10).split("-");
@@ -18,16 +16,7 @@ function formatearFecha(fecha) {
     return `${dia}/${mes}/${anio.slice(-2)}`;
 }
 
-export default function TablaHistorial({
-    eventos = [],
-    seleccionado = null,
-    onSeleccionar = () => {},
-    footer = null,
-}) {
-    const alternarSeleccion = (evento) => {
-        onSeleccionar(seleccionado?.id === evento.id ? null : evento);
-    };
-
+export default function TablaHistorial({ eventos = [], footer = null }) {
     const obtenerDatosFila = (evento) => {
         const esUso = evento.tipo_evento === "Uso";
         const chip = esUso ? CHIP_DESCARGA[evento.subtipo] : null;
@@ -49,7 +38,6 @@ export default function TablaHistorial({
 
     return (
         <div>
-            {/* ESCRITORIO */}
             <div className="hidden md:block bg-white rounded-xl border border-neutro-100 overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                     <table className="min-w-full text-left text-xs">
@@ -83,32 +71,13 @@ export default function TablaHistorial({
                             )}
 
                             {eventos.map((evento) => {
-                                const activo = seleccionado?.id === evento.id;
                                 const { chip, ubicacion, linea1, linea2 } =
                                     obtenerDatosFila(evento);
 
                                 return (
                                     <tr
                                         key={evento.id}
-                                        onClick={() =>
-                                            alternarSeleccion(evento)
-                                        }
-                                        onKeyDown={(e) => {
-                                            if (
-                                                e.key === "Enter" ||
-                                                e.key === " "
-                                            ) {
-                                                e.preventDefault();
-                                                alternarSeleccion(evento);
-                                            }
-                                        }}
-                                        tabIndex={0}
-                                        aria-selected={activo}
-                                        className={`cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primario-300 ${
-                                            activo
-                                                ? "bg-primario-100"
-                                                : "hover:bg-neutro-50"
-                                        }`}
+                                        className="hover:bg-neutro-50/70 transition-colors"
                                     >
                                         <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
                                             {formatearFecha(evento.fecha)}
@@ -158,7 +127,6 @@ export default function TablaHistorial({
                 {footer}
             </div>
 
-            {/* MÓVIL: TARJETAS */}
             <div className="block md:hidden space-y-3">
                 {eventos.length === 0 ? (
                     <div className="p-6 text-center text-xs text-gray-500 bg-white rounded-xl border border-neutro-100 shadow-sm">
@@ -166,19 +134,13 @@ export default function TablaHistorial({
                     </div>
                 ) : (
                     eventos.map((evento) => {
-                        const activo = seleccionado?.id === evento.id;
                         const { chip, ubicacion, linea1, linea2 } =
                             obtenerDatosFila(evento);
 
                         return (
                             <div
                                 key={evento.id}
-                                onClick={() => alternarSeleccion(evento)}
-                                className={`p-4 rounded-xl border transition-all cursor-pointer shadow-xs space-y-1.5 ${
-                                    activo
-                                        ? "bg-primario-100 border-primario-300"
-                                        : "bg-white border-neutro-100 hover:bg-neutro-50"
-                                }`}
+                                className="p-4 rounded-xl border border-neutro-100 bg-white shadow-xs space-y-1.5"
                             >
                                 <div className="flex items-center justify-between gap-2">
                                     <span

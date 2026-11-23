@@ -65,15 +65,16 @@ export default function Edificio({
             <g
                 transform={`translate(${x}, ${y})`}
                 onClick={onClick}
-                className="group cursor-pointer select-none transition-all duration-150 hover:drop-shadow-md"
+                className="group cursor-pointer select-none transition-all duration-150 drop-shadow-[0_3px_4px_rgba(39,34,34,0.16)] hover:drop-shadow-[0_6px_10px_rgba(242,76,82,0.28)]"
             >
                 <path
                     d="M171.899 75.438C157.129 154.129 24.3961 159.459 3.71227 75.6556C2.97301 72.6604 4.22517 69.5177 6.72043 67.7034L49.5514 36.5621C51.6218 35.0567 52.8468 32.6514 52.8468 30.0916V11.5C52.8468 7.08172 56.4286 3.5 60.8468 3.5H112.99C117.409 3.5 120.99 7.08173 120.99 11.5V30.0242C120.99 32.6217 122.251 35.0575 124.372 36.5568L168.731 67.9131C171.136 69.6129 172.442 72.5438 171.899 75.438Z"
-                    fill="#F1F0F0"
-                    stroke="#D7D4D4"
-                    strokeWidth="2"
-                    className="transition-colors duration-150 group-hover:stroke-primario-300 group-hover:fill-white"
+                    fill="#FFFFFF"
+                    stroke="#F1F0F0"
+                    strokeWidth="2.5"
+                    className="transition-colors duration-150 group-hover:stroke-primario-300 group-hover:fill-[neutro-50]"
                 />
+
                 <text
                     x="88"
                     y="56"
@@ -82,6 +83,7 @@ export default function Edificio({
                     fontSize="18"
                     fontWeight="bold"
                     fontFamily="Manrope, sans-serif"
+                    className="group-hover:fill-primario-900 transition-colors duration-150"
                 >
                     {nombre}
                 </text>
@@ -139,7 +141,7 @@ export default function Edificio({
         <g
             transform={`translate(${x}, ${y})`}
             onClick={onClick}
-            className="group cursor-pointer select-none transition-all duration-150 hover:drop-shadow-md"
+            className="group cursor-pointer select-none transition-all duration-150 drop-shadow-[0_3px_4px_rgba(39,34,34,0.16)] hover:drop-shadow-[0_6px_10px_rgba(242,76,82,0.28)]"
         >
             <rect
                 x="0"
@@ -147,10 +149,10 @@ export default function Edificio({
                 width={ancho}
                 height={alto}
                 rx="8"
-                fill="#F1F0F0"
-                stroke="#D7D4D4"
-                strokeWidth="2"
-                className="transition-colors duration-150 group-hover:stroke-primario-300 group-hover:fill-white"
+                fill="#FFFFFF"
+                stroke="#F1F0F0"
+                strokeWidth="2.5"
+                className="transition-colors duration-150 group-hover:stroke-primario-300 group-hover:fill-[neutro-50]"
             />
 
             <text
@@ -160,6 +162,7 @@ export default function Edificio({
                 fontSize={tamanoTitulo}
                 fontWeight="bold"
                 fontFamily="Manrope, sans-serif"
+                className="group-hover:fill-primario-900 transition-colors duration-150"
             >
                 {nombre}
             </text>

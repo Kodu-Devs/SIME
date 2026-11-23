@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { X } from "lucide-react";
 import { router, usePage } from "@inertiajs/react";
 
 export default function AgendaSidePanel({
     combos = {},
     eventoSeleccionado = null,
+    extintorInicial = null,
     onCancelMovil,
     onSuccess,
     onClearSelection,
@@ -168,6 +170,29 @@ export default function AgendaSidePanel({
         }
     }, [eventoSeleccionado]);
 
+    useEffect(() => {
+        if (eventoSeleccionado || !extintorInicial) return;
+
+        const buscado = String(extintorInicial).trim().toLowerCase();
+        const encontrado = extintoresMantenimiento.find(
+            (ext) =>
+                String(ext.id) === buscado ||
+                String(ext.etiqueta_inventario || "")
+                    .trim()
+                    .toLowerCase() === buscado,
+        );
+
+        if (encontrado) {
+            setActiveTab("mantenimiento");
+            setExtintorSeleccionadoId(encontrado.id);
+        }
+    }, [extintorInicial, eventoSeleccionado, extintoresMantenimiento]);
+
+    const handleCancelarEdicion = () => {
+        limpiarFormularios();
+        onClearSelection?.();
+    };
+
     const extintorSeleccionado =
         extintoresMantenimiento.find(
             (ext) => ext.id.toString() === extintorSeleccionadoId.toString(),
@@ -302,15 +327,29 @@ export default function AgendaSidePanel({
     return (
         <aside className="w-full bg-white border border-neutro-100 rounded-xl p-5 flex flex-col gap-3.5 shadow-sm shrink-0">
             <div>
-                <h2 className="text-base font-bold text-neutro-900 leading-tight">
-                    {activeTab === "capacitacion"
-                        ? eventoSeleccionado
-                            ? "Detalles de Capacitación"
-                            : "Nueva Capacitación"
-                        : eventoSeleccionado
-                          ? "Detalles de Mantenimiento"
-                          : "Programar Mantenimiento"}
-                </h2>
+                <div className="flex items-start justify-between gap-2">
+                    <h2 className="text-base font-bold text-neutro-900 leading-tight">
+                        {activeTab === "capacitacion"
+                            ? eventoSeleccionado
+                                ? "Detalles de Capacitación"
+                                : "Nueva Capacitación"
+                            : eventoSeleccionado
+                              ? "Detalles de Mantenimiento"
+                              : "Programar Mantenimiento"}
+                    </h2>
+
+                    {eventoSeleccionado && (
+                        <button
+                            type="button"
+                            onClick={handleCancelarEdicion}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-neutro-100 bg-neutro-50 hover:bg-primario-100 hover:border-primario-300 hover:text-primario-700 text-[11px] font-semibold text-neutro-600 transition-colors cursor-pointer shrink-0"
+                        >
+                            <X className="w-3.5 h-3.5" />
+                            <span>Cancelar</span>
+                        </button>
+                    )}
+                </div>
+
                 <span className="inline-block mt-2 bg-acento-500/15 text-acento-500 text-[11px] font-semibold px-3 py-0.5 rounded-full">
                     {eventoSeleccionado
                         ? "Modo edición · Evento seleccionado"

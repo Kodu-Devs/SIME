@@ -198,13 +198,25 @@ export default function AdminLayout({ children }) {
                         <div ref={popoverRef} className="relative">
                             <button
                                 type="button"
-                                onClick={() =>
-                                    setShowNotifications(!showNotifications)
+                                disabled={enVistaAlertas}
+                                title={
+                                    enVistaAlertas
+                                        ? "Ya estás en el centro de notificaciones"
+                                        : "Notificaciones"
                                 }
+                                onClick={() => {
+                                    if (!enVistaAlertas) {
+                                        setShowNotifications(
+                                            !showNotifications,
+                                        );
+                                    }
+                                }}
                                 className={`relative p-2 rounded-full transition ${
-                                    showNotifications || enVistaAlertas
-                                        ? "bg-primario-100/60 text-primario-700"
-                                        : "text-neutro-600 hover:bg-neutro-50 hover:text-neutro-900"
+                                    enVistaAlertas
+                                        ? "bg-primario-100/60 text-primario-700 cursor-default"
+                                        : showNotifications
+                                          ? "bg-primario-100/60 text-primario-700 cursor-pointer"
+                                          : "text-neutro-600 hover:bg-neutro-50 hover:text-neutro-900 cursor-pointer"
                                 }`}
                             >
                                 <span className="sr-only">Notificaciones</span>
@@ -219,7 +231,7 @@ export default function AdminLayout({ children }) {
                             </button>
 
                             {/* POPOVER DE NOTIFICACIONES CONECTADO A AlertaService::resumenCampana() */}
-                            {showNotifications && (
+                            {showNotifications && !enVistaAlertas && (
                                 <div className="absolute right-0 top-12 w-80 sm:w-96 bg-white rounded-xl shadow-lg border border-neutro-100 overflow-hidden z-50">
                                     {/* Cabecera del Popover */}
                                     <div className="px-4 py-3 bg-neutro-50/70 border-b border-neutro-100 flex justify-between items-center">

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { Head, usePage, Link, router } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
@@ -9,7 +9,9 @@ import ExtintoresTable from "@/Components/Extintores/ExtintoresTable";
 import ExtintorFormPanel from "@/Components/Extintores/ExtintorFormPanel";
 
 export default function Index(props) {
-    const { auth } = usePage().props;
+    const { props: pageProps, url } = usePage();
+    const { auth } = pageProps;
+    const formPanelRef = useRef(null);
 
     // Datos paginados recibidos desde ExtintorController
     const extintoresPaginator = props.extintores || {};
@@ -24,9 +26,37 @@ export default function Index(props) {
     const [selectedExtintor, setSelectedExtintor] = useState(null);
     const [isMobileFormOpen, setIsMobileFormOpen] = useState(false);
 
-    // El filtro activo y los conteos globales vienen sincronizados desde el backend
     const activeFilter = props.filtroActivo || "Todos";
     const conteos = props.conteos || {};
+
+    useEffect(() => {
+        setSelectedExtintor(null);
+        setIsMobileFormOpen(false);
+    }, [extintoresPaginator.current_page, activeFilter]);
+
+    useEffect(() => {
+        const queryString = url.includes("?") ? url.split("?")[1] : "";
+        const params = new URLSearchParams(queryString);
+        if (params.get("accion") !== "nuevo") return;
+
+        setSelectedExtintor(null);
+        setIsMobileFormOpen(true);
+
+        params.delete("accion");
+        const nuevaQuery = params.toString();
+        const nuevaUrl = nuevaQuery
+            ? `${window.location.pathname}?${nuevaQuery}`
+            : window.location.pathname;
+        window.history.replaceState(window.history.state, "", nuevaUrl);
+
+        requestAnimationFrame(() => {
+            formPanelRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+            });
+        });
+    }, [url]);
+
     // Petición al servidor sin mandar 'page' para que siempre inicie en la página 1
     const handleFilterChange = (nuevoFiltro) => {
         const params = nuevoFiltro === "Todos" ? {} : { filtro: nuevoFiltro };
@@ -245,7 +275,7 @@ export default function Index(props) {
                             footer={renderPagination()}
                         />
                     </div>
-                    <div className="col-span-4 sticky top-6">
+                    <div ref={formPanelRef} className="col-span-4 sticky top-6">
                         <ExtintorFormPanel
                             selectedExtintor={selectedExtintor}
                             tipos={tipos}

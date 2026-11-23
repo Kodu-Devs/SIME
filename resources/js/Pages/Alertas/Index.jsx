@@ -12,6 +12,7 @@ import {
     Flame,
     Calendar,
 } from "lucide-react";
+import FlashBanner from "@/Components/FlashBanner";
 
 const NOMBRES_CATEGORIAS = {
     vencido: "Extintores Vencidos",
@@ -21,19 +22,22 @@ const NOMBRES_CATEGORIAS = {
     capacitacion: "Capacitaciones Próximas",
 };
 
-export default function Index({ alertas = {} }) {
+export default function Index({ alertasAgrupadas = {} }) {
     const [filtroTipo, setFiltroTipo] = useState("Todos");
 
     const tiposOrdenados = ["Urgente", "Próximo", "Informativo"];
 
     // Aplanamos temporalmente solo para saber si hay alertas en total
-    const totalAlertas = Object.values(alertas).reduce((acc, categoriasObj) => {
-        const sumaCat = Object.values(categoriasObj || {}).reduce(
-            (sum, lista) => sum + (Array.isArray(lista) ? lista.length : 0),
-            0,
-        );
-        return acc + sumaCat;
-    }, 0);
+    const totalAlertas = Object.values(alertasAgrupadas).reduce(
+        (acc, categoriasObj) => {
+            const sumaCat = Object.values(categoriasObj || {}).reduce(
+                (sum, lista) => sum + (Array.isArray(lista) ? lista.length : 0),
+                0,
+            );
+            return acc + sumaCat;
+        },
+        0,
+    );
 
     const marcarLeida = (id) => {
         router.patch(route("alertas.leer", id), {}, { preserveScroll: true });
@@ -98,7 +102,7 @@ export default function Index({ alertas = {} }) {
                         </button>
                     )}
                 </div>
-
+                <FlashBanner />
                 {/* Filtros por Tipo de Gravedad */}
                 <div className="flex flex-wrap items-center gap-2">
                     {["Todos", ...tiposOrdenados].map((tipo) => (
@@ -137,7 +141,8 @@ export default function Index({ alertas = {} }) {
                                     filtroTipo === "Todos" || filtroTipo === t,
                             )
                             .map((tipo) => {
-                                const categoriasDelTipo = alertas[tipo];
+                                const categoriasDelTipo =
+                                    alertasAgrupadas[tipo];
                                 if (!categoriasDelTipo) return null;
 
                                 const estilo = obtenerEstiloTipo(tipo);

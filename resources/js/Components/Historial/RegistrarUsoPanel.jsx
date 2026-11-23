@@ -1,8 +1,6 @@
-import { useEffect } from "react";
 import { useForm } from "@inertiajs/react";
 import InputError from "@/Components/InputError";
 
-// Valores oficiales (el backend los valida tal cual)
 const TIPOS_MOTIVO = ["Conato", "Simulacro", "Capacitación", "Otro"];
 const TIPOS_DESCARGA = [
     { valor: "total", etiqueta: "Total" },
@@ -10,51 +8,31 @@ const TIPOS_DESCARGA = [
 ];
 
 const inputClass =
-    "mt-1 w-full bg-white rounded-lg border border-neutro-100 px-3 py-2 text-xs text-neutro-900 font-medium focus:outline-none focus:border-primario-500 focus:ring-1 focus:ring-primario-500";
+    "mt-1 w-full bg-white rounded-lg border border-neutro-100 px-3 py-2 text-xs text-neutro-900 font-medium focus:outline-none focus:border-primario-500 focus:ring-1 focus:ring-primario-500 disabled:bg-neutro-50 disabled:text-neutro-300 disabled:cursor-not-allowed";
 
-// yyyy-mm-dd en hora local, para bloquear fechas futuras en el input
 const hoy = () => new Date().toLocaleDateString("en-CA");
 
 export default function RegistrarUsoPanel({
-    evento = null,
     extintores = [],
     capacitaciones = [],
     onGuardado,
     rutaGuardar = null,
 }) {
-    const { data, setData, post, processing, errors, reset, clearErrors } =
-        useForm({
-            extintor_id: "",
-            tipo_descarga: "",
-            fecha: "",
-            tipo_motivo: "",
-            motivo: "",
-            capacitacion_id: "",
-        });
-
-    useEffect(() => {
-        if (evento) {
-            setData("extintor_id", evento.extintor?.id ?? "");
-        } else {
-            reset();
-        }
-        clearErrors();
-    }, [evento]);
-
+    const { data, setData, post, processing, errors, reset } = useForm({
+        extintor_id: "",
+        tipo_descarga: "",
+        fecha: "",
+        tipo_motivo: "",
+        motivo: "",
+        capacitacion_id: "",
+    });
+    const esCapacitacion = data.tipo_motivo === "Capacitación";
     const cambiarTipoMotivo = (valor) => {
         setData({
             ...data,
             tipo_motivo: valor,
             capacitacion_id:
                 valor === "Capacitación" ? data.capacitacion_id : "",
-        });
-    };
-
-    const cambiarCapacitacion = (valor) => {
-        setData({
-            ...data,
-            capacitacion_id: valor,
-            tipo_motivo: valor ? "Capacitación" : data.tipo_motivo,
         });
     };
 
@@ -80,11 +58,6 @@ export default function RegistrarUsoPanel({
                 <h2 className="text-base font-bold text-neutro-900 leading-tight">
                     Registrar uso
                 </h2>
-                <span className="inline-block mt-2 bg-acento-500/15 text-acento-500 text-[11px] font-semibold px-3 py-0.5 rounded-full">
-                    {evento
-                        ? "Extintor precargado desde el historial"
-                        : "Exclusivo del administrador"}
-                </span>
             </div>
 
             <div>
@@ -188,10 +161,15 @@ export default function RegistrarUsoPanel({
                 <select
                     id="capacitacion_id"
                     value={data.capacitacion_id}
-                    onChange={(e) => cambiarCapacitacion(e.target.value)}
+                    disabled={!esCapacitacion}
+                    onChange={(e) => setData("capacitacion_id", e.target.value)}
                     className={inputClass}
                 >
-                    <option value="">Ninguna</option>
+                    <option value="">
+                        {esCapacitacion
+                            ? "Ninguna"
+                            : 'Disponible solo con motivo "Capacitación"'}
+                    </option>
                     {capacitaciones.map((c) => (
                         <option key={c.id} value={c.id}>
                             {c.nombre}
