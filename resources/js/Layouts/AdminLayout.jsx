@@ -201,7 +201,7 @@ export default function AdminLayout({ children }) {
                                 disabled={enVistaAlertas}
                                 title={
                                     enVistaAlertas
-                                        ? "Ya estás en el centro de notificaciones"
+                                        ? "Ya está en el centro de notificaciones"
                                         : "Notificaciones"
                                 }
                                 onClick={() => {

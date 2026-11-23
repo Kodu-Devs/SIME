@@ -304,7 +304,7 @@ export default function ExtintorFormPanel({
                             required
                             className={selectClass}
                         >
-                            <option value="">Selecciona un tipo</option>
+                            <option value="">Seleccione un tipo</option>
                             {tipos.map((tipo) => (
                                 <option key={tipo.id} value={tipo.id}>
                                     {tipo.nombre}
@@ -333,8 +333,8 @@ export default function ExtintorFormPanel({
                         >
                             <option value="">
                                 {data.tipoextintor_id
-                                    ? "Selecciona capacidad"
-                                    : "Selecciona un tipo primero"}
+                                    ? "Seleccione una capacidad"
+                                    : "Seleccione un tipo primero"}
                             </option>
                             {listaCapacidades.map((cap) => (
                                 <option key={cap} value={cap}>
@@ -417,7 +417,7 @@ export default function ExtintorFormPanel({
                             required
                             className={selectClass}
                         >
-                            <option value="">Selecciona una ubicación</option>
+                            <option value="">Seleccione una ubicación</option>
                             {ubicacionesDisponibles.map((ub) => (
                                 <option key={ub.id} value={ub.id}>
                                     {ub.nombre}

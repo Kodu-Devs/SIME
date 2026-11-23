@@ -111,7 +111,7 @@ export default function ExportarModal({ abierto, onCerrar, edificios = [] }) {
     let errorFechas = null;
     if (esUsos) {
         if (!fechaInicio || !fechaFin) {
-            errorFechas = "Elige la fecha de inicio y la de fin.";
+            errorFechas = "Elija la fecha de inicio y la de fin.";
         } else if (fechaFin < fechaInicio) {
             errorFechas =
                 "La fecha de fin no puede ser anterior a la de inicio.";
@@ -147,7 +147,7 @@ export default function ExportarModal({ abierto, onCerrar, edificios = [] }) {
                     Exportar informe
                 </h2>
                 <p className="mt-1 text-center text-sm text-neutro-600">
-                    Elige qué informe quieres generar y en qué formato.
+                    Elija qué informe quiere generar y en qué formato.
                 </p>
 
                 <fieldset className="mt-5">

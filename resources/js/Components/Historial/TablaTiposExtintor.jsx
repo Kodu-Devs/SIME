@@ -113,7 +113,7 @@ export default function TablaTiposExtintor({ onSelectClase }) {
             <div className="md:hidden space-y-3">
                 <div>
                     <p className="text-xs text-neutro-600 mb-2">
-                        Elige una{" "}
+                        Elija una{" "}
                         <strong className="text-neutro-900">
                             Clase de fuego
                         </strong>{" "}
@@ -215,7 +215,7 @@ export default function TablaTiposExtintor({ onSelectClase }) {
             <div className="hidden md:flex md:flex-col md:flex-1">
                 <div className="flex items-center justify-between gap-2 mb-3">
                     <p className="text-xs text-neutro-600">
-                        Haz clic en cualquier columna de{" "}
+                        Haga clic en cualquier columna de{" "}
                         <strong className="text-neutro-900">
                             Clase de fuego
                         </strong>{" "}
