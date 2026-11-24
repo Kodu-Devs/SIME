@@ -37,6 +37,9 @@ export default function CalendarGrid({
         );
     };
 
+    const formatearTitulo = (titulo) =>
+        String(titulo || "").replace(/^Capacitacion:/i, "Capacitación:");
+
     return (
         // Contenedor principal relativo.
         <div id="calendar-container" className="w-full relative">
@@ -112,7 +115,9 @@ export default function CalendarGrid({
                                                         <button
                                                             key={`${ev.clase}-${ev.id}`}
                                                             type="button"
-                                                            title={ev.titulo}
+                                                            title={formatearTitulo(
+                                                                ev.titulo,
+                                                            )}
                                                             onClick={(e) => {
                                                                 if (
                                                                     onSelectEvento
@@ -203,7 +208,9 @@ export default function CalendarGrid({
                                                                       : ""
                                                             }`}
                                                         >
-                                                            {ev.titulo}
+                                                            {formatearTitulo(
+                                                                ev.titulo,
+                                                            )}
                                                         </button>
                                                     );
                                                 })}
@@ -243,7 +250,7 @@ export default function CalendarGrid({
                             <p
                                 className={`text-[11px] md:text-xs font-bold mt-0.5 ${eventoSeleccionado.clase === "mantenimiento" ? "text-neutro-900" : "text-acento-500"}`}
                             >
-                                {eventoSeleccionado.titulo}
+                                {formatearTitulo(eventoSeleccionado.titulo)}
                             </p>
                         </div>
 

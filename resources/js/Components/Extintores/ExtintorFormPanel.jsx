@@ -162,8 +162,8 @@ export default function ExtintorFormPanel({
 
             let capActual = String(
                 selectedExtintor.raw?.capacidad ||
-                    selectedExtintor.capacidad ||
-                    "",
+                selectedExtintor.capacidad ||
+                "",
             ).trim();
             const rawFechaInst = selectedExtintor.raw?.fecha_instalacion;
             const fechaInst = rawFechaInst
@@ -460,19 +460,19 @@ export default function ExtintorFormPanel({
                 </div>
 
                 {/* Botones de Acción */}
-                <div className="pt-2 flex items-center justify-between gap-3">
+                <div className="pt-2 grid grid-cols-2 gap-3">
                     <button
                         type="button"
                         onClick={isEditing ? handleBaja : handleCancel}
                         disabled={processing}
-                        className="w-1/2 py-2.5 px-4 bg-white border border-primario-700 text-primario-700 font-bold rounded-xl text-xs hover:bg-primario-100 transition-colors disabled:opacity-50 cursor-pointer"
+                        className="w-full h-full min-h-[38px] py-2 px-2 flex items-center justify-center text-center bg-white border border-primario-700 text-primario-700 font-bold rounded-xl text-xs leading-tight hover:bg-primario-100 transition-colors disabled:opacity-50 cursor-pointer"
                     >
                         {isEditing ? "Dar de baja" : "Cancelar"}
                     </button>
                     <button
                         type="submit"
                         disabled={processing}
-                        className="w-1/2 py-2.5 px-4 bg-primario-500 hover:bg-primario-700 text-white font-bold rounded-xl text-xs transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
+                        className="w-full h-full min-h-[38px] py-2 px-2 flex items-center justify-center text-center bg-primario-500 hover:bg-primario-700 text-white font-bold rounded-xl text-xs leading-tight transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
                     >
                         {isEditing ? "Guardar cambios" : "Confirmar registro"}
                     </button>
