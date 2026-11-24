@@ -47,9 +47,9 @@ export default function ExtintoresTable({
 
         return (
             <span
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${config.bg} ${config.text}`}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${config.bg} ${config.text}`}
             >
-                <span className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
+                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${config.dot}`} />
                 {config.label}
             </span>
         );
@@ -100,11 +100,11 @@ export default function ExtintoresTable({
                                         selectedExtintor?.id === extintor.id;
                                     const fechaDisplay =
                                         extintor.proxima_revision &&
-                                        extintor.proxima_revision !==
+                                            extintor.proxima_revision !==
                                             "Sin programar"
                                             ? extintor.proxima_revision
                                             : extintor.proximo_mantenimiento ||
-                                              "Sin programar";
+                                            "Sin programar";
 
                                     return (
                                         <tr
@@ -116,11 +116,10 @@ export default function ExtintoresTable({
                                                         : extintor,
                                                 )
                                             }
-                                            className={`cursor-pointer transition-colors ${
-                                                isSelected
+                                            className={`cursor-pointer transition-colors ${isSelected
                                                     ? "bg-primario-100"
                                                     : "hover:bg-neutro-50"
-                                            }`}
+                                                }`}
                                         >
                                             <td className="px-4 py-3 font-mono text-neutro-600 text-[11px]">
                                                 {extintor.codigo}
@@ -134,13 +133,13 @@ export default function ExtintoresTable({
                                                 </div>
                                                 {(extintor.edificio ||
                                                     extintor.piso) && (
-                                                    <div className="text-[11px] text-neutro-600 mt-0.5">
-                                                        {extintor.edificio}{" "}
-                                                        {extintor.piso
-                                                            ? `- ${extintor.piso}`
-                                                            : ""}
-                                                    </div>
-                                                )}
+                                                        <div className="text-[11px] text-neutro-600 mt-0.5">
+                                                            {extintor.edificio}{" "}
+                                                            {extintor.piso
+                                                                ? `- ${extintor.piso}`
+                                                                : ""}
+                                                        </div>
+                                                    )}
                                             </td>
                                             <td className="px-4 py-3 font-medium text-neutro-900">
                                                 {fechaDisplay}
@@ -170,10 +169,10 @@ export default function ExtintoresTable({
                         const isSelected = selectedExtintor?.id === extintor.id;
                         const fechaDisplay =
                             extintor.proxima_revision &&
-                            extintor.proxima_revision !== "Sin programar"
+                                extintor.proxima_revision !== "Sin programar"
                                 ? extintor.proxima_revision
                                 : extintor.proximo_mantenimiento ||
-                                  "Sin programar";
+                                "Sin programar";
 
                         return (
                             <div
@@ -183,11 +182,10 @@ export default function ExtintoresTable({
                                         isSelected ? null : extintor,
                                     )
                                 }
-                                className={`p-4 rounded-xl border transition-all cursor-pointer shadow-xs ${
-                                    isSelected
+                                className={`p-4 rounded-xl border transition-all cursor-pointer shadow-xs ${isSelected
                                         ? "bg-primario-100 border-primario-300"
                                         : "bg-white border-neutro-100 hover:bg-neutro-50"
-                                }`}
+                                    }`}
                             >
                                 <div className="flex items-center justify-between gap-2">
                                     <span className="text-[11px] font-mono text-neutro-600">
