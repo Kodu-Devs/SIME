@@ -1,386 +1,20 @@
 import React from "react";
 import { ArrowLeft } from "lucide-react";
+import { DISTRIBUCIONES_PB } from "@/Components/Mapa/Planos/PlantaBaja";
+import { DISTRIBUCIONES_PA } from "@/Components/Mapa/Planos/PlantaAlta";
+import { DISTRIBUCIONES_NIVELES_E } from "@/Components/Mapa/Planos/Niveles";
 
-// 1. DIBUJOS BASE (Extraemos los rectángulos de cada edificio 1 sola vez)
-const BaseA = () => (
-    <>
-        <rect
-            width="707.887"
-            height="391.91"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 4 353.921)"
-            fill="#F1F0F0"
-            shapeRendering="crispEdges"
-        />
-        <rect
-            x="3.46418"
-            width="703.887"
-            height="387.91"
-            rx="6"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 4.46405 355.652)"
-            stroke="#D7D4D4"
-            strokeWidth="4"
-            shapeRendering="crispEdges"
-        />
-        <rect
-            width="168.544"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 21.3209 353.921)"
-            fill="#FDEDED"
-        />
-        <rect
-            opacity="0.38"
-            width="52.4181"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 171.478 267.235)"
-            fill="#1C9691"
-        />
-        <rect
-            width="112.901"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 221.065 238.608)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="104.836"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 323.032 179.742)"
-            fill="#F1F0F0"
-        />
-        <rect
-            width="112.094"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 418.016 124.909)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="110.616"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 519.285 66.446)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="168.544"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 214.843 465.641)"
-            fill="#FDEDED"
-        />
-        <rect
-            opacity="0.38"
-            width="52.4181"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 365 378.955)"
-            fill="#1C9691"
-        />
-        <rect
-            width="112.901"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 414.587 350.328)"
-            fill="#F9CACB"
-        />
-        <rect
-            width="104.836"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 516.554 291.463)"
-            fill="#928586"
-        />
-        <rect
-            width="112.094"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 611.538 236.629)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="110.616"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 712.806 178.166)"
-            fill="#FDEDED"
-        />
-    </>
-);
-
-// Edificio B - Planta baja (también la usa el Edificio D)
-const BaseBD = () => (
-    <>
-        <rect
-            width="707.887"
-            height="392.271"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 0 353.92)"
-            fill="#F1F0F0"
-            shapeRendering="crispEdges"
-        />
-        <rect
-            x="3.46418"
-            width="703.887"
-            height="388.271"
-            rx="6"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 0.464046 355.652)"
-            stroke="#D7D4D4"
-            strokeWidth="4"
-            shapeRendering="crispEdges"
-        />
-        <rect
-            width="112.901"
-            height="148.635"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 118.58 295.464)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="72.4092"
-            height="71.8841"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 286.924 274.65)"
-            fill="#928586"
-        />
-        <rect
-            width="72.4092"
-            height="72.0713"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 220.779 236.464)"
-            fill="#F9CACB"
-        />
-        <rect
-            width="72.4092"
-            height="149.006"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 354.318 159.372)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="112.094"
-            height="148.635"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 17.3209 353.92)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="110.616"
-            height="148.635"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 521.187 63.0388)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="110.616"
-            height="148.635"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 421.208 120.757)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="344.751"
-            height="148.635"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 210.999 465.731)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="338.292"
-            height="147.881"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 514.417 291.322)"
-            fill="#FDEDED"
-        />
-    </>
-);
-
-// Edificio B - Planta alta (oficina turquesa grande + franja gris)
-const BaseBAlta = () => (
-    <>
-        <rect
-            width="707.887"
-            height="391.98"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 0 353.92)"
-            fill="#F1F0F0"
-            shapeRendering="crispEdges"
-        />
-        <rect
-            x="3.46418"
-            width="703.887"
-            height="387.98"
-            rx="6"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 0.464046 355.652)"
-            stroke="#D7D4D4"
-            strokeWidth="4"
-            shapeRendering="crispEdges"
-        />
-        <rect
-            width="112.901"
-            height="148.49"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 118.58 295.464)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="72.4092"
-            height="71.8138"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 286.859 274.613)"
-            fill="#928586"
-        />
-        <rect
-            width="72.4092"
-            height="72.0008"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 220.778 236.464)"
-            fill="#F9CACB"
-        />
-        <rect
-            opacity="0.38"
-            width="149.646"
-            height="148.864"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 287.668 197.849)"
-            fill="#1C9691"
-        />
-        <rect
-            width="112.094"
-            height="148.49"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 17.3208 353.92)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="110.616"
-            height="148.49"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 521.187 63.0388)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="110.616"
-            height="148.49"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 421.208 120.757)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="687.887"
-            height="148.49"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 210.873 465.658)"
-            fill="#D7D4D4"
-        />
-    </>
-);
-
-const BaseC = () => (
-    <>
-        <rect
-            width="707.887"
-            height="391.91"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 4 353.92)"
-            fill="#F1F0F0"
-            shapeRendering="crispEdges"
-        />
-        <rect
-            x="3.46418"
-            width="703.887"
-            height="387.91"
-            rx="6"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 4.46405 355.652)"
-            stroke="#D7D4D4"
-            strokeWidth="4"
-            shapeRendering="crispEdges"
-        />
-        <rect
-            width="113.229"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 220.78 238.773)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="105.141"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 323.043 179.736)"
-            fill="#F1F0F0"
-        />
-        <rect
-            width="228.349"
-            height="148.077"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 418.071 124.877)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="112.42"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 19.0573 355.227)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="110.937"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 120.62 296.595)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="226.735"
-            height="148.833"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 213.65 465.952)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="113.229"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 414.302 350.493)"
-            fill="#F9CACB"
-        />
-        <rect
-            width="105.141"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 516.565 291.456)"
-            fill="#928586"
-        />
-        <rect
-            width="112.42"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 611.825 236.463)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="110.937"
-            height="148.455"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 713.388 177.83)"
-            fill="#FDEDED"
-        />
-    </>
-);
-
-const COLORES_ISO_E = {
-    oficina: { fill: "#1C9691", opacity: 0.38 },
+const COLORES_ISO = {
     salon: { fill: "#FDEDED" },
+    oficina: { fill: "#1C9691", opacity: 0.38 },
     bano: { fill: "#F9CACB" },
     escaleras: { fill: "#928586" },
-    emergencia: { fill: "#D9D9D9" },
+    pasillo: { fill: "#F1F0F0" },
+    taller: { fill: "#D7D4D4" },
+    vestibulo: { fill: "#FDEDED", opacity: 0.38 },
 };
 
-const BaseEPlanta = ({ bloques }) => (
+const BaseIsometricaPlanta = ({ espacios = [] }) => (
     <>
         <rect
             width="707.887"
@@ -401,138 +35,109 @@ const BaseEPlanta = ({ bloques }) => (
             shapeRendering="crispEdges"
         />
         <g transform="matrix(0.866044 -0.499967 0.866044 0.499967 0 353.921) scale(0.816479)">
-            {bloques.map((b, i) => {
-                const estilo = COLORES_ISO_E[b.tipo] || COLORES_ISO_E.salon;
+            {espacios.map((espacio, index) => {
+                const estilo = COLORES_ISO[espacio.tipo] || COLORES_ISO.salon;
                 return (
                     <rect
-                        key={i}
-                        x={b.x}
-                        y={b.y}
-                        width={b.w}
-                        height={b.h}
+                        key={index}
+                        x={espacio.x}
+                        y={espacio.y}
+                        width={espacio.width}
+                        height={espacio.height}
                         rx="9.8"
-                        fill={estilo.fill}
+                        fill={espacio.fill || estilo.fill}
                         opacity={estilo.opacity}
                     />
                 );
             })}
-            <rect
-                x="759"
-                y="165"
-                width="103"
-                height="150"
-                rx="9.8"
-                fill="#D9D9D9"
-            />
         </g>
     </>
 );
 
-const BaseEPB = () => (
-    <BaseEPlanta
-        bloques={[
-            { x: 6, y: 6, w: 182.25, h: 468.5, tipo: "oficina" },
-            { x: 194.25, y: 6, w: 56.75, h: 196.5, tipo: "oficina" },
-            { x: 257, y: 6, w: 119.5, h: 196.5, tipo: "escaleras" },
-            { x: 382.5, y: 6, w: 119.5, h: 196.5, tipo: "bano" },
-            { x: 508, y: 6, w: 245, h: 196.5, tipo: "salon" },
-            { x: 194.25, y: 278, w: 56.75, h: 196.5, tipo: "salon" },
-            { x: 382.5, y: 278, w: 245, h: 196.5, tipo: "salon" },
-            { x: 633.5, y: 278, w: 119.5, h: 196.5, tipo: "salon" },
-        ]}
-    />
-);
-
-const BaseENivel1 = () => (
-    <BaseEPlanta
-        bloques={[
-            { x: 6, y: 6, w: 119.5, h: 196.5, tipo: "oficina" },
-            { x: 131.5, y: 6, w: 119.5, h: 196.5, tipo: "oficina" },
-            { x: 257, y: 6, w: 119.5, h: 196.5, tipo: "escaleras" },
-            { x: 382.5, y: 6, w: 119.5, h: 196.5, tipo: "bano" },
-            { x: 508, y: 6, w: 119.5, h: 196.5, tipo: "salon" },
-            { x: 633.5, y: 6, w: 119.5, h: 196.5, tipo: "salon" },
-            { x: 6, y: 278, w: 119.5, h: 196.5, tipo: "oficina" },
-            { x: 131.5, y: 278, w: 119.5, h: 196.5, tipo: "oficina" },
-            { x: 382.5, y: 278, w: 119.5, h: 196.5, tipo: "salon" },
-            { x: 508, y: 278, w: 245, h: 196.5, tipo: "salon" },
-        ]}
-    />
-);
-
-const BaseENivel2 = () => (
-    <BaseEPlanta
-        bloques={[
-            { x: 6, y: 6, w: 245, h: 196.5, tipo: "oficina" },
-            { x: 257, y: 6, w: 119.5, h: 196.5, tipo: "escaleras" },
-            { x: 382.5, y: 6, w: 119.5, h: 196.5, tipo: "bano" },
-            { x: 508, y: 6, w: 119.5, h: 196.5, tipo: "salon" },
-            { x: 633.5, y: 6, w: 119.5, h: 196.5, tipo: "salon" },
-            { x: 6, y: 278, w: 119.5, h: 196.5, tipo: "oficina" },
-            { x: 131.5, y: 278, w: 119.5, h: 196.5, tipo: "oficina" },
-            { x: 257, y: 278, w: 119.5, h: 196.5, tipo: "salon" },
-            { x: 382.5, y: 278, w: 182.25, h: 196.5, tipo: "salon" },
-            { x: 570.75, y: 278, w: 182.25, h: 196.5, tipo: "salon" },
-        ]}
-    />
-);
-
-const BaseENivel3 = () => (
-    <BaseEPlanta
-        bloques={[
-            { x: 6, y: 6, w: 245, h: 468.5, tipo: "oficina" },
-            { x: 257, y: 6, w: 119.5, h: 196.5, tipo: "escaleras" },
-            { x: 382.5, y: 6, w: 119.5, h: 196.5, tipo: "bano" },
-            { x: 508, y: 6, w: 245, h: 196.5, tipo: "salon" },
-            { x: 257, y: 278, w: 119.5, h: 196.5, tipo: "salon" },
-            { x: 382.5, y: 278, w: 119.5, h: 196.5, tipo: "salon" },
-            { x: 508, y: 278, w: 245, h: 196.5, tipo: "salon" },
-        ]}
-    />
-);
-
-// CONFIG_EDIFICIOS
 const CONFIG_EDIFICIOS = {
     "Edificio A": {
         viewBox: "0 -240 962 800",
-        ComponenteBase: BaseA,
         niveles: [
-            { nombre: "Planta baja", y: 0 },
-            { nombre: "Nivel 1", y: -220 },
+            {
+                nombre: "Planta baja",
+                y: 0,
+                espacios: DISTRIBUCIONES_PB["Edificio A"],
+            },
+            {
+                nombre: "Nivel 1",
+                y: -220,
+                espacios: DISTRIBUCIONES_PA["Edificio A"],
+            },
         ],
     },
     "Edificio B": {
         viewBox: "0 -240 962 800",
-        ComponenteBase: BaseBD,
         niveles: [
-            { nombre: "Planta baja", y: 0, Componente: BaseBD },
-            { nombre: "Nivel 1", y: -220, Componente: BaseBAlta },
+            {
+                nombre: "Planta baja",
+                y: 0,
+                espacios: DISTRIBUCIONES_PB["Edificio B"],
+            },
+            {
+                nombre: "Nivel 1",
+                y: -220,
+                espacios: DISTRIBUCIONES_PA["Edificio B"],
+            },
         ],
     },
     "Edificio C": {
         viewBox: "0 -240 962 800",
-        ComponenteBase: BaseC,
         niveles: [
-            { nombre: "Planta baja", y: 0 },
-            { nombre: "Nivel 1", y: -220 },
+            {
+                nombre: "Planta baja",
+                y: 0,
+                espacios: DISTRIBUCIONES_PB["Edificio C"],
+            },
+            {
+                nombre: "Nivel 1",
+                y: -220,
+                espacios: DISTRIBUCIONES_PA["Edificio C"],
+            },
         ],
     },
     "Edificio D": {
         viewBox: "0 -240 962 800",
-        ComponenteBase: BaseBD,
         niveles: [
-            { nombre: "Planta baja", y: 0, Componente: BaseBD },
-            { nombre: "Nivel 1", y: -220, Componente: BaseBAlta },
+            {
+                nombre: "Planta baja",
+                y: 0,
+                espacios: DISTRIBUCIONES_PB["Edificio D"],
+            },
+            {
+                nombre: "Nivel 1",
+                y: -220,
+                espacios: DISTRIBUCIONES_PA["Edificio D"],
+            },
         ],
     },
     "Edificio E": {
         viewBox: "0 -560 962 1120",
-        ComponenteBase: BaseEPB,
         niveles: [
-            { nombre: "Planta baja", y: 0, Componente: BaseEPB },
-            { nombre: "Nivel 1", y: -180, Componente: BaseENivel1 },
-            { nombre: "Nivel 2", y: -360, Componente: BaseENivel2 },
-            { nombre: "Nivel 3", y: -540, Componente: BaseENivel3 },
+            {
+                nombre: "Planta baja",
+                y: 0,
+                espacios: DISTRIBUCIONES_PB["Edificio E"],
+            },
+            {
+                nombre: "Nivel 1",
+                y: -180,
+                espacios: DISTRIBUCIONES_NIVELES_E["Nivel 1"],
+            },
+            {
+                nombre: "Nivel 2",
+                y: -360,
+                espacios: DISTRIBUCIONES_NIVELES_E["Nivel 2"],
+            },
+            {
+                nombre: "Nivel 3",
+                y: -540,
+                espacios: DISTRIBUCIONES_NIVELES_E["Nivel 3"],
+            },
         ],
     },
 };
@@ -549,7 +154,7 @@ export default function VistaIsometrica({ edificio, onVolver, onSelectPiso }) {
             );
         }
 
-        const { viewBox, ComponenteBase, niveles } = config;
+        const { viewBox, niveles } = config;
 
         return (
             <svg
@@ -560,7 +165,6 @@ export default function VistaIsometrica({ edificio, onVolver, onSelectPiso }) {
                 xmlns="http://www.w3.org/2000/svg"
                 className="max-h-[500px] drop-shadow-md overflow-visible"
             >
-                {/* Definición de la sombra reutilizable */}
                 <defs>
                     <filter
                         id="shadow"
@@ -599,25 +203,21 @@ export default function VistaIsometrica({ edificio, onVolver, onSelectPiso }) {
                     </filter>
                 </defs>
 
-                {/* 3. MAPEO AUTOMÁTICO: cada nivel usa su propio componente o, si no tiene, la base del edificio */}
-                {niveles.map((nivel) => {
-                    const Componente = nivel.Componente || ComponenteBase;
-                    return (
-                        <g
-                            key={nivel.nombre}
-                            transform={
-                                nivel.y !== 0
-                                    ? `translate(0, ${nivel.y})`
-                                    : undefined
-                            }
-                            filter="url(#shadow)"
-                            onClick={() => onSelectPiso(nivel.nombre)}
-                            className="cursor-pointer hover:brightness-95 transition-all duration-200"
-                        >
-                            <Componente />
-                        </g>
-                    );
-                })}
+                {niveles.map((nivel) => (
+                    <g
+                        key={nivel.nombre}
+                        transform={
+                            nivel.y !== 0
+                                ? `translate(0, ${nivel.y})`
+                                : undefined
+                        }
+                        filter="url(#shadow)"
+                        onClick={() => onSelectPiso(nivel.nombre)}
+                        className="cursor-pointer hover:brightness-95 transition-all duration-200"
+                    >
+                        <BaseIsometricaPlanta espacios={nivel.espacios} />
+                    </g>
+                ))}
             </svg>
         );
     };

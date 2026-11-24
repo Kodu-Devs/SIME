@@ -11,9 +11,8 @@ const ESCALERAS_EMERGENCIA = {
     fill: "#D9D9D9",
 };
 
-const DISTRIBUCIONES_NIVELES_E = {
+export const DISTRIBUCIONES_NIVELES_E = {
     "Nivel 1": [
-        // Fila superior
         {
             x: 6,
             y: 6,
@@ -62,8 +61,6 @@ const DISTRIBUCIONES_NIVELES_E = {
             tipo: "salon",
             nombre: "Salón",
         },
-
-        // Fila inferior (espacio debajo de escaleras abierto sin etiqueta)
         {
             x: 6,
             y: 278,
@@ -78,7 +75,7 @@ const DISTRIBUCIONES_NIVELES_E = {
             width: 119.5,
             height: 196.5,
             tipo: "oficina",
-            nombre: "Oficina administración",
+            nombre: "Oficina",
         },
         {
             x: 382.5,
@@ -96,12 +93,10 @@ const DISTRIBUCIONES_NIVELES_E = {
             tipo: "salon",
             nombre: "Salón",
         },
-
         ESCALERAS_EMERGENCIA,
     ],
 
     "Nivel 2": [
-        // Fila superior
         {
             x: 6,
             y: 6,
@@ -142,8 +137,6 @@ const DISTRIBUCIONES_NIVELES_E = {
             tipo: "salon",
             nombre: "Salón",
         },
-
-        // Fila inferior
         {
             x: 6,
             y: 278,
@@ -184,22 +177,18 @@ const DISTRIBUCIONES_NIVELES_E = {
             tipo: "salon",
             nombre: "Salón",
         },
-
         ESCALERAS_EMERGENCIA,
     ],
 
     "Nivel 3": [
-        // Bloque completo izquierdo
         {
             x: 6,
             y: 6,
             width: 245,
             height: 468.5,
             tipo: "oficina",
-            nombre: "Oficinas administrativas",
+            nombre: "Oficina",
         },
-
-        // Fila superior derecha
         {
             x: 257,
             y: 6,
@@ -224,8 +213,6 @@ const DISTRIBUCIONES_NIVELES_E = {
             tipo: "salon",
             nombre: "Salón",
         },
-
-        // Fila inferior derecha
         {
             x: 257,
             y: 278,
@@ -250,7 +237,6 @@ const DISTRIBUCIONES_NIVELES_E = {
             tipo: "salon",
             nombre: "Salón",
         },
-
         ESCALERAS_EMERGENCIA,
     ],
 };
