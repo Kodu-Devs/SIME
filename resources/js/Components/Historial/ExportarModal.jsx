@@ -142,7 +142,7 @@ export default function ExportarModal({ abierto, onCerrar, edificios = [] }) {
 
     return (
         <Modal show={abierto} onClose={onCerrar} maxWidth="lg">
-            <div className="p-6">
+            <div className="max-h-[85dvh] overflow-y-auto p-6">
                 <h2 className="text-center text-titulo-2 text-neutro-900">
                     Exportar informe
                 </h2>
