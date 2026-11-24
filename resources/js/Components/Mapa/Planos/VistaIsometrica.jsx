@@ -372,7 +372,15 @@ const BaseC = () => (
     </>
 );
 
-const BaseE = () => (
+const COLORES_ISO_E = {
+    oficina: { fill: "#1C9691", opacity: 0.38 },
+    salon: { fill: "#FDEDED" },
+    bano: { fill: "#F9CACB" },
+    escaleras: { fill: "#928586" },
+    emergencia: { fill: "#D9D9D9" },
+};
+
+const BaseEPlanta = ({ bloques }) => (
     <>
         <rect
             width="707.887"
@@ -392,92 +400,95 @@ const BaseE = () => (
             strokeWidth="4"
             shapeRendering="crispEdges"
         />
-        <rect
-            width="146.15"
-            height="382.112"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 8.89551 354.795)"
-            fill="#FDEDED"
-        />
-        <rect
-            opacity="0.38"
-            width="46.7791"
-            height="153.556"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 139.71 279.276)"
-            fill="#1C9691"
-        />
-        <rect
-            width="98.1147"
-            height="153.556"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 184.471 253.435)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="98.1147"
-            height="153.556"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 273.692 201.928)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="98.1147"
-            height="153.556"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 362.912 150.421)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="98.1147"
-            height="153.556"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 452.132 98.9141)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="46.7791"
-            height="153.556"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 337.649 393.546)"
-            fill="#F9CACB"
-        />
-        <rect
-            width="98.1147"
-            height="153.556"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 382.411 367.705)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="98.1147"
-            height="153.556"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 471.631 316.198)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="98.1147"
-            height="153.556"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 560.852 264.692)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="98.1147"
-            height="153.556"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 650.072 213.185)"
-            fill="#FDEDED"
-        />
-        <rect
-            width="84.0973"
-            height="122.472"
-            rx="8"
-            transform="matrix(0.866044 -0.499967 0.866044 0.499967 653.777 112.317)"
-            fill="#D9D9D9"
-        />
+        <g transform="matrix(0.866044 -0.499967 0.866044 0.499967 0 353.921) scale(0.816479)">
+            {bloques.map((b, i) => {
+                const estilo = COLORES_ISO_E[b.tipo] || COLORES_ISO_E.salon;
+                return (
+                    <rect
+                        key={i}
+                        x={b.x}
+                        y={b.y}
+                        width={b.w}
+                        height={b.h}
+                        rx="9.8"
+                        fill={estilo.fill}
+                        opacity={estilo.opacity}
+                    />
+                );
+            })}
+            <rect
+                x="759"
+                y="165"
+                width="103"
+                height="150"
+                rx="9.8"
+                fill="#D9D9D9"
+            />
+        </g>
     </>
+);
+
+const BaseEPB = () => (
+    <BaseEPlanta
+        bloques={[
+            { x: 6, y: 6, w: 182.25, h: 468.5, tipo: "oficina" },
+            { x: 194.25, y: 6, w: 56.75, h: 196.5, tipo: "oficina" },
+            { x: 257, y: 6, w: 119.5, h: 196.5, tipo: "escaleras" },
+            { x: 382.5, y: 6, w: 119.5, h: 196.5, tipo: "bano" },
+            { x: 508, y: 6, w: 245, h: 196.5, tipo: "salon" },
+            { x: 194.25, y: 278, w: 56.75, h: 196.5, tipo: "salon" },
+            { x: 382.5, y: 278, w: 245, h: 196.5, tipo: "salon" },
+            { x: 633.5, y: 278, w: 119.5, h: 196.5, tipo: "salon" },
+        ]}
+    />
+);
+
+const BaseENivel1 = () => (
+    <BaseEPlanta
+        bloques={[
+            { x: 6, y: 6, w: 119.5, h: 196.5, tipo: "oficina" },
+            { x: 131.5, y: 6, w: 119.5, h: 196.5, tipo: "oficina" },
+            { x: 257, y: 6, w: 119.5, h: 196.5, tipo: "escaleras" },
+            { x: 382.5, y: 6, w: 119.5, h: 196.5, tipo: "bano" },
+            { x: 508, y: 6, w: 119.5, h: 196.5, tipo: "salon" },
+            { x: 633.5, y: 6, w: 119.5, h: 196.5, tipo: "salon" },
+            { x: 6, y: 278, w: 119.5, h: 196.5, tipo: "oficina" },
+            { x: 131.5, y: 278, w: 119.5, h: 196.5, tipo: "oficina" },
+            { x: 382.5, y: 278, w: 119.5, h: 196.5, tipo: "salon" },
+            { x: 508, y: 278, w: 245, h: 196.5, tipo: "salon" },
+        ]}
+    />
+);
+
+const BaseENivel2 = () => (
+    <BaseEPlanta
+        bloques={[
+            { x: 6, y: 6, w: 245, h: 196.5, tipo: "oficina" },
+            { x: 257, y: 6, w: 119.5, h: 196.5, tipo: "escaleras" },
+            { x: 382.5, y: 6, w: 119.5, h: 196.5, tipo: "bano" },
+            { x: 508, y: 6, w: 119.5, h: 196.5, tipo: "salon" },
+            { x: 633.5, y: 6, w: 119.5, h: 196.5, tipo: "salon" },
+            { x: 6, y: 278, w: 119.5, h: 196.5, tipo: "oficina" },
+            { x: 131.5, y: 278, w: 119.5, h: 196.5, tipo: "oficina" },
+            { x: 257, y: 278, w: 119.5, h: 196.5, tipo: "salon" },
+            { x: 382.5, y: 278, w: 182.25, h: 196.5, tipo: "salon" },
+            { x: 570.75, y: 278, w: 182.25, h: 196.5, tipo: "salon" },
+        ]}
+    />
+);
+
+const BaseENivel3 = () => (
+    <BaseEPlanta
+        bloques={[
+            { x: 6, y: 6, w: 245, h: 468.5, tipo: "oficina" },
+            { x: 257, y: 6, w: 119.5, h: 196.5, tipo: "escaleras" },
+            { x: 382.5, y: 6, w: 119.5, h: 196.5, tipo: "bano" },
+            { x: 508, y: 6, w: 245, h: 196.5, tipo: "salon" },
+            { x: 257, y: 278, w: 119.5, h: 196.5, tipo: "salon" },
+            { x: 382.5, y: 278, w: 119.5, h: 196.5, tipo: "salon" },
+            { x: 508, y: 278, w: 245, h: 196.5, tipo: "salon" },
+        ]}
+    />
 );
 
 // CONFIG_EDIFICIOS
@@ -516,12 +527,12 @@ const CONFIG_EDIFICIOS = {
     },
     "Edificio E": {
         viewBox: "0 -560 962 1120",
-        ComponenteBase: BaseE,
+        ComponenteBase: BaseEPB,
         niveles: [
-            { nombre: "Planta baja", y: 0 },
-            { nombre: "Nivel 1", y: -180 },
-            { nombre: "Nivel 2", y: -360 },
-            { nombre: "Nivel 3", y: -540 },
+            { nombre: "Planta baja", y: 0, Componente: BaseEPB },
+            { nombre: "Nivel 1", y: -180, Componente: BaseENivel1 },
+            { nombre: "Nivel 2", y: -360, Componente: BaseENivel2 },
+            { nombre: "Nivel 3", y: -540, Componente: BaseENivel3 },
         ],
     },
 };
