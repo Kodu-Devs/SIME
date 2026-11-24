@@ -288,10 +288,7 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
                                                 : "bg-neutro-900"
                                         }`}
                                     />
-                                    <span className="hidden sm:inline">
-                                        Mantenimientos
-                                    </span>
-                                    <span className="sm:hidden">Mant.</span>
+                                    <span>Mantenimientos</span>
                                 </button>
                                 <button
                                     type="button"
@@ -303,10 +300,7 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
                                     }`}
                                 >
                                     <span className="w-2 h-2 rounded-full bg-acento-500 inline-block" />
-                                    <span className="hidden sm:inline">
-                                        Capacitaciones
-                                    </span>
-                                    <span className="sm:hidden">Capacit.</span>
+                                    <span>Capacitaciones</span>
                                 </button>
                             </div>
                         ) : (
