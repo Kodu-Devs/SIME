@@ -20,31 +20,68 @@ class UbicacionSeeder extends Seeder
             return;
         }
 
-        // [instalación, piso, nombre, tipo_area]  (copiado tal cual del Excel)
+        // [instalación, piso, nombre, tipo_area]
+        // Solo zonas donde puede haber extintores (sin salones ni baños).
+        // Los nombres deben coincidir EXACTO con los de los planos.
         $ubicaciones = [
+            // Edificio A
             ['Edificio A', 'Planta baja', 'Escaleras', 'Escaleras'],
             ['Edificio A', 'Planta baja', 'Oficina de cómputo', 'Oficina'],
+            ['Edificio A', 'Planta baja', 'Oficina', 'Oficina'],
+            ['Edificio A', 'Planta baja', 'Pasillo', 'Pasillo'],
             ['Edificio A', 'Nivel 1', 'Escaleras', 'Escaleras'],
             ['Edificio A', 'Nivel 1', 'Administración', 'Oficina'],
             ['Edificio A', 'Nivel 1', 'Lab. Dibujo', 'Laboratorio'],
+            ['Edificio A', 'Nivel 1', 'Oficina', 'Oficina'],
+            ['Edificio A', 'Nivel 1', 'Pasillo', 'Pasillo'],
+
+            // Edificio B
             ['Edificio B', 'Planta baja', 'Pasillo', 'Pasillo'],
+            ['Edificio B', 'Planta baja', 'Escaleras', 'Escaleras'],
             ['Edificio B', 'Planta baja', 'Taller automotriz', 'Taller'],
             ['Edificio B', 'Planta baja', 'Taller de robótica', 'Taller'],
             ['Edificio B', 'Nivel 1', 'Pasillo', 'Pasillo'],
+            ['Edificio B', 'Nivel 1', 'Escaleras', 'Escaleras'],
+            ['Edificio B', 'Nivel 1', 'Oficina', 'Oficina'],
             ['Edificio B', 'Nivel 1', 'Lab. Redes', 'Laboratorio'],
+
+            // Edificio C
             ['Edificio C', 'Planta baja', 'Escaleras', 'Escaleras'],
             ['Edificio C', 'Planta baja', 'Pasillo', 'Pasillo'],
             ['Edificio C', 'Planta baja', 'Lab. Programación', 'Laboratorio'],
             ['Edificio C', 'Planta baja', 'Auditorio', 'Auditorio'],
             ['Edificio C', 'Nivel 1', 'Escaleras', 'Escaleras'],
             ['Edificio C', 'Nivel 1', 'Biblioteca', 'Biblioteca'],
+            ['Edificio C', 'Nivel 1', 'Pasillo', 'Pasillo'],
+
+            // Edificio D
+            ['Edificio D', 'Planta baja', 'Pasillo', 'Pasillo'],
+            ['Edificio D', 'Planta baja', 'Escaleras', 'Escaleras'],
+            ['Edificio D', 'Planta baja', 'Taller 1', 'Taller'],
+            ['Edificio D', 'Planta baja', 'Taller 2', 'Taller'],
+            ['Edificio D', 'Nivel 1', 'Pasillo', 'Pasillo'],
+            ['Edificio D', 'Nivel 1', 'Escaleras', 'Escaleras'],
+            ['Edificio D', 'Nivel 1', 'Oficina', 'Oficina'],
+
+            // Edificio E
             ['Edificio E', 'Planta baja', 'Auditorio', 'Auditorio'],
+            ['Edificio E', 'Planta baja', 'Oficina', 'Oficina'],
+            ['Edificio E', 'Planta baja', 'Escaleras', 'Escaleras'],
+            ['Edificio E', 'Nivel 1', 'Oficina', 'Oficina'],
+            ['Edificio E', 'Nivel 1', 'Escaleras', 'Escaleras'],
+            ['Edificio E', 'Nivel 2', 'Oficina', 'Oficina'],
+            ['Edificio E', 'Nivel 2', 'Escaleras', 'Escaleras'],
+            ['Edificio E', 'Nivel 3', 'Oficina', 'Oficina'],
+            ['Edificio E', 'Nivel 3', 'Escaleras', 'Escaleras'],
+
+            // Áreas
             ['Cafetería y SUM', 'Nivel único', 'Cocina', 'Cocina'],
             ['Cafetería y SUM', 'Nivel único', 'SUM', 'Sala'],
             ['Parque vehicular', 'Nivel único', 'Estacionamiento', 'Estacionamiento'],
             ['Parque vehicular', 'Nivel único', 'Sprinter', 'Vehículo'],
             ['Almacén 2', 'Nivel único', 'Cuarto de vigilancia', 'Vigilancia'],
             ['Almacén', 'Nivel único', 'Almacén general', 'Almacén'],
+            ['Estacionamiento de motocicletas', 'Nivel único', 'Estacionamiento', 'Estacionamiento'],
         ];
 
         foreach ($ubicaciones as [$nombreInst, $nombrePiso, $nombre, $tipoArea]) {
