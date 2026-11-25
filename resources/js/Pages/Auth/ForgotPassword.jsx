@@ -26,7 +26,7 @@ export default function ForgotPassword({ status }) {
                         <img
                             src="/img/Logo.png"
                             alt="Logo SIME"
-                            className="h-20 w-auto object-contain brightness-150"
+                            className="h-20 w-auto object-contain brightness-110"
                             onError={(e) => {
                                 e.currentTarget.style.display = "none";
                             }}
@@ -50,12 +50,26 @@ export default function ForgotPassword({ status }) {
                     </div>
 
                     {/* Pie discreto para volver al mapa público */}
-                    <div className="z-10">
+                    <div className="z-10 pt-2">
                         <Link
                             href={route("mapa.index")}
-                            className="inline-flex items-center gap-2 text-xs text-white/70 hover:text-white transition"
+                            className="group inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-neutro-50/10 hover:bg-neutro-50/20 border border-white/15 hover:border-white/40 text-etiqueta font-semibold text-white shadow-sm transition-all duration-200"
                         >
-                            <span>← Volver a la consulta pública</span>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={2.2}
+                                stroke="currentColor"
+                                className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+                                />
+                            </svg>
+                            <span>Volver a la consulta pública</span>
                         </Link>
                     </div>
                 </div>

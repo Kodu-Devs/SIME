@@ -1,8 +1,9 @@
 import React from "react";
 import Espacio from "@/Components/Mapa/Planos/Espacio";
 
-const DISTRIBUCIONES_PB = {
+export const DISTRIBUCIONES_PB = {
     "Edificio A": [
+        // Fila superior (volteada: antes era la fila inferior)
         {
             x: 10,
             y: 10,
@@ -14,6 +15,56 @@ const DISTRIBUCIONES_PB = {
         {
             x: 223,
             y: 10,
+            width: 64.54,
+            height: 194.5,
+            tipo: "oficina",
+            nombre: "Oficina",
+        },
+        {
+            x: 294,
+            y: 10,
+            width: 139.01,
+            height: 194.5,
+            tipo: "bano",
+            nombre: "Baños",
+        },
+        {
+            x: 439,
+            y: 10,
+            width: 129.08,
+            height: 194.5,
+            tipo: "escaleras",
+            nombre: "Escaleras",
+        },
+        {
+            x: 574,
+            y: 10,
+            width: 138.02,
+            height: 194.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
+        {
+            x: 718,
+            y: 10,
+            width: 136.2,
+            height: 194.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
+
+        // Fila inferior (pasillo de entrada abajo)
+        {
+            x: 10,
+            y: 280,
+            width: 207.53,
+            height: 194.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
+        {
+            x: 223,
+            y: 280,
             width: 64.54,
             height: 194.5,
             tipo: "oficina",
@@ -21,7 +72,7 @@ const DISTRIBUCIONES_PB = {
         },
         {
             x: 294,
-            y: 10,
+            y: 280,
             width: 139.01,
             height: 194.5,
             tipo: "salon",
@@ -29,59 +80,11 @@ const DISTRIBUCIONES_PB = {
         },
         {
             x: 438.96,
-            y: 10,
+            y: 280,
             width: 129.08,
             height: 194.5,
             tipo: "pasillo",
-            nombre: "",
-        },
-        {
-            x: 574,
-            y: 10,
-            width: 138.02,
-            height: 194.5,
-            tipo: "salon",
-            nombre: "Salón",
-        },
-        {
-            x: 718,
-            y: 10,
-            width: 136.2,
-            height: 194.5,
-            tipo: "salon",
-            nombre: "Salón",
-        },
-        {
-            x: 10,
-            y: 280,
-            width: 207.53,
-            height: 194.5,
-            tipo: "salon",
-            nombre: "Salón",
-        },
-        {
-            x: 223,
-            y: 280,
-            width: 64.54,
-            height: 194.5,
-            tipo: "oficina",
-            nombre: "Oficina",
-        },
-        {
-            x: 294,
-            y: 280,
-            width: 139.01,
-            height: 194.5,
-            tipo: "bano",
-            nombre: "Baños",
-        },
-        {
-            x: 439,
-            y: 280,
-            width: 129.08,
-            height: 194.5,
-            tipo: "escaleras",
-            nombre: "Escaleras",
+            nombre: "Pasillo",
         },
         {
             x: 574,
@@ -100,50 +103,12 @@ const DISTRIBUCIONES_PB = {
             nombre: "Salón",
         },
     ],
+
     "Edificio C": [
+        // Fila superior (escaleras y baños arriba)
         {
             x: 10,
             y: 10,
-            width: 138.022,
-            height: 194.5,
-            tipo: "salon",
-            nombre: "Lab. Programación",
-        },
-        {
-            x: 154,
-            y: 10,
-            width: 136.202,
-            height: 194.5,
-            tipo: "salon",
-            nombre: "Salón",
-        },
-        {
-            x: 296,
-            y: 10,
-            width: 139.015,
-            height: 194.5,
-            tipo: "salon",
-            nombre: "Salón",
-        },
-        {
-            x: 441.071,
-            y: 10,
-            width: 129.086,
-            height: 194.5,
-            tipo: "pasillo",
-            nombre: "Pasillo",
-        },
-        {
-            x: 576,
-            y: 10,
-            width: 280.352,
-            height: 194.99,
-            tipo: "salon",
-            nombre: "Auditorio",
-        },
-        {
-            x: 10,
-            y: 279,
             width: 278.371,
             height: 194.995,
             tipo: "salon",
@@ -151,7 +116,7 @@ const DISTRIBUCIONES_PB = {
         },
         {
             x: 294,
-            y: 280,
+            y: 10,
             width: 139.015,
             height: 194.5,
             tipo: "bano",
@@ -159,7 +124,7 @@ const DISTRIBUCIONES_PB = {
         },
         {
             x: 439,
-            y: 280,
+            y: 10,
             width: 129.086,
             height: 194.5,
             tipo: "escaleras",
@@ -167,7 +132,7 @@ const DISTRIBUCIONES_PB = {
         },
         {
             x: 574,
-            y: 280,
+            y: 10,
             width: 138.022,
             height: 194.5,
             tipo: "salon",
@@ -175,73 +140,61 @@ const DISTRIBUCIONES_PB = {
         },
         {
             x: 718,
+            y: 10,
+            width: 136.202,
+            height: 194.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
+
+        // Fila inferior (pasillo de entrada abajo)
+        {
+            x: 10,
+            y: 280,
+            width: 138.022,
+            height: 194.5,
+            tipo: "salon",
+            nombre: "Lab. Programación",
+        },
+        {
+            x: 154,
             y: 280,
             width: 136.202,
             height: 194.5,
             tipo: "salon",
             nombre: "Salón",
         },
-    ],
-    "Edificio B": [
         {
-            x: 10,
-            y: 10,
-            width: 138.02,
+            x: 296,
+            y: 280,
+            width: 139.015,
             height: 194.5,
             tipo: "salon",
             nombre: "Salón",
         },
         {
-            x: 154,
-            y: 10,
-            width: 139.01,
+            x: 441.071,
+            y: 280,
+            width: 129.086,
             height: 194.5,
-            tipo: "salon",
-            nombre: "Salón",
-        },
-        {
-            x: 299,
-            y: 10,
-            width: 89.15,
-            height: 94.31,
-            tipo: "bano",
-            nombre: "Baños",
-        },
-        {
-            x: 299,
-            y: 110,
-            width: 89.15,
-            height: 94.06,
-            tipo: "escaleras",
-            nombre: "Escaleras",
-        },
-        {
-            x: 481,
-            y: 10,
-            width: 89.15,
-            height: 194.98,
-            tipo: "salon",
+            tipo: "pasillo",
             nombre: "Pasillo",
         },
         {
-            x: 575,
-            y: 10,
-            width: 136.2,
-            height: 194.5,
+            x: 576,
+            y: 280,
+            width: 280.352,
+            height: 194.99,
             tipo: "salon",
-            nombre: "Salón",
+            nombre: "Auditorio",
         },
-        {
-            x: 717,
-            y: 10,
-            width: 140,
-            height: 195,
-            tipo: "salon",
-            nombre: "Salón",
-        },
+    ],
+
+    "Edificio B": [
+        // Fila superior (talleres)
         {
             x: 10,
-            y: 280,
+            y: 10,
             width: 424.49,
             height: 194.5,
             tipo: "taller",
@@ -249,17 +202,17 @@ const DISTRIBUCIONES_PB = {
         },
         {
             x: 440,
-            y: 280,
+            y: 10,
             width: 416.54,
             height: 193.51,
             tipo: "taller",
             nombre: "Taller de robótica",
         },
-    ],
-    "Edificio D": [
+
+        // Fila inferior (Salón en x:394 + acceso de Pasillo en x:489)
         {
             x: 10,
-            y: 10,
+            y: 280,
             width: 138.02,
             height: 194.5,
             tipo: "salon",
@@ -267,7 +220,7 @@ const DISTRIBUCIONES_PB = {
         },
         {
             x: 154,
-            y: 10,
+            y: 280,
             width: 139.01,
             height: 194.5,
             tipo: "salon",
@@ -275,31 +228,39 @@ const DISTRIBUCIONES_PB = {
         },
         {
             x: 299,
-            y: 10,
-            width: 89.15,
-            height: 94.31,
-            tipo: "bano",
-            nombre: "Baños",
-        },
-        {
-            x: 299,
-            y: 110,
+            y: 280,
             width: 89.15,
             height: 94.06,
             tipo: "escaleras",
             nombre: "Escaleras",
         },
         {
-            x: 481,
-            y: 10,
+            x: 299,
+            y: 380,
+            width: 89.15,
+            height: 94.31,
+            tipo: "bano",
+            nombre: "Baños",
+        },
+        {
+            x: 394,
+            y: 280,
             width: 89.15,
             height: 194.98,
             tipo: "salon",
             nombre: "Salón",
         },
         {
+            x: 489,
+            y: 280,
+            width: 80,
+            height: 194.5,
+            tipo: "pasillo",
+            nombre: "Pasillo",
+        },
+        {
             x: 575,
-            y: 10,
+            y: 280,
             width: 136.2,
             height: 194.5,
             tipo: "salon",
@@ -307,117 +268,164 @@ const DISTRIBUCIONES_PB = {
         },
         {
             x: 717,
-            y: 10,
+            y: 280,
             width: 140,
             height: 195,
             tipo: "salon",
             nombre: "Salón",
         },
+    ],
+
+    "Edificio D": [
+        // Fila superior (talleres 1 y 2)
         {
             x: 10,
-            y: 280,
+            y: 10,
             width: 424.49,
             height: 194.5,
             tipo: "taller",
-            nombre: "Taller",
+            nombre: "Taller 1",
         },
         {
             x: 440,
-            y: 280,
+            y: 10,
             width: 416.54,
             height: 193.51,
             tipo: "taller",
-            nombre: "Taller",
+            nombre: "Taller 2",
+        },
+
+        // Fila inferior (sin el salón de x:481 -> pasillo amplio abierto)
+        {
+            x: 10,
+            y: 280,
+            width: 138.02,
+            height: 194.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
+        {
+            x: 154,
+            y: 280,
+            width: 139.01,
+            height: 194.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
+        {
+            x: 299,
+            y: 280,
+            width: 89.15,
+            height: 94.06,
+            tipo: "escaleras",
+            nombre: "Escaleras",
+        },
+        {
+            x: 299,
+            y: 380,
+            width: 89.15,
+            height: 94.31,
+            tipo: "bano",
+            nombre: "Baños",
+        },
+        {
+            x: 394,
+            y: 280,
+            width: 175,
+            height: 194.5,
+            tipo: "pasillo",
+            nombre: "Pasillo",
+        },
+        {
+            x: 575,
+            y: 280,
+            width: 136.2,
+            height: 194.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
+        {
+            x: 717,
+            y: 280,
+            width: 140,
+            height: 195,
+            tipo: "salon",
+            nombre: "Salón",
         },
     ],
+
     "Edificio E": [
         {
             x: 6,
             y: 6,
-            width: 179,
-            height: 468,
-            tipo: "vestibulo",
-            nombre: "Auditorio",
+            width: 182.25,
+            height: 468.5,
+            tipo: "oficina",
+            nombre: "Biblioteca",
         },
         {
-            x: 191,
+            x: 194.25,
             y: 6,
-            width: 57.2937,
+            width: 56.75,
             height: 196.5,
             tipo: "oficina",
             nombre: "Oficina",
         },
         {
-            x: 254,
+            x: 257,
             y: 6,
-            width: 120.168,
+            width: 119.5,
             height: 196.5,
-            tipo: "salon",
-            nombre: "Salón 1",
+            tipo: "escaleras",
+            nombre: "Escaleras",
         },
         {
-            x: 380,
+            x: 382.5,
             y: 6,
-            width: 120.168,
-            height: 196.5,
-            tipo: "salon",
-            nombre: "Salón 2",
-        },
-        {
-            x: 507,
-            y: 6,
-            width: 120.168,
-            height: 196.5,
-            tipo: "salon",
-            nombre: "Salón 3",
-        },
-        {
-            x: 633,
-            y: 6,
-            width: 120.168,
-            height: 196.5,
-            tipo: "salon",
-            nombre: "Salón 4",
-        },
-        {
-            x: 191,
-            y: 278,
-            width: 57.2937,
+            width: 119.5,
             height: 196.5,
             tipo: "bano",
-            nombre: "Baño",
+            nombre: "Baños",
         },
         {
-            x: 254,
-            y: 278,
-            width: 120.168,
+            x: 508,
+            y: 6,
+            width: 245,
             height: 196.5,
             tipo: "salon",
-            nombre: "Salón 5",
+            nombre: "Auditorio",
         },
         {
-            x: 380,
+            x: 194.25,
             y: 278,
-            width: 120.168,
+            width: 56.75,
             height: 196.5,
             tipo: "salon",
-            nombre: "Salón 6",
+            nombre: "Salón",
         },
         {
-            x: 507,
+            x: 257,
             y: 278,
-            width: 120.168,
+            width: 119.5,
             height: 196.5,
-            tipo: "salon",
-            nombre: "Salón 7",
+            tipo: "pasillo",
+            nombre: "Pasillo",
         },
         {
-            x: 633,
+            x: 382.5,
             y: 278,
-            width: 120.168,
+            width: 245,
             height: 196.5,
             tipo: "salon",
-            nombre: "Salón 8",
+            nombre: "Salón",
+        },
+        {
+            x: 633.5,
+            y: 278,
+            width: 119.5,
+            height: 196.5,
+            tipo: "salon",
+            nombre: "Salón",
         },
         {
             x: 759,
@@ -430,7 +438,6 @@ const DISTRIBUCIONES_PB = {
         },
     ],
 
-    // ---- DISTRIBUCIÓN DE ALMACÉN (Planta alta arriba-izq + 2 Oficinas a la derecha + Área inferior) ----
     Almacén: [
         {
             x: 10,
@@ -470,7 +477,6 @@ const DISTRIBUCIONES_PB = {
         },
     ],
 
-    // ---- DISTRIBUCIÓN DE ALMACÉN 2 (Planta única totalmente plana sin divisiones) ----
     "Almacén 2": [
         {
             x: 10,
@@ -484,13 +490,11 @@ const DISTRIBUCIONES_PB = {
     ],
 };
 
-// Alias para que funcione con o sin tilde y con el nombre de BD ("Vigilancia")
 DISTRIBUCIONES_PB["Almacen"] = DISTRIBUCIONES_PB["Almacén"];
 DISTRIBUCIONES_PB["Almacen 2"] = DISTRIBUCIONES_PB["Almacén 2"];
 DISTRIBUCIONES_PB["Vigilancia"] = DISTRIBUCIONES_PB["Almacén 2"];
 
 export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
-    // ---- PLANTA DE CAFETERÍA Y SUM CON EL ESTILO HOMOLOGADO DE LAS DEMÁS PLANTAS ----
     if (edificio === "Cafetería y SUM" || edificio === "Cafetería") {
         return (
             <div className="w-full flex justify-center items-center">
@@ -502,7 +506,6 @@ export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
                     xmlns="http://www.w3.org/2000/svg"
                     className="w-full max-w-[668px] max-h-[460px] block select-none drop-shadow-md"
                 >
-                    {/* Contorno base estilo edificio (#F1F0F0 con borde #D7D4D4) */}
                     <path
                         d="M625.556 274.526C571.809 560.892 88.7798 580.286 13.5094 275.318C10.8192 264.418 15.3759 252.982 24.4564 246.379L180.322 133.053C187.857 127.575 192.315 118.822 192.315 109.506V41.8496C192.315 25.7711 205.349 12.7368 221.428 12.7368H411.183C427.261 12.7368 440.296 25.771 440.296 41.8496V109.261C440.296 118.713 444.885 127.578 452.604 133.034L614.03 247.142C622.78 253.328 627.533 263.994 625.556 274.526Z"
                         fill="#F1F0F0"
@@ -510,7 +513,6 @@ export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
                         strokeWidth="6"
                     />
 
-                    {/* Zona Inferior: SUM */}
                     <g
                         data-zona="SUM"
                         onClick={() =>

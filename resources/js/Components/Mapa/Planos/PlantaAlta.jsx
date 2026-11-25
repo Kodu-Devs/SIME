@@ -1,51 +1,12 @@
 import React from "react";
 import Espacio from "@/Components/Mapa/Planos/Espacio";
 
-const DISTRIBUCIONES_PA = {
+export const DISTRIBUCIONES_PA = {
     "Edificio A": [
-        {
-            x: 8,
-            y: 10,
-            width: 138.02,
-            height: 192.5,
-            tipo: "salon",
-            nombre: "Salón",
-        },
-        {
-            x: 152,
-            y: 10,
-            width: 136.2,
-            height: 192.5,
-            tipo: "salon",
-            nombre: "Salón",
-        },
-        {
-            x: 294,
-            y: 10,
-            width: 139.02,
-            height: 192.5,
-            tipo: "salon",
-            nombre: "Salón",
-        },
-        {
-            x: 439.09,
-            y: 10,
-            width: 129.09,
-            height: 192.5,
-            tipo: "pasillo",
-            nombre: "",
-        },
-        {
-            x: 574,
-            y: 10,
-            width: 280.35,
-            height: 192.99,
-            tipo: "salon",
-            nombre: "Lab. Dibujo",
-        },
+        // Fila superior (volteada: escaleras y baños arriba)
         {
             x: 10,
-            y: 278,
+            y: 10,
             width: 207.53,
             height: 192.5,
             tipo: "salon",
@@ -53,7 +14,7 @@ const DISTRIBUCIONES_PA = {
         },
         {
             x: 223,
-            y: 278,
+            y: 10,
             width: 64.54,
             height: 192.5,
             tipo: "oficina",
@@ -61,7 +22,7 @@ const DISTRIBUCIONES_PA = {
         },
         {
             x: 294,
-            y: 278,
+            y: 10,
             width: 139.02,
             height: 192.5,
             tipo: "bano",
@@ -69,7 +30,7 @@ const DISTRIBUCIONES_PA = {
         },
         {
             x: 439,
-            y: 278,
+            y: 10,
             width: 129.09,
             height: 192.5,
             tipo: "escaleras",
@@ -77,7 +38,7 @@ const DISTRIBUCIONES_PA = {
         },
         {
             x: 574,
-            y: 278,
+            y: 10,
             width: 64.54,
             height: 192.5,
             tipo: "oficina",
@@ -85,17 +46,71 @@ const DISTRIBUCIONES_PA = {
         },
         {
             x: 644,
-            y: 278,
+            y: 10,
             width: 212.99,
             height: 192.99,
             tipo: "salon",
             nombre: "Salón",
         },
+
+        // Fila inferior (pasillo abajo)
+        {
+            x: 8,
+            y: 278,
+            width: 138.02,
+            height: 192.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
+        {
+            x: 152,
+            y: 278,
+            width: 136.2,
+            height: 192.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
+        {
+            x: 294,
+            y: 278,
+            width: 139.02,
+            height: 192.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
+        {
+            x: 439.09,
+            y: 278,
+            width: 129.09,
+            height: 192.5,
+            tipo: "pasillo",
+            nombre: "Pasillo",
+        },
+        {
+            x: 574,
+            y: 278,
+            width: 280.35,
+            height: 192.99,
+            tipo: "salon",
+            nombre: "Lab. Dibujo",
+        },
     ],
+
     "Edificio B": [
+        // Fila superior (alineada sobre los talleres de Planta baja)
         {
             x: 10,
             y: 10,
+            width: 847,
+            height: 192.99,
+            tipo: "taller",
+            nombre: "Pasillo",
+        },
+
+        // Fila inferior (escaleras y baños alineados con Planta baja)
+        {
+            x: 10,
+            y: 278,
             width: 138.02,
             height: 192.5,
             tipo: "salon",
@@ -103,31 +118,31 @@ const DISTRIBUCIONES_PA = {
         },
         {
             x: 154,
-            y: 10,
+            y: 278,
             width: 139.02,
             height: 192.5,
             tipo: "salon",
             nombre: "Salón",
         },
         {
-            x: 300,
-            y: 10,
-            width: 89.16,
-            height: 93.34,
-            tipo: "bano",
-            nombre: "Baños",
-        },
-        {
             x: 299,
-            y: 109,
+            y: 278,
             width: 89.16,
             height: 93.1,
             tipo: "escaleras",
             nombre: "Escaleras",
         },
         {
+            x: 299,
+            y: 377,
+            width: 89.16,
+            height: 93.34,
+            tipo: "bano",
+            nombre: "Baños",
+        },
+        {
             x: 394,
-            y: 10,
+            y: 278,
             width: 184.26,
             height: 192.99,
             tipo: "oficina",
@@ -135,7 +150,7 @@ const DISTRIBUCIONES_PA = {
         },
         {
             x: 584,
-            y: 10,
+            y: 278,
             width: 136.2,
             height: 192.5,
             tipo: "salon",
@@ -143,22 +158,16 @@ const DISTRIBUCIONES_PA = {
         },
         {
             x: 726,
-            y: 10,
+            y: 278,
             width: 136.2,
             height: 192.5,
             tipo: "salon",
             nombre: "Salón",
         },
-        {
-            x: 10,
-            y: 278,
-            width: 847,
-            height: 192.99,
-            tipo: "taller",
-            nombre: "Pasillo",
-        },
     ],
+
     "Edificio C": [
+        // Fila superior (escaleras y baños ya alineados con su Planta baja volteada)
         {
             x: 10,
             y: 10,
@@ -176,7 +185,7 @@ const DISTRIBUCIONES_PA = {
             nombre: "Salón",
         },
         {
-            x: 300,
+            x: 299,
             y: 10,
             width: 89.16,
             height: 93.34,
@@ -215,18 +224,86 @@ const DISTRIBUCIONES_PA = {
             tipo: "salon",
             nombre: "Salón",
         },
+
+        // Franja inferior con nombre "Pasillo"
         {
             x: 10,
             y: 278,
             width: 847,
             height: 192.99,
             tipo: "taller",
-            nombre: "",
+            nombre: "Pasillo",
+        },
+    ],
+
+    "Edificio D": [
+        // Copia propia de Nivel 1 (sin Lab. Redes -> Salón)
+        {
+            x: 10,
+            y: 10,
+            width: 847,
+            height: 192.99,
+            tipo: "taller",
+            nombre: "Pasillo",
+        },
+        {
+            x: 10,
+            y: 278,
+            width: 138.02,
+            height: 192.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
+        {
+            x: 154,
+            y: 278,
+            width: 139.02,
+            height: 192.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
+        {
+            x: 299,
+            y: 278,
+            width: 89.16,
+            height: 93.1,
+            tipo: "escaleras",
+            nombre: "Escaleras",
+        },
+        {
+            x: 299,
+            y: 377,
+            width: 89.16,
+            height: 93.34,
+            tipo: "bano",
+            nombre: "Baños",
+        },
+        {
+            x: 394,
+            y: 278,
+            width: 184.26,
+            height: 192.99,
+            tipo: "oficina",
+            nombre: "Oficina",
+        },
+        {
+            x: 584,
+            y: 278,
+            width: 136.2,
+            height: 192.5,
+            tipo: "salon",
+            nombre: "Salón",
+        },
+        {
+            x: 726,
+            y: 278,
+            width: 136.2,
+            height: 192.5,
+            tipo: "salon",
+            nombre: "Salón",
         },
     ],
 };
-
-DISTRIBUCIONES_PA["Edificio D"] = DISTRIBUCIONES_PA["Edificio B"];
 
 export default function PlantaAlta({ edificio, onSeleccionarEspacio }) {
     const espacios = DISTRIBUCIONES_PA[edificio] || [];
@@ -260,13 +337,13 @@ export default function PlantaAlta({ edificio, onSeleccionarEspacio }) {
                 {espacios.map((espacio, index) => (
                     <Espacio
                         key={`${edificio}_pa_${index}`}
-                        x={espacio.x}
-                        y={espacio.y}
-                        width={espacio.width}
-                        height={espacio.height}
-                        tipo={espacio.tipo}
-                        nombre={espacio.nombre}
-                        onClick={() => onSeleccionarEspacio?.(espacio)}
+                        {...espacio}
+                        onClick={() =>
+                            onSeleccionarEspacio?.({
+                                ...espacio,
+                                nombre: espacio.matchNombre || espacio.nombre,
+                            })
+                        }
                     />
                 ))}
             </svg>
