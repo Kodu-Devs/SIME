@@ -22,11 +22,25 @@ const NOMBRES_CATEGORIAS = {
     capacitacion: "Capacitaciones Próximas",
 };
 
+const MENSAJES_VACIO_FILTRO = {
+    Urgente: "No hay alertas urgentes",
+    Próximo: "No hay alertas próximas",
+    Informativo: "No hay alertas informativas",
+};
+
 export default function Index({ alertasAgrupadas = {} }) {
     const [filtroTipo, setFiltroTipo] = useState("Todos");
 
     const tiposOrdenados = ["Urgente", "Próximo", "Informativo"];
 
+    const tiposVisibles = tiposOrdenados.filter((tipo) => {
+        if (filtroTipo !== "Todos" && filtroTipo !== tipo) return false;
+        const categorias = alertasAgrupadas[tipo];
+        if (!categorias) return false;
+        return Object.values(categorias).some(
+            (lista) => Array.isArray(lista) && lista.length > 0,
+        );
+    });
     // Aplanamos temporalmente solo para saber si hay alertas en total
     const totalAlertas = Object.values(alertasAgrupadas).reduce(
         (acc, categoriasObj) => {
@@ -133,116 +147,126 @@ export default function Index({ alertasAgrupadas = {} }) {
                             marcadas como leídas.
                         </p>
                     </div>
+                ) : tiposVisibles.length === 0 ? (
+                    <div className="bg-white rounded-xl border border-neutro-100 p-12 text-center shadow-sm">
+                        <Bell className="w-10 h-10 text-neutro-300 mx-auto mb-3 opacity-60" />
+                        <h2 className="text-titulo-2 font-bold text-neutro-900">
+                            {MENSAJES_VACIO_FILTRO[filtroTipo] ||
+                                "Sin alertas en esta categoría"}
+                        </h2>
+                        <p className="text-xs text-neutro-600 mt-1">
+                            No existen notificaciones pendientes con el filtro
+                            seleccionado.
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => setFiltroTipo("Todos")}
+                            className="mt-4 inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold border border-neutro-100 bg-neutro-50 text-neutro-900 hover:bg-neutro-100 transition cursor-pointer"
+                        >
+                            Ver todas las alertas
+                        </button>
+                    </div>
                 ) : (
                     <div className="space-y-8">
-                        {tiposOrdenados
-                            .filter(
-                                (t) =>
-                                    filtroTipo === "Todos" || filtroTipo === t,
-                            )
-                            .map((tipo) => {
-                                const categoriasDelTipo =
-                                    alertasAgrupadas[tipo];
-                                if (!categoriasDelTipo) return null;
+                        {tiposVisibles.map((tipo) => {
+                            const categoriasDelTipo = alertasAgrupadas[tipo];
+                            const estilo = obtenerEstiloTipo(tipo);
+                            const IconoTipo = estilo.icono;
 
-                                const estilo = obtenerEstiloTipo(tipo);
-                                const IconoTipo = estilo.icono;
+                            return (
+                                /* ... deja intacto el contenido interno de cada tipo ... */
+                                <div key={tipo} className="space-y-4">
+                                    <div className="flex items-center gap-2 border-b border-neutro-100 pb-2">
+                                        <span
+                                            className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${estilo.badge}`}
+                                        >
+                                            {tipo}
+                                        </span>
+                                    </div>
 
-                                return (
-                                    <div key={tipo} className="space-y-4">
-                                        <div className="flex items-center gap-2 border-b border-neutro-100 pb-2">
-                                            <span
-                                                className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${estilo.badge}`}
+                                    {Object.entries(categoriasDelTipo).map(
+                                        ([categoriaKey, listaAlertas]) => (
+                                            <div
+                                                key={categoriaKey}
+                                                className="space-y-3"
                                             >
-                                                {tipo}
-                                            </span>
-                                        </div>
+                                                <h3 className="text-xs font-bold uppercase tracking-wider text-neutro-600 pl-1">
+                                                    {NOMBRES_CATEGORIAS[
+                                                        categoriaKey
+                                                    ] || categoriaKey}
+                                                </h3>
 
-                                        {Object.entries(categoriasDelTipo).map(
-                                            ([categoriaKey, listaAlertas]) => (
-                                                <div
-                                                    key={categoriaKey}
-                                                    className="space-y-3"
-                                                >
-                                                    <h3 className="text-xs font-bold uppercase tracking-wider text-neutro-600 pl-1">
-                                                        {NOMBRES_CATEGORIAS[
-                                                            categoriaKey
-                                                        ] || categoriaKey}
-                                                    </h3>
-
-                                                    <div className="grid grid-cols-1 gap-3">
-                                                        {listaAlertas.map(
-                                                            (alerta) => (
-                                                                <div
-                                                                    key={
-                                                                        alerta.id
-                                                                    }
-                                                                    className={`bg-white rounded-xl p-4 shadow-sm border border-neutro-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${estilo.borde}`}
-                                                                >
-                                                                    <div className="flex items-start gap-3.5">
-                                                                        <div
-                                                                            className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${estilo.colorIcono}`}
-                                                                        >
-                                                                            <IconoTipo className="w-5 h-5" />
-                                                                        </div>
-
-                                                                        <div className="space-y-1">
-                                                                            <p className="text-sm font-bold text-neutro-900">
-                                                                                {
-                                                                                    alerta.mensaje
-                                                                                }
-                                                                            </p>
-
-                                                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutro-600">
-                                                                                <span className="inline-flex items-center gap-1 font-semibold text-neutro-900">
-                                                                                    <Flame className="w-3.5 h-3.5 text-primario-500" />
-                                                                                    {
-                                                                                        alerta.referencia
-                                                                                    }
-                                                                                </span>
-
-                                                                                <span className="inline-flex items-center gap-1">
-                                                                                    <MapPin className="w-3.5 h-3.5 text-neutro-300" />
-                                                                                    {
-                                                                                        alerta.ubicacion
-                                                                                    }
-                                                                                </span>
-
-                                                                                <span className="inline-flex items-center gap-1 text-neutro-300">
-                                                                                    <Calendar className="w-3.5 h-3.5" />
-                                                                                    {
-                                                                                        alerta.fecha_generada
-                                                                                    }
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
+                                                <div className="grid grid-cols-1 gap-3">
+                                                    {listaAlertas.map(
+                                                        (alerta) => (
+                                                            <div
+                                                                key={alerta.id}
+                                                                className={`bg-white rounded-xl p-4 shadow-sm border border-neutro-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${estilo.borde}`}
+                                                            >
+                                                                <div className="flex items-start gap-3.5">
+                                                                    <div
+                                                                        className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${estilo.colorIcono}`}
+                                                                    >
+                                                                        <IconoTipo className="w-5 h-5" />
                                                                     </div>
 
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() =>
-                                                                            marcarLeida(
-                                                                                alerta.id,
-                                                                            )
-                                                                        }
-                                                                        className="self-end sm:self-center inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-neutro-100 hover:border-acento-500 hover:bg-acento-500/10 text-xs font-semibold text-neutro-600 hover:text-acento-500 transition cursor-pointer shrink-0"
-                                                                    >
-                                                                        <Check className="w-4 h-4" />
-                                                                        <span>
-                                                                            Marcar
-                                                                            leída
-                                                                        </span>
-                                                                    </button>
+                                                                    <div className="space-y-1">
+                                                                        <p className="text-sm font-bold text-neutro-900">
+                                                                            {
+                                                                                alerta.mensaje
+                                                                            }
+                                                                        </p>
+
+                                                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutro-600">
+                                                                            <span className="inline-flex items-center gap-1 font-semibold text-neutro-900">
+                                                                                <Flame className="w-3.5 h-3.5 text-primario-500" />
+                                                                                {
+                                                                                    alerta.referencia
+                                                                                }
+                                                                            </span>
+
+                                                                            <span className="inline-flex items-center gap-1">
+                                                                                <MapPin className="w-3.5 h-3.5 text-neutro-300" />
+                                                                                {
+                                                                                    alerta.ubicacion
+                                                                                }
+                                                                            </span>
+
+                                                                            <span className="inline-flex items-center gap-1 text-neutro-300">
+                                                                                <Calendar className="w-3.5 h-3.5" />
+                                                                                {
+                                                                                    alerta.fecha_generada
+                                                                                }
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                            ),
-                                                        )}
-                                                    </div>
+
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        marcarLeida(
+                                                                            alerta.id,
+                                                                        )
+                                                                    }
+                                                                    className="self-end sm:self-center inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-neutro-100 hover:border-acento-500 hover:bg-acento-500/10 text-xs font-semibold text-neutro-600 hover:text-acento-500 transition cursor-pointer shrink-0"
+                                                                >
+                                                                    <Check className="w-4 h-4" />
+                                                                    <span>
+                                                                        Marcar
+                                                                        leída
+                                                                    </span>
+                                                                </button>
+                                                            </div>
+                                                        ),
+                                                    )}
                                                 </div>
-                                            ),
-                                        )}
-                                    </div>
-                                );
-                            })}
+                                            </div>
+                                        ),
+                                    )}
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
             </div>

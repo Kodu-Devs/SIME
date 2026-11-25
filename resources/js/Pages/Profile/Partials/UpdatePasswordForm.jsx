@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
 import { useForm } from "@inertiajs/react";
-import { CheckCircle2, X } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff, X } from "lucide-react";
 import InputError from "@/Components/InputError";
 
 export default function UpdatePasswordForm({ className = "" }) {
     const [guardado, setGuardado] = useState(false);
+    const [mostrar, setMostrar] = useState({
+        actual: false,
+        nueva: false,
+        confirmacion: false,
+    });
 
     const formClave = useForm({
         current_password: "",
@@ -18,6 +23,10 @@ export default function UpdatePasswordForm({ className = "" }) {
         return () => clearTimeout(timer);
     }, [guardado]);
 
+    const alternarVisibilidad = (campo) => {
+        setMostrar((prev) => ({ ...prev, [campo]: !prev[campo] }));
+    };
+
     const enviarCambioClave = (e) => {
         e.preventDefault();
         setGuardado(false);
@@ -26,6 +35,11 @@ export default function UpdatePasswordForm({ className = "" }) {
             preserveScroll: true,
             onSuccess: () => {
                 formClave.reset();
+                setMostrar({
+                    actual: false,
+                    nueva: false,
+                    confirmacion: false,
+                });
                 setGuardado(true);
             },
             onError: () => {
@@ -35,7 +49,7 @@ export default function UpdatePasswordForm({ className = "" }) {
     };
 
     const inputClass =
-        "w-full bg-white rounded-lg border border-neutro-100 px-3 py-2 text-xs font-medium text-neutro-900 focus:outline-none focus:border-primario-500 focus:ring-1 focus:ring-primario-500 transition";
+        "w-full bg-white rounded-lg border border-neutro-100 pl-3 pr-9 py-2 text-xs font-medium text-neutro-900 focus:outline-none focus:border-primario-500 focus:ring-1 focus:ring-primario-500 transition";
 
     return (
         <section className={className}>
@@ -58,19 +72,37 @@ export default function UpdatePasswordForm({ className = "" }) {
                         >
                             Contraseña actual
                         </label>
-                        <input
-                            id="clave-actual"
-                            type="password"
-                            value={formClave.data.current_password}
-                            onChange={(e) =>
-                                formClave.setData(
-                                    "current_password",
-                                    e.target.value,
-                                )
-                            }
-                            autoComplete="current-password"
-                            className={inputClass}
-                        />
+                        <div className="relative">
+                            <input
+                                id="clave-actual"
+                                type={mostrar.actual ? "text" : "password"}
+                                value={formClave.data.current_password}
+                                onChange={(e) =>
+                                    formClave.setData(
+                                        "current_password",
+                                        e.target.value,
+                                    )
+                                }
+                                autoComplete="current-password"
+                                className={inputClass}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => alternarVisibilidad("actual")}
+                                aria-label={
+                                    mostrar.actual
+                                        ? "Ocultar contraseña"
+                                        : "Mostrar contraseña"
+                                }
+                                className="absolute inset-y-0 right-0 flex items-center px-2.5 text-neutro-600 hover:text-neutro-900 transition-colors cursor-pointer"
+                            >
+                                {mostrar.actual ? (
+                                    <Eye className="w-4 h-4" />
+                                ) : (
+                                    <EyeOff className="w-4 h-4" />
+                                )}
+                            </button>
+                        </div>
                         <InputError
                             message={formClave.errors.current_password}
                             className="mt-2"
@@ -84,16 +116,37 @@ export default function UpdatePasswordForm({ className = "" }) {
                         >
                             Nueva contraseña
                         </label>
-                        <input
-                            id="clave-nueva"
-                            type="password"
-                            value={formClave.data.password}
-                            onChange={(e) =>
-                                formClave.setData("password", e.target.value)
-                            }
-                            autoComplete="new-password"
-                            className={inputClass}
-                        />
+                        <div className="relative">
+                            <input
+                                id="clave-nueva"
+                                type={mostrar.nueva ? "text" : "password"}
+                                value={formClave.data.password}
+                                onChange={(e) =>
+                                    formClave.setData(
+                                        "password",
+                                        e.target.value,
+                                    )
+                                }
+                                autoComplete="new-password"
+                                className={inputClass}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => alternarVisibilidad("nueva")}
+                                aria-label={
+                                    mostrar.nueva
+                                        ? "Ocultar contraseña"
+                                        : "Mostrar contraseña"
+                                }
+                                className="absolute inset-y-0 right-0 flex items-center px-2.5 text-neutro-600 hover:text-neutro-900 transition-colors cursor-pointer"
+                            >
+                                {mostrar.nueva ? (
+                                    <Eye className="w-4 h-4" />
+                                ) : (
+                                    <EyeOff className="w-4 h-4" />
+                                )}
+                            </button>
+                        </div>
                         <InputError
                             message={formClave.errors.password}
                             className="mt-2"
@@ -107,19 +160,41 @@ export default function UpdatePasswordForm({ className = "" }) {
                         >
                             Confirmar contraseña
                         </label>
-                        <input
-                            id="clave-confirmacion"
-                            type="password"
-                            value={formClave.data.password_confirmation}
-                            onChange={(e) =>
-                                formClave.setData(
-                                    "password_confirmation",
-                                    e.target.value,
-                                )
-                            }
-                            autoComplete="new-password"
-                            className={inputClass}
-                        />
+                        <div className="relative">
+                            <input
+                                id="clave-confirmacion"
+                                type={
+                                    mostrar.confirmacion ? "text" : "password"
+                                }
+                                value={formClave.data.password_confirmation}
+                                onChange={(e) =>
+                                    formClave.setData(
+                                        "password_confirmation",
+                                        e.target.value,
+                                    )
+                                }
+                                autoComplete="new-password"
+                                className={inputClass}
+                            />
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    alternarVisibilidad("confirmacion")
+                                }
+                                aria-label={
+                                    mostrar.confirmacion
+                                        ? "Ocultar contraseña"
+                                        : "Mostrar contraseña"
+                                }
+                                className="absolute inset-y-0 right-0 flex items-center px-2.5 text-neutro-600 hover:text-neutro-900 transition-colors cursor-pointer"
+                            >
+                                {mostrar.confirmacion ? (
+                                    <Eye className="w-4 h-4" />
+                                ) : (
+                                    <EyeOff className="w-4 h-4" />
+                                )}
+                            </button>
+                        </div>
                         <InputError
                             message={formClave.errors.password_confirmation}
                             className="mt-2"
@@ -128,7 +203,7 @@ export default function UpdatePasswordForm({ className = "" }) {
                 </div>
 
                 {guardado && (
-                    <div className="flex items-center justify-between gap-3 rounded-xl border border-acento-500/30 bg-acento-500/15 px-4 py-3 text-[#10706B]">
+                    <div className="flex items-center justify-between gap-3 rounded-xl border border-acento-500/30 bg-acento-500/15 px-4 py-3 text-acento-500">
                         <div className="flex items-center gap-2.5">
                             <CheckCircle2 className="h-4 w-4 shrink-0 text-acento-500" />
                             <span className="text-xs font-semibold">
@@ -139,7 +214,7 @@ export default function UpdatePasswordForm({ className = "" }) {
                             type="button"
                             onClick={() => setGuardado(false)}
                             aria-label="Cerrar aviso"
-                            className="rounded-lg p-1 transition-colors hover:bg-black/5 cursor-pointer"
+                            className="rounded-lg p-1 transition-colors hover:bg-acento-500/15 cursor-pointer"
                         >
                             <X className="h-3.5 w-3.5" />
                         </button>

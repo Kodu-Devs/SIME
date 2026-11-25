@@ -92,9 +92,9 @@ export default function Index({
                     <MapaBreadcrumbs items={[{ label: "Institución" }]} />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Columna Izquierda (2/3): Croquis Interactivo */}
-                    <div className="lg:col-span-2">
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    {/* Columna Izquierda (2/3 en xl, ancho completo en tablet/móvil): Croquis Interactivo */}
+                    <div className="xl:col-span-2">
                         <div className="bg-white rounded-xl p-5 shadow-sm border border-neutro-100 min-h-[420px]">
                             <Croquis
                                 instalaciones={instalaciones}
@@ -104,9 +104,9 @@ export default function Index({
                         </div>
                     </div>
 
-                    {/* Columna Derecha (1/3): Resumen e Instalaciones desde BD */}
-                    <div className="bg-white rounded-xl p-5 shadow-sm border border-neutro-100 flex flex-col h-full">
-                        <div className="flex-1">
+                    {/* Columna Derecha (1/3 en xl): Resumen e Instalaciones desde BD */}
+                    <div className="bg-white rounded-xl p-5 shadow-sm border border-neutro-100 flex flex-col h-full min-w-0">
+                        <div className="flex-1 min-w-0">
                             <h3 className="text-titulo-2 font-bold text-neutro-900">
                                 Toda la institución
                             </h3>
@@ -114,29 +114,29 @@ export default function Index({
                                 {total} extintores marcados en los planos
                             </p>
 
-                            {/* Tarjetas de métricas que vienen de MapaController@index */}
+                            {/* Tarjetas de métricas */}
                             <div className="grid grid-cols-3 gap-2 mt-4 mb-6">
-                                <div className="bg-acento-500 text-white p-3 rounded-lg flex flex-col justify-between">
-                                    <span className="text-xl font-bold">
+                                <div className="bg-acento-500 text-white p-2.5 sm:p-3 rounded-lg flex flex-col justify-between min-w-0">
+                                    <span className="text-xl font-bold leading-none">
                                         {vigentes}
                                     </span>
-                                    <span className="text-[10px] uppercase font-medium">
+                                    <span className="text-[10px] uppercase font-medium leading-tight mt-1">
                                         Vigentes
                                     </span>
                                 </div>
-                                <div className="bg-neutro-600 text-white p-3 rounded-lg flex flex-col justify-between">
-                                    <span className="text-xl font-bold">
+                                <div className="bg-neutro-600 text-white p-2.5 sm:p-3 rounded-lg flex flex-col justify-between min-w-0">
+                                    <span className="text-xl font-bold leading-none">
                                         {porVencer}
                                     </span>
-                                    <span className="text-[10px] uppercase font-medium">
+                                    <span className="text-[10px] uppercase font-medium leading-tight mt-1">
                                         Por vencer
                                     </span>
                                 </div>
-                                <div className="bg-primario-700 text-white p-3 rounded-lg flex flex-col justify-between">
-                                    <span className="text-xl font-bold">
+                                <div className="bg-primario-700 text-white p-2.5 sm:p-3 rounded-lg flex flex-col justify-between min-w-0">
+                                    <span className="text-xl font-bold leading-none">
                                         {vencidos}
                                     </span>
-                                    <span className="text-[10px] uppercase font-medium">
+                                    <span className="text-[10px] uppercase font-medium leading-tight mt-1">
                                         Vencidos
                                     </span>
                                 </div>
@@ -146,7 +146,7 @@ export default function Index({
                                 EDIFICIOS
                             </p>
 
-                            {/* Lista dinámica armada con la prop instalaciones y porEdificio */}
+                            {/* Lista de edificios sin empalmes en ningún ancho */}
                             <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
                                 {instalacionesLista.map((inst) => {
                                     const stats =
@@ -174,31 +174,31 @@ export default function Index({
                                             key={inst.id}
                                             type="button"
                                             onClick={() => irAEdificio(inst)}
-                                            className="w-full flex items-center justify-between p-3 rounded-lg border border-neutro-100 hover:bg-neutro-50 transition-colors group text-left"
+                                            className="w-full flex items-center justify-between gap-3 p-3 rounded-lg border border-neutro-100 hover:bg-neutro-50 transition-colors group text-left cursor-pointer"
                                         >
-                                            <div className="flex items-center gap-3 min-w-0">
-                                                <span className="text-primario-700 font-bold text-sm w-4 shrink-0">
+                                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                                                <span className="text-primario-700 font-bold text-sm w-5 text-center shrink-0">
                                                     {inicial}
                                                 </span>
-                                                <span className="text-sm font-semibold text-neutro-900 truncate">
-                                                    {etiquetaNombre}
-                                                </span>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-sm font-semibold text-neutro-900 truncate">
+                                                        {etiquetaNombre}
+                                                    </p>
+                                                    <p className="text-xs text-neutro-600 truncate">
+                                                        {totalExt}{" "}
+                                                        {totalExt === 1
+                                                            ? "extintor"
+                                                            : "extintores"}{" "}
+                                                        - {vencidosExt}{" "}
+                                                        {vencidosExt === 1
+                                                            ? "vencido"
+                                                            : "vencidos"}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-3 shrink-0">
-                                                <span className="text-xs text-neutro-600">
-                                                    {totalExt}{" "}
-                                                    {totalExt === 1
-                                                        ? "extintor"
-                                                        : "extintores"}{" "}
-                                                    - {vencidosExt}{" "}
-                                                    {vencidosExt === 1
-                                                        ? "vencido"
-                                                        : "vencidos"}
-                                                </span>
-                                                <span className="text-neutro-300 group-hover:text-neutro-600">
-                                                    ›
-                                                </span>
-                                            </div>
+                                            <span className="text-neutro-300 group-hover:text-neutro-600 shrink-0">
+                                                ›
+                                            </span>
                                         </button>
                                     );
                                 })}

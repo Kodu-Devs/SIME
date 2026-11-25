@@ -191,7 +191,7 @@ export const DISTRIBUCIONES_PB = {
     ],
 
     "Edificio B": [
-        // Fila superior (talleres)
+        // Fila inferior (Salón en x:394 + acceso de Pasillo en x:489)
         {
             x: 10,
             y: 10,
@@ -541,6 +541,7 @@ export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
                         </text>
                     </g>
 
+                    {/* Zona Superior Rectangular: Cafetería (vinculada a "Cocina" en BD) */}
                     <g
                         data-zona="Cocina"
                         onClick={() =>
