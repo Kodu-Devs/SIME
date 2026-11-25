@@ -21,11 +21,19 @@ class EstatusExtintor
         return $extintor;
     }
 
-    public static function trasUso(Extintor $extintor, string $tipoDescarga)
+   public static function trasUso(Extintor $extintor, string $tipoDescarga)
     {
-        if ($tipoDescarga === 'Total' || $tipoDescarga === 'Parcial') {
-            self::cambiarA($extintor, 'Vacío');
+        $tipo = mb_strtolower(trim($tipoDescarga));
+
+        if ($tipo === 'total') {
+            return self::cambiarA($extintor, 'Vacío');
         }
+
+        if ($tipo === 'parcial') {
+            return self::cambiarA($extintor, 'Medio uso');
+        }
+
+        return $extintor;
     }
 
     public static function trasMantenimiento(Mantenimiento $mantenimiento)

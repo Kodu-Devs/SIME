@@ -23,7 +23,6 @@ test('registrar un uso total cambia el extintor a Vacío y genera alerta Urgente
         'fecha_vencimiento' => today()->addDays(60)->toDateString(),
     ]);
 
-  // En la primera prueba:
     $this->actingAs($admin)
         ->post('/historial/usos', [
             'extintor_id' => $extintor->id,
@@ -58,7 +57,7 @@ test('registrar un uso parcial cambia el extintor a Medio uso sin alerta urgente
         'fecha_vencimiento' => today()->addDays(60)->toDateString(),
     ]);
 
-  $this->actingAs($admin)
+    $this->actingAs($admin)
         ->post('/historial/usos', [
             'extintor_id' => $extintor->id,
             'tipo_descarga' => 'parcial',
@@ -76,4 +75,30 @@ test('registrar un uso parcial cambia el extintor a Medio uso sin alerta urgente
             ->where('categoria', 'estatus')
             ->exists()
     )->toBeFalse();
+});
+
+test('no permite registrar un uso a un extintor Fuera de servicio y conserva su estatus', function () {
+    $this->seed([InstalacionSeeder::class, PisoSeeder::class, UbicacionSeeder::class, TipoExtintorSeeder::class]);
+
+    $admin = User::factory()->create();
+
+    $extintor = Extintor::factory()->create([
+        'estatus' => 'Fuera de servicio',
+        'tipoextintor_id' => TipoExtintor::value('id'),
+        'ubicacion_id' => Ubicacion::value('id'),
+        'fecha_instalacion' => today()->subMonths(2)->toDateString(),
+        'fecha_vencimiento' => today()->addDays(60)->toDateString(),
+    ]);
+
+    $this->actingAs($admin)
+        ->post('/historial/usos', [
+            'extintor_id' => $extintor->id,
+            'tipo_descarga' => 'parcial',
+            'fecha' => now()->subHour()->format('Y-m-d H:i:s'),
+            'tipo_motivo' => 'Simulacro',
+            'motivo' => 'Intento de uso en extintor fuera de servicio',
+        ])
+        ->assertSessionHasErrors('extintor_id');
+
+    expect($extintor->fresh()->estatus)->toBe('Fuera de servicio');
 });

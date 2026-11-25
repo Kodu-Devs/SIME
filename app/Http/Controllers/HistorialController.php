@@ -132,8 +132,8 @@ class HistorialController extends Controller
             ['path' => $request->url()]
         ))->withQueryString();
 
-        // 5. Catálogos para los selects del Front ordenados
-        $extintoresParaSelect = Extintor::whereNotIn('estatus', ['Baja', 'Vacío'])
+      // 5. Catálogos para los selects del Front ordenados
+        $extintoresParaSelect = Extintor::whereNotIn('estatus', ['Baja', 'Vacío', 'Fuera de servicio'])
             ->orderBy('etiqueta_inventario')
             ->get(['id', 'etiqueta_inventario']);
 
@@ -156,7 +156,7 @@ class HistorialController extends Controller
         ]);
     }
 
-  /**
+ /**
      * Registra un nuevo uso de extintor y actualiza su estatus.
      */
     public function storeUso(Request $request)
@@ -171,7 +171,7 @@ class HistorialController extends Controller
             'extintor_id' => [
                 'required',
                 Rule::exists('extintores', 'id')->where(function ($query) {
-                    $query->whereNotIn('estatus', ['Baja', 'Vacío']);
+                    $query->whereNotIn('estatus', ['Baja', 'Vacío', 'Fuera de servicio']);
                 }),
             ],
             'tipo_descarga' => ['required', Rule::in(['total', 'parcial'])],
@@ -180,7 +180,7 @@ class HistorialController extends Controller
             'motivo' => ['required', 'string', 'max:500'],
             'capacitacion_id' => ['nullable', 'exists:capacitaciones,id'],
         ], [
-            'extintor_id.exists' => 'El extintor no existe, está vacío o fue dado de baja.',
+            'extintor_id.exists' => 'El extintor no existe, está vacío, fuera de servicio o fue dado de baja.',
         ]);
 
         if (!empty($validated['capacitacion_id']) && $validated['tipo_motivo'] !== 'Capacitación') {
@@ -192,12 +192,7 @@ class HistorialController extends Controller
             EventoUso::create($validated);
 
             $extintor = Extintor::findOrFail($validated['extintor_id']);
-            EstatusExtintor::trasUso($extintor, ucfirst($validated['tipo_descarga']));
-
-            if ($validated['tipo_descarga'] === 'parcial') {
-                EstatusExtintor::cambiarA($extintor, 'Medio uso');
-            }
-
+            EstatusExtintor::trasUso($extintor, $validated['tipo_descarga']);
             AlertaService::evaluarExtintor($extintor);
         });
 
