@@ -209,7 +209,7 @@ export const DISTRIBUCIONES_PB = {
             nombre: "Taller de robótica",
         },
 
-        // Fila inferior (acceso abierto en x:394 + Salón real en x:481)
+        // Fila inferior (Salón en x:394 + acceso de Pasillo en x:489)
         {
             x: 10,
             y: 280,
@@ -541,6 +541,7 @@ export default function PlantaBaja({ edificio, onSeleccionarEspacio }) {
                         </text>
                     </g>
 
+                    {/* Zona Superior Rectangular: Cafetería (vinculada a "Cocina" en BD) */}
                     <g
                         data-zona="Cocina"
                         onClick={() =>

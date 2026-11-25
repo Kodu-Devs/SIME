@@ -232,7 +232,7 @@ export default function AdminLayout({ children }) {
 
                             {/* POPOVER DE NOTIFICACIONES CONECTADO A AlertaService::resumenCampana() */}
                             {showNotifications && !enVistaAlertas && (
-                                <div className="absolute right-0 top-12 w-80 sm:w-96 bg-white rounded-xl shadow-lg border border-neutro-100 overflow-hidden z-50">
+                                <div className="fixed left-4 right-4 top-16 w-auto sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-96 bg-white rounded-xl shadow-lg border border-neutro-100 overflow-hidden z-50">
                                     {/* Cabecera del Popover */}
                                     <div className="px-4 py-3 bg-neutro-50/70 border-b border-neutro-100 flex justify-between items-center">
                                         <div className="flex items-center gap-2">
@@ -257,7 +257,6 @@ export default function AdminLayout({ children }) {
                                             </button>
                                         )}
                                     </div>
-
                                     {/* Resumen rápido por gravedad (si hay alertas) */}
                                     {totalNoLeidas > 0 && (
                                         <div className="px-4 py-2 bg-white border-b border-neutro-50 flex flex-wrap items-center gap-2 text-[11px]">
@@ -281,7 +280,6 @@ export default function AdminLayout({ children }) {
                                             )}
                                         </div>
                                     )}
-
                                     {/* Lista de las 5 alertas más recientes */}
                                     {alertasRecientes.length > 0 ? (
                                         <ul className="max-h-80 overflow-y-auto divide-y divide-neutro-50">
@@ -365,7 +363,6 @@ export default function AdminLayout({ children }) {
                                             </p>
                                         </div>
                                     )}
-
                                     {/* Pie del Popover para ir a la vista completa Alertas/Index */}
                                     <div className="p-2.5 bg-neutro-50 border-t border-neutro-100">
                                         <Link

@@ -158,4 +158,23 @@ return [
     'uppercase'              => 'El campo :attribute debe estar en mayúscula.',
     'url'                    => 'El campo :attribute debe ser una URL válida.',
     'uuid'                   => 'El campo :attribute debe ser un UUID válido.',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Validation Attributes
+    |--------------------------------------------------------------------------
+    */
+
+    'attributes' => [
+        'password'              => 'contraseña',
+        'password_confirmation' => 'confirmación de contraseña',
+        'current_password'      => 'contraseña actual',
+        'fecha_hora'            => 'fecha y hora',
+        'fecha_programada'      => 'fecha programada',
+        'ubicacion_id'          => 'lugar',
+        'extintores_id'         => 'extintores',
+        'extintor_id'           => 'extintor',
+        'tipo_descarga'         => 'tipo de descarga',
+        'tipo_motivo'           => 'tipo de motivo',
+    ],
 ];
