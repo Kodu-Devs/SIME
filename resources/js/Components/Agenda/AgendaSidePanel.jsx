@@ -14,6 +14,7 @@ export default function AgendaSidePanel({
     const { errors } = usePage().props;
     const [activeTab, setActiveTab] = useState(tabInicial);
     const [procesando, setProcesando] = useState(false);
+    const [mostrarAvisos, setMostrarAvisos] = useState(false);
 
     const extintoresCapacitacion =
         combos?.extintores_capacitacion?.length > 0
@@ -101,6 +102,10 @@ export default function AgendaSidePanel({
             }
         }
     };
+
+    useEffect(() => {
+        setMostrarAvisos(false);
+    }, [eventoSeleccionado, activeTab]);
 
     useEffect(() => {
         if (!eventoSeleccionado) {
@@ -220,6 +225,7 @@ export default function AgendaSidePanel({
             fecha_programada: fechaCompleta,
         };
 
+        setMostrarAvisos(true);
         setProcesando(true);
 
         if (
@@ -232,6 +238,7 @@ export default function AgendaSidePanel({
                 {
                     preserveScroll: true,
                     onSuccess: () => {
+                        setMostrarAvisos(false);
                         if (onSuccess) onSuccess();
                     },
                     onFinish: () => setProcesando(false),
@@ -241,6 +248,7 @@ export default function AgendaSidePanel({
             router.post(route("agenda.mantenimientos.store"), payload, {
                 preserveScroll: true,
                 onSuccess: () => {
+                    setMostrarAvisos(false);
                     limpiarFormularios();
                     if (onSuccess) onSuccess();
                 },
@@ -263,6 +271,7 @@ export default function AgendaSidePanel({
             extintores_id: formCapacitacion.extintores_id,
         };
 
+        setMostrarAvisos(true);
         setProcesando(true);
 
         if (eventoSeleccionado && eventoSeleccionado.clase === "capacitacion") {
@@ -272,6 +281,7 @@ export default function AgendaSidePanel({
                 {
                     preserveScroll: true,
                     onSuccess: () => {
+                        setMostrarAvisos(false);
                         if (onSuccess) onSuccess();
                     },
                     onFinish: () => setProcesando(false),
@@ -281,6 +291,7 @@ export default function AgendaSidePanel({
             router.post(route("agenda.capacitaciones.store"), payload, {
                 preserveScroll: true,
                 onSuccess: () => {
+                    setMostrarAvisos(false);
                     limpiarFormularios();
                     if (onSuccess) onSuccess();
                 },
@@ -310,10 +321,12 @@ export default function AgendaSidePanel({
                 ? route("agenda.capacitaciones.destroy", eventoSeleccionado.id)
                 : route("agenda.mantenimientos.destroy", eventoSeleccionado.id);
 
+        setMostrarAvisos(true);
         setProcesando(true);
         router.delete(url, {
             preserveScroll: true,
             onSuccess: () => {
+                setMostrarAvisos(false);
                 limpiarFormularios();
                 if (onSuccess) onSuccess();
             },
@@ -404,7 +417,7 @@ export default function AgendaSidePanel({
                             }
                             className={inputClass}
                         />
-                        {errors?.nombre && (
+                        {mostrarAvisos && errors?.nombre && (
                             <span className="text-primario-700 text-[11px]">
                                 {errors.nombre}
                             </span>
@@ -448,7 +461,7 @@ export default function AgendaSidePanel({
                                 />
                             </div>
                         </div>
-                        {errors?.fecha_hora && (
+                        {mostrarAvisos && errors?.fecha_hora && (
                             <span className="text-primario-700 text-[11px]">
                                 {errors.fecha_hora}
                             </span>
@@ -494,7 +507,7 @@ export default function AgendaSidePanel({
                                 className={inputClass}
                             />
                         )}
-                        {errors?.ubicacion_id && (
+                        {mostrarAvisos && errors?.ubicacion_id && (
                             <span className="text-primario-700 text-[11px]">
                                 {errors.ubicacion_id}
                             </span>
@@ -545,7 +558,7 @@ export default function AgendaSidePanel({
                                 </label>
                             ))}
                         </div>
-                        {errors?.extintores_id && (
+                        {mostrarAvisos && errors?.extintores_id && (
                             <span className="text-primario-700 text-[11px]">
                                 {errors.extintores_id}
                             </span>
@@ -603,7 +616,7 @@ export default function AgendaSidePanel({
                                 </option>
                             ))}
                         </select>
-                        {errors?.extintor_id && (
+                        {mostrarAvisos && errors?.extintor_id && (
                             <span className="text-primario-700 text-[11px]">
                                 {errors.extintor_id}
                             </span>
@@ -646,7 +659,7 @@ export default function AgendaSidePanel({
                             </option>
                             <option value="Otra">Otra</option>
                         </select>
-                        {errors?.tipo && (
+                        {mostrarAvisos && errors?.tipo && (
                             <span className="text-primario-700 text-[11px]">
                                 {errors.tipo}
                             </span>
@@ -690,7 +703,7 @@ export default function AgendaSidePanel({
                                 />
                             </div>
                         </div>
-                        {errors?.fecha_programada && (
+                        {mostrarAvisos && errors?.fecha_programada && (
                             <span className="text-primario-700 text-[11px]">
                                 {errors.fecha_programada}
                             </span>
@@ -713,7 +726,7 @@ export default function AgendaSidePanel({
                             }
                             className={`${inputClass} resize-none`}
                         />
-                        {errors?.descripcion && (
+                        {mostrarAvisos && errors?.descripcion && (
                             <span className="text-primario-700 text-[11px]">
                                 {errors.descripcion}
                             </span>

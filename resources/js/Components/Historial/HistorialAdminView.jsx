@@ -131,6 +131,7 @@ export default function HistorialAdminView({
     }, [url]);
 
     const aplicarFiltros = (cambios) => {
+        setMostrarFormularioMovil(false);
         const todos = {
             tipo,
             instalacion_id: instalacionId,
@@ -160,13 +161,12 @@ export default function HistorialAdminView({
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between gap-4">
-                <div>
+                <div className="min-w-0">
                     <h1 className="text-titulo-1 font-bold text-neutro-900">
                         Historial
                     </h1>
                     <p className="text-xs text-neutro-600 mt-0.5">
-                        Bitácora de usos, mantenimientos realizados y
-                        exportación de informes
+                        Usos y mantenimientos realizados
                     </p>
                 </div>
 
@@ -182,29 +182,31 @@ export default function HistorialAdminView({
 
             <FlashBanner />
 
-            <div className="flex flex-wrap items-center gap-2">
-                {FILTROS.map((f) => (
-                    <button
-                        key={f.valor}
-                        type="button"
-                        onClick={() => aplicarFiltros({ tipo: f.valor })}
-                        className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition cursor-pointer ${
-                            tipo === f.valor
-                                ? "bg-neutro-900 text-white border-neutro-900"
-                                : "bg-white text-neutro-600 border-neutro-100 hover:bg-neutro-50 hover:text-neutro-900"
-                        }`}
-                    >
-                        {f.etiqueta}
-                    </button>
-                ))}
+            <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                    {FILTROS.map((f) => (
+                        <button
+                            key={f.valor}
+                            type="button"
+                            onClick={() => aplicarFiltros({ tipo: f.valor })}
+                            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition cursor-pointer ${
+                                tipo === f.valor
+                                    ? "bg-neutro-900 text-white border-neutro-900"
+                                    : "bg-white text-neutro-600 border-neutro-100 hover:bg-neutro-50 hover:text-neutro-900"
+                            }`}
+                        >
+                            {f.etiqueta}
+                        </button>
+                    ))}
+                </div>
 
-                <div className="ml-auto flex flex-wrap items-center gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <select
                         value={instalacionId}
                         onChange={(e) =>
                             aplicarFiltros({ instalacion_id: e.target.value })
                         }
-                        className="rounded-full border border-neutro-100 bg-white px-3.5 py-1.5 text-xs font-semibold text-neutro-900 focus:border-primario-500 focus:ring-1 focus:ring-primario-500 cursor-pointer"
+                        className="w-full sm:w-auto rounded-full border border-neutro-100 bg-white px-3.5 py-1.5 text-xs font-semibold text-neutro-900 focus:border-primario-500 focus:ring-1 focus:ring-primario-500 cursor-pointer"
                         aria-label="Filtrar por área"
                     >
                         <option value="">Área: Toda la Institución</option>
@@ -218,7 +220,7 @@ export default function HistorialAdminView({
                     <button
                         type="button"
                         onClick={() => setExportarAbierto(true)}
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-primario-500 hover:bg-primario-700 px-3.5 py-2 text-xs font-bold text-white shadow-xs transition-colors cursor-pointer"
+                        className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-xl bg-primario-500 hover:bg-primario-700 px-3.5 py-2 text-xs font-bold text-white shadow-xs transition-colors cursor-pointer"
                     >
                         <FileDown className="h-4 w-4" />
                         <span>Exportar informe</span>
