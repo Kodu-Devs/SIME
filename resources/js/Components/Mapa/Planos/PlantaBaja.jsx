@@ -191,7 +191,7 @@ export const DISTRIBUCIONES_PB = {
     ],
 
     "Edificio B": [
-        // Fila inferior (Salón en x:394 + acceso de Pasillo en x:489)
+        // Fila superior (talleres)
         {
             x: 10,
             y: 10,
@@ -209,7 +209,7 @@ export const DISTRIBUCIONES_PB = {
             nombre: "Taller de robótica",
         },
 
-        // Fila inferior (acceso abierto en x:394 + Salón real en x:481)
+        // Fila inferior (Salón en x:394 + acceso de Pasillo en x:489)
         {
             x: 10,
             y: 280,

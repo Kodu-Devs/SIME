@@ -64,7 +64,6 @@ class UbicacionSeeder extends Seeder
             ['Edificio D', 'Nivel 1', 'Oficina', 'Oficina'],
 
             // Edificio E
-            // Edificio E
             ['Edificio E', 'Planta baja', 'Auditorio', 'Auditorio'],
             ['Edificio E', 'Planta baja', 'Biblioteca', 'Biblioteca'],
             ['Edificio E', 'Planta baja', 'Pasillo', 'Pasillo'],

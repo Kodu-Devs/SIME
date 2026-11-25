@@ -174,7 +174,6 @@ export default function Index({ alertasAgrupadas = {} }) {
                             const IconoTipo = estilo.icono;
 
                             return (
-                                /* ... deja intacto el contenido interno de cada tipo ... */
                                 <div key={tipo} className="space-y-4">
                                     <div className="flex items-center gap-2 border-b border-neutro-100 pb-2">
                                         <span

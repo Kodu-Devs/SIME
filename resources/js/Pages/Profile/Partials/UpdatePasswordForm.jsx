@@ -58,7 +58,8 @@ export default function UpdatePasswordForm({ className = "" }) {
                     Actualizar contraseña
                 </h2>
                 <p className="mt-1 text-xs text-neutro-600">
-                    Asegúrese de usar una contraseña larga y aleatoria para mantener su cuenta segura.
+                    Asegúrese de usar una contraseña larga y aleatoria para
+                    mantener su cuenta segura.
                 </p>
             </div>
 
@@ -96,9 +97,9 @@ export default function UpdatePasswordForm({ className = "" }) {
                                 className="absolute inset-y-0 right-0 flex items-center px-2.5 text-neutro-600 hover:text-neutro-900 transition-colors cursor-pointer"
                             >
                                 {mostrar.actual ? (
-                                    <Eye className="w-4 h-4" />
-                                ) : (
                                     <EyeOff className="w-4 h-4" />
+                                ) : (
+                                    <Eye className="w-4 h-4" />
                                 )}
                             </button>
                         </div>
@@ -140,9 +141,9 @@ export default function UpdatePasswordForm({ className = "" }) {
                                 className="absolute inset-y-0 right-0 flex items-center px-2.5 text-neutro-600 hover:text-neutro-900 transition-colors cursor-pointer"
                             >
                                 {mostrar.nueva ? (
-                                    <Eye className="w-4 h-4" />
-                                ) : (
                                     <EyeOff className="w-4 h-4" />
+                                ) : (
+                                    <Eye className="w-4 h-4" />
                                 )}
                             </button>
                         </div>
@@ -188,9 +189,9 @@ export default function UpdatePasswordForm({ className = "" }) {
                                 className="absolute inset-y-0 right-0 flex items-center px-2.5 text-neutro-600 hover:text-neutro-900 transition-colors cursor-pointer"
                             >
                                 {mostrar.confirmacion ? (
-                                    <Eye className="w-4 h-4" />
-                                ) : (
                                     <EyeOff className="w-4 h-4" />
+                                ) : (
+                                    <Eye className="w-4 h-4" />
                                 )}
                             </button>
                         </div>

@@ -78,6 +78,15 @@ export const DISTRIBUCIONES_NIVELES_E = {
             nombre: "Oficina",
         },
         {
+            x: 257,
+            y: 278,
+            width: 119.5,
+            height: 196.5,
+            tipo: "pasillo",
+            nombre: "Pasillo",
+            matchNombre: "Pasillo",
+        },
+        {
             x: 382.5,
             y: 278,
             width: 119.5,
