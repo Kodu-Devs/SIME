@@ -7,6 +7,7 @@ use App\Models\Mantenimiento;
 use App\Models\Extintor;
 use App\Models\Capacitacion;
 use App\Exports\InformeExtintoresExport;
+use App\Services\AlertaService;
 use App\Services\EstatusExtintor;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+
 
 use App\Exports\InformeUsosExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -154,11 +156,17 @@ class HistorialController extends Controller
         ]);
     }
 
-    /**
+  /**
      * Registra un nuevo uso de extintor y actualiza su estatus.
      */
     public function storeUso(Request $request)
     {
+        if ($request->has('tipo_descarga') && is_string($request->tipo_descarga)) {
+            $request->merge([
+                'tipo_descarga' => mb_strtolower(trim($request->tipo_descarga)),
+            ]);
+        }
+
         $validated = $request->validate([
             'extintor_id' => [
                 'required',
@@ -184,7 +192,13 @@ class HistorialController extends Controller
             EventoUso::create($validated);
 
             $extintor = Extintor::findOrFail($validated['extintor_id']);
-            EstatusExtintor::trasUso($extintor, $validated['tipo_descarga']);
+            EstatusExtintor::trasUso($extintor, ucfirst($validated['tipo_descarga']));
+
+            if ($validated['tipo_descarga'] === 'parcial') {
+                EstatusExtintor::cambiarA($extintor, 'Medio uso');
+            }
+
+            AlertaService::evaluarExtintor($extintor);
         });
 
         return redirect()->back()->with('success', 'Uso del extintor registrado correctamente.');

@@ -20,7 +20,7 @@ test('el filtro tipo=usos solo regresa usos y la paginacion respeta el filtro', 
     $admin = User::factory()->create();
 
     $extintor = Extintor::factory()->create([
-        'estatus' => 'Vigente',
+        'estatus' => 'Disponible',
         'tipoextintor_id' => TipoExtintor::value('id'),
         'ubicacion_id' => Ubicacion::value('id'),
         'fecha_instalacion' => today()->subMonths(2)->toDateString(),
@@ -44,7 +44,6 @@ test('el filtro tipo=usos solo regresa usos y la paginacion respeta el filtro', 
         Mantenimiento::create([
             'extintor_id' => $extintor->id,
             'tipo' => 'Revisión',
-            'estatus' => 'Realizado',
             'fecha_programada' => now()->subDays($i + 1),
             'fecha_realizada' => now()->subDays($i),
             'descripcion' => "Mantenimiento #{$i}",
