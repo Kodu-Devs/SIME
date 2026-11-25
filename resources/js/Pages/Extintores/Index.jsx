@@ -71,43 +71,8 @@ export default function Index(props) {
     // Normalización de ubicaciones y separación de estatus vs estado (vigencia)
     const normalizedExtintores = useMemo(() => {
         return extintoresRaw.map((ext) => {
-            const areaNombre = ext.ubicacion_nombre || ext.area_nombre || "";
             const ubicacionId = ext.ubicacion_id || ext.raw?.ubicacion_id;
             const tipoId = ext.tipoextintor_id || ext.raw?.tipoextintor_id;
-
-            let edificioDetectado = ext.instalacion_nombre || "";
-            let pisoDetectado = "";
-
-            if (instalaciones.length > 0 && areaNombre) {
-                for (const inst of instalaciones) {
-                    for (const p of inst.pisos || []) {
-                        for (const ub of p.ubicaciones || []) {
-                            const matchId =
-                                ubicacionId &&
-                                String(ub.id) === String(ubicacionId);
-                            const matchNombre =
-                                ub.nombre &&
-                                ub.nombre.trim().toLowerCase() ===
-                                    areaNombre.trim().toLowerCase();
-
-                            if (matchId || matchNombre) {
-                                edificioDetectado = inst.nombre || "";
-                                pisoDetectado =
-                                    p.nombre ||
-                                    (p.numero ? `Piso ${p.numero}` : "");
-                                break;
-                            }
-                        }
-                        if (pisoDetectado) break;
-                    }
-                    if (edificioDetectado) break;
-                }
-            }
-
-            const finalPiso =
-                ext.piso_numero && !String(ext.piso_numero).includes("N/A")
-                    ? `Piso ${ext.piso_numero}`
-                    : pisoDetectado;
 
             return {
                 id: ext.id,
@@ -116,10 +81,10 @@ export default function Index(props) {
                 tipoextintor_id: tipoId,
                 capacidad: ext.capacidad || ext.raw?.capacidad || "N/A",
                 capacidad_raw: ext.capacidad_raw || ext.capacidad,
-                area_nombre: areaNombre,
+                area_nombre: ext.ubicacion_nombre || ext.area_nombre || "",
                 ubicacion_id: ubicacionId,
-                edificio: edificioDetectado || "",
-                piso: finalPiso,
+                edificio: ext.instalacion_nombre || "",
+                piso: ext.piso_nombre || "",
                 proximo_mantenimiento:
                     ext.proximo_mantenimiento || "Sin programar",
                 proxima_revision: ext.proxima_revision || "Sin programar",
@@ -128,7 +93,7 @@ export default function Index(props) {
                 raw: ext.raw || ext,
             };
         });
-    }, [extintoresRaw, instalaciones, tipos]);
+    }, [extintoresRaw]);
 
     const handleSelectExtintor = (extintor) => {
         setSelectedExtintor(extintor);
@@ -172,11 +137,10 @@ export default function Index(props) {
                         preserveScroll
                         preserveState
                         as={prev_page_url ? "a" : "span"}
-                        className={`p-1.5 rounded-lg border border-neutro-100 text-neutro-600 transition-colors ${
-                            prev_page_url
-                                ? "hover:bg-neutro-50 cursor-pointer"
-                                : "opacity-40 cursor-not-allowed pointer-events-none"
-                        }`}
+                        className={`p-1.5 rounded-lg border border-neutro-100 text-neutro-600 transition-colors ${prev_page_url
+                            ? "hover:bg-neutro-50 cursor-pointer"
+                            : "opacity-40 cursor-not-allowed pointer-events-none"
+                            }`}
                     >
                         <ChevronLeft className="w-4 h-4" />
                     </Link>
@@ -192,11 +156,10 @@ export default function Index(props) {
                                 dangerouslySetInnerHTML={{
                                     __html: link.label,
                                 }}
-                                className={`w-7 h-7 flex items-center justify-center text-xs font-semibold rounded-lg transition-colors ${
-                                    link.active
-                                        ? "bg-primario-500 text-white shadow-xs"
-                                        : "border border-neutro-100 text-neutro-900 hover:bg-neutro-50"
-                                } ${!link.url ? "opacity-40 pointer-events-none" : "cursor-pointer"}`}
+                                className={`w-7 h-7 flex items-center justify-center text-xs font-semibold rounded-lg transition-colors ${link.active
+                                    ? "bg-primario-500 text-white shadow-xs"
+                                    : "border border-neutro-100 text-neutro-900 hover:bg-neutro-50"
+                                    } ${!link.url ? "opacity-40 pointer-events-none" : "cursor-pointer"}`}
                             />
                         ))}
 
@@ -205,11 +168,10 @@ export default function Index(props) {
                         preserveScroll
                         preserveState
                         as={next_page_url ? "a" : "span"}
-                        className={`p-1.5 rounded-lg border border-neutro-100 text-neutro-600 transition-colors ${
-                            next_page_url
-                                ? "hover:bg-neutro-50 cursor-pointer"
-                                : "opacity-40 cursor-not-allowed pointer-events-none"
-                        }`}
+                        className={`p-1.5 rounded-lg border border-neutro-100 text-neutro-600 transition-colors ${next_page_url
+                            ? "hover:bg-neutro-50 cursor-pointer"
+                            : "opacity-40 cursor-not-allowed pointer-events-none"
+                            }`}
                     >
                         <ChevronRight className="w-4 h-4" />
                     </Link>
