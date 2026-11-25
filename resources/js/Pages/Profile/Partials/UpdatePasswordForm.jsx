@@ -97,9 +97,9 @@ export default function UpdatePasswordForm({ className = "" }) {
                                 className="absolute inset-y-0 right-0 flex items-center px-2.5 text-neutro-600 hover:text-neutro-900 transition-colors cursor-pointer"
                             >
                                 {mostrar.actual ? (
-                                    <EyeOff className="w-4 h-4" />
-                                ) : (
                                     <Eye className="w-4 h-4" />
+                                ) : (
+                                    <EyeOff className="w-4 h-4" />
                                 )}
                             </button>
                         </div>
@@ -141,9 +141,9 @@ export default function UpdatePasswordForm({ className = "" }) {
                                 className="absolute inset-y-0 right-0 flex items-center px-2.5 text-neutro-600 hover:text-neutro-900 transition-colors cursor-pointer"
                             >
                                 {mostrar.nueva ? (
-                                    <EyeOff className="w-4 h-4" />
-                                ) : (
                                     <Eye className="w-4 h-4" />
+                                ) : (
+                                    <EyeOff className="w-4 h-4" />
                                 )}
                             </button>
                         </div>
@@ -189,9 +189,9 @@ export default function UpdatePasswordForm({ className = "" }) {
                                 className="absolute inset-y-0 right-0 flex items-center px-2.5 text-neutro-600 hover:text-neutro-900 transition-colors cursor-pointer"
                             >
                                 {mostrar.confirmacion ? (
-                                    <EyeOff className="w-4 h-4" />
-                                ) : (
                                     <Eye className="w-4 h-4" />
+                                ) : (
+                                    <EyeOff className="w-4 h-4" />
                                 )}
                             </button>
                         </div>
