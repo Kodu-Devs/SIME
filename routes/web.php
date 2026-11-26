@@ -23,9 +23,6 @@ Route::prefix('mapa')->name('mapa.')->group(function () {
     Route::get('/{instalacion}/{piso}', [MapaController::class, 'piso'])->name('piso');
 });
 
-// Módulo 3: Extintores (Lectura)
-Route::get('/extintores', [ExtintorController::class, 'index'])->name('extintores.index');
-
 // Módulos 4 y 5: Agenda e Historial (Lectura)
 Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
 Route::get('/historial', [HistorialController::class, 'index'])->name('historial.index');
@@ -42,7 +39,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Módulo 2: Mapa interactivo (Escritura)
     Route::put('/mapa/ubicacion/{ubicacion}/posicion', [MapaController::class, 'updatePosicion'])->name('mapa.ubicacion.posicion');
 
-    // Módulo 3: Extintores (Escritura y baja)
+    // Módulo 3: Extintores
+    Route::get('/extintores', [ExtintorController::class, 'index'])->name('extintores.index');
     Route::post('/extintores', [ExtintorController::class, 'store'])->name('extintores.store');
     Route::put('/extintores/{extintor}', [ExtintorController::class, 'update'])->name('extintores.update');
     Route::patch('/extintores/{extintor}/baja', [ExtintorController::class, 'baja'])->name('extintores.baja');
