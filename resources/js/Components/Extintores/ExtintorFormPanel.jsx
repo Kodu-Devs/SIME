@@ -116,40 +116,24 @@ export default function ExtintorFormPanel({
 
             let resolvedInstalacionId = "";
             let resolvedPisoId = "";
-            let resolvedUbicacionId =
+            const resolvedUbicacionId =
                 selectedExtintor.ubicacion_id ||
                 selectedExtintor.raw?.ubicacion_id ||
                 "";
 
-            if (
-                selectedExtintor.area_nombre ||
-                selectedExtintor.ubicacion_nombre
-            ) {
-                const areaBusqueda = (
-                    selectedExtintor.area_nombre ||
-                    selectedExtintor.ubicacion_nombre ||
-                    ""
-                )
-                    .trim()
-                    .toLowerCase();
+            if (resolvedUbicacionId) {
                 for (const inst of instalaciones) {
                     for (const p of inst.pisos || []) {
-                        for (const ub of p.ubicaciones || []) {
-                            const matchId =
-                                resolvedUbicacionId &&
-                                String(ub.id) === String(resolvedUbicacionId);
-                            const matchNombre =
-                                ub.nombre &&
-                                ub.nombre.trim().toLowerCase() === areaBusqueda;
+                        const ubEncontrada = (p.ubicaciones || []).find(
+                            (ub) =>
+                                String(ub.id) === String(resolvedUbicacionId),
+                        );
 
-                            if (matchId || matchNombre) {
-                                resolvedInstalacionId = inst.id;
-                                resolvedPisoId = p.id;
-                                resolvedUbicacionId = ub.id;
-                                break;
-                            }
+                        if (ubEncontrada) {
+                            resolvedInstalacionId = inst.id;
+                            resolvedPisoId = p.id;
+                            break;
                         }
-                        if (resolvedUbicacionId && resolvedPisoId) break;
                     }
                     if (resolvedInstalacionId) break;
                 }

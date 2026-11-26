@@ -91,4 +91,69 @@ class ExtintorControllerTest extends TestCase
             ->where('extintores.data.0.estatus', 'Vacío')
         );
     }
+    public function test_index_resuelve_edificio_y_piso_correctos_con_ubicaciones_homonimas()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $tipo = TipoExtintor::forceCreate([
+            'nombre'          => 'PQS',
+            'agente_extintor' => 'Polvo Químico Seco',
+            'clase_fuego'     => 'A, B, C',
+            'unidad'          => 'kg',
+        ]);
+
+        // Primera ubicación llamada "Escaleras" en Edificio A / Planta baja
+        $edificioA = Instalacion::forceCreate([
+            'nombre' => 'Edificio A',
+            'tipo'   => 'Edificio',
+        ]);
+        $pisoA = Piso::forceCreate([
+            'instalacion_id' => $edificioA->id,
+            'nombre'         => 'Planta baja',
+        ]);
+        Ubicacion::forceCreate([
+            'piso_id'   => $pisoA->id,
+            'tipo_area' => 'Escaleras',
+            'nombre'    => 'Escaleras',
+        ]);
+
+        // Segunda ubicación llamada "Escaleras" en Edificio C / Nivel 1
+        $edificioC = Instalacion::forceCreate([
+            'nombre' => 'Edificio C',
+            'tipo'   => 'Edificio',
+        ]);
+        $pisoC = Piso::forceCreate([
+            'instalacion_id' => $edificioC->id,
+            'nombre'         => 'Nivel 1',
+        ]);
+        $escalerasC = Ubicacion::forceCreate([
+            'piso_id'   => $pisoC->id,
+            'tipo_area' => 'Escaleras',
+            'nombre'    => 'Escaleras',
+        ]);
+
+        // Extintor asignado a la segunda ubicación ("Escaleras" de Edificio C / Nivel 1)
+        $extintor = Extintor::factory()->create([
+            'etiqueta_inventario' => 'ITJMM-62007-5100-00426',
+            'estatus'             => 'Disponible',
+            'tipoextintor_id'     => $tipo->id,
+            'ubicacion_id'        => $escalerasC->id,
+            'fecha_instalacion'   => now()->subMonths(2)->toDateTimeString(),
+            'fecha_vencimiento'   => now()->addMonths(4)->toDateTimeString(),
+            'capacidad'           => '6.0',
+        ]);
+
+        $response = $this->get('/extintores');
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Extintores/Index')
+            ->where('extintores.data.0.id', $extintor->id)
+            ->where('extintores.data.0.ubicacion_id', $escalerasC->id)
+            ->where('extintores.data.0.ubicacion_nombre', 'Escaleras')
+            ->where('extintores.data.0.piso_nombre', 'Nivel 1')
+            ->where('extintores.data.0.instalacion_nombre', 'Edificio C')
+        );
+    }
 }

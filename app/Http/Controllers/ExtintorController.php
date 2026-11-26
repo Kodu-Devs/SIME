@@ -29,7 +29,7 @@ class ExtintorController extends Controller
 
         // Base: siempre excluimos los dados de baja definitiva
         $query = Extintor::where('estatus', '!=', 'Baja')
-            ->with(['ubicacion.piso', 'tipoExtintor', 'mantenimientos']);
+            ->with(['ubicacion.piso.instalacion', 'tipoExtintor', 'mantenimientos']);
 
         // Si el filtro existe en nuestro mapa, aplicamos la condición exacta
         if (isset($mapa[$filtro])) {
@@ -46,7 +46,8 @@ class ExtintorController extends Controller
                 'capacidad' => $extintor->capacidad,
                 'tipo_nombre' => $extintor->tipoExtintor?->nombre ?? 'No definido',
                 'ubicacion_nombre' => $extintor->ubicacion?->nombre ?? 'Sin ubicación',
-                'piso_numero' => $extintor->ubicacion?->piso?->numero ?? 'N/A',
+                'piso_nombre' => $extintor->ubicacion?->piso?->nombre ?? '',
+                'instalacion_nombre' => $extintor->ubicacion?->piso?->instalacion?->nombre ?? '',
                 'tipoextintor_id' => $extintor->tipoextintor_id,
                 'ubicacion_id' => $extintor->ubicacion_id,
                 'proximo_mantenimiento' => $extintor->mantenimientos
