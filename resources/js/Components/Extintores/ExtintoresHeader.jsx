@@ -14,7 +14,7 @@ export default function ExtintoresHeader({ onAddNew }) {
             </div>
 
             {onAddNew && (
-                <div className="block md:hidden shrink-0">
+                <div className="block lg:hidden shrink-0">
                     <button
                         type="button"
                         onClick={onAddNew}
