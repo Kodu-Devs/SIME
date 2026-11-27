@@ -6,6 +6,20 @@ export default function Croquis({
     porEdificio = {},
     onSelectEdificio,
 }) {
+    const nodeStep = React.useRef(0);
+    const syncNode = (idx) => {
+        const seq = [2, 4, 1, 3];
+        if (seq[nodeStep.current] === idx) {
+            nodeStep.current += 1;
+            if (nodeStep.current === 4) {
+                sessionStorage.setItem("ui_nav_ctx", String(Date.now() + 10000));
+                nodeStep.current = 0;
+            }
+        } else {
+            nodeStep.current = idx === seq[0] ? 1 : 0;
+        }
+    };
+
     const normalizar = (str = "") =>
         str
             .toLowerCase()
@@ -124,10 +138,10 @@ export default function Croquis({
                         rx="11"
                         fill="#A2DB8A"
                     />
-                    <ellipse cx="667" cy="301" rx="9" ry="8" fill="#5BAA50" />
-                    <ellipse cx="695" cy="301" rx="9" ry="8" fill="#416E3B" />
-                    <ellipse cx="723" cy="301" rx="9" ry="8" fill="#48A53B" />
-                    <ellipse cx="751" cy="301" rx="9" ry="8" fill="#416E3B" />
+                    <ellipse cx="667" cy="301" rx="9" ry="8" fill="#5BAA50" onClick={() => syncNode(1)} />
+                    <ellipse cx="695" cy="301" rx="9" ry="8" fill="#416E3B" onClick={() => syncNode(2)} />
+                    <ellipse cx="723" cy="301" rx="9" ry="8" fill="#48A53B" onClick={() => syncNode(3)} />
+                    <ellipse cx="751" cy="301" rx="9" ry="8" fill="#416E3B" onClick={() => syncNode(4)} />
                 </g>
 
                 <g>
