@@ -170,14 +170,16 @@ export default function HistorialAdminView({
                     </p>
                 </div>
 
-                <button
-                    type="button"
-                    onClick={abrirFormularioMovil}
-                    className="lg:hidden inline-flex items-center gap-1.5 bg-primario-500 hover:bg-primario-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer shrink-0"
-                >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Añadir</span>
-                </button>
+                {!mostrarFormularioMovil && (
+                    <button
+                        type="button"
+                        onClick={abrirFormularioMovil}
+                        className="lg:hidden inline-flex items-center gap-1.5 bg-primario-500 hover:bg-primario-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer shrink-0"
+                    >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Añadir</span>
+                    </button>
+                )}
             </div>
 
             <FlashBanner />
