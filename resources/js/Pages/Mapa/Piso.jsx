@@ -336,8 +336,8 @@ export default function Piso({
                                     {extintoresSinUbicar.length})
                                 </p>
                                 <p className="text-[11px] text-neutro-600 mt-0.5 mb-3">
-                                    Arrastra cada uno hacia su área en el plano
-                                    o tócalo para ubicarlo.
+                                    Arrastre cada uno hacia su área en el plano
+                                    o tóquelo para ubicarlo.
                                 </p>
 
                                 <div className="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
@@ -390,7 +390,7 @@ export default function Piso({
                                                     className={`text-[10px] font-bold px-2 py-0.5 rounded border shrink-0 ${configEstado.badge}`}
                                                 >
                                                     {enModoColocar
-                                                        ? "Toca el mapa"
+                                                        ? "Toque el mapa"
                                                         : configEstado.texto}
                                                 </span>
                                             </div>

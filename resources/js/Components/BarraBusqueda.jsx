@@ -12,6 +12,7 @@ import {
     PlusCircle,
     FileDown,
     User,
+    HelpCircle,
     ArrowRight,
     X,
 } from "lucide-react";
@@ -97,6 +98,16 @@ const OPCIONES_SISTEMA = [
         keywords: "perfil cuenta usuario contrasena configuracion",
         icon: User,
         action: () => router.get(route("profile.edit")),
+    },
+    {
+        id: "act-ayuda",
+        titulo: "Centro de ayuda",
+        subtitulo:
+            "Consulte guías paso a paso, glosario y preguntas frecuentes",
+        keywords:
+            "ayuda manual guia como preguntas frecuentes faq soporte tutorial",
+        icon: HelpCircle,
+        action: () => router.get(route("ayuda.administrador")),
     },
 
     // --- MAPA GENERAL Y EDIFICIOS (IDs según InstalacionSeeder.php) ---

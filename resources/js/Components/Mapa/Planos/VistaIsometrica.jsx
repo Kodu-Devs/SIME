@@ -230,7 +230,7 @@ export default function VistaIsometrica({ edificio, onVolver, onSelectPiso }) {
                         {edificio}
                     </h2>
                     <span className="inline-block mt-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-primario-100 text-primario-700">
-                        Selecciona un nivel
+                        Seleccione un nivel
                     </span>
                 </div>
                 <button
