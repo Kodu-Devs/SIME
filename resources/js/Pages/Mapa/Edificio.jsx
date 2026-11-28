@@ -87,8 +87,8 @@ export default function Edificio({ instalacion }) {
                         </h3>
                         <p className="text-xs text-neutro-600 mt-1 mb-4">
                             {esUnSoloNivel
-                                ? "Haz clic en el plano o en el botón inferior para ver el detalle de extintores de esta área:"
-                                : "Elige un piso para abrir su plano y consultar sus ubicaciones:"}
+                                ? "Haga clic en el plano o en el botón inferior para ver el detalle de extintores de esta área:"
+                                : "Elija un piso para abrir su plano y consultar sus ubicaciones:"}
                         </p>
 
                         <div className="space-y-2">

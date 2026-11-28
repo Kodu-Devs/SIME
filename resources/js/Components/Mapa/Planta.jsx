@@ -142,7 +142,7 @@ export default function Planta({
             }
             return {
                 valido: false,
-                mensaje: `Este extintor pertenece a "${ubicacion.nombre}", no puedes colocarlo dentro de "${zonaDetectadaRaw}".`,
+                mensaje: `Este extintor pertenece a "${ubicacion.nombre}", no puede colocarlo dentro de "${zonaDetectadaRaw}".`,
             };
         }
 
@@ -150,7 +150,7 @@ export default function Planta({
         if (!zonaDetectada) {
             return {
                 valido: false,
-                mensaje: `Este extintor pertenece a "${ubicacion.nombre}". Suéltalo dentro de esa área en el plano.`,
+                mensaje: `Este extintor pertenece a "${ubicacion.nombre}". Suéltelo dentro de esa área en el plano.`,
             };
         }
 
@@ -279,7 +279,7 @@ export default function Planta({
                     <div className="flex items-center gap-2 text-amber-900 min-w-0">
                         <Crosshair className="w-4 h-4 text-amber-600 shrink-0 animate-pulse" />
                         <span className="truncate">
-                            Toca dentro de{" "}
+                            Toque dentro de{" "}
                             <strong>
                                 {extintorParaColocar.ubicacionNombre}
                             </strong>{" "}
