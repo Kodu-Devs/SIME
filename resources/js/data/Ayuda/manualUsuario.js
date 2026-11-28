@@ -17,7 +17,7 @@ export const manualUsuario = {
                     introduccion:
                         "Cualquier persona puede consultar los extintores del plantel con el enlace público, sin crear una cuenta ni iniciar sesión.",
                     pasos: [
-                        "Abra su navegador web en computadora, tableta o celular.",
+                        "Abra su navegador web en computadora, tableta o móvil.",
                         "Escriba el enlace público de SIME en la barra de direcciones y ábralo.",
                         "SIME abrirá directamente la pantalla principal de **Mapa**.",
                     ],
@@ -39,14 +39,14 @@ export const manualUsuario = {
                         "El menú público siempre está visible y se adapta al tamaño de su pantalla.",
                     pasos: [
                         "En computadora o tableta, seleccione **Mapa**, **Agenda** o **Aprende más** en la barra superior.",
-                        "En celular, toque cualquiera de esas tres secciones en la barra inferior de la pantalla.",
+                        "En móvil, toque cualquiera de esas tres secciones en la barra inferior de la pantalla.",
                         "Presione el botón de ayuda (**?**) en la esquina superior derecha para abrir esta guía en la sección que está consultando.",
                         "Si necesita llamar en una emergencia, use el botón **Emergencias 911** de la franja roja superior.",
                     ],
                     avisos: [
                         {
                             tipo: "nota",
-                            texto: "El botón **Acceso Administrador** (o **Admin** en celular) es exclusivo para el personal encargado del inventario.",
+                            texto: "El botón **Acceso Administrador** (o **Admin** en móvil) es exclusivo para el personal encargado del inventario.",
                         },
                     ],
                 },
@@ -175,7 +175,7 @@ export const manualUsuario = {
                     pasos: [
                         "Entre a **Aprende más** desde el menú principal.",
                         "En computadora o tableta, ubique el tipo de agente en las filas y la **Clase de fuego** en las columnas (**Clase A**, **Clase B**, **Clase C**, **Clase D** o **Clase K/F**).",
-                        "En celular, seleccione uno de los botones superiores (**A**, **B**, **C**, **D** o **K/F**) para comparar los cinco agentes frente a esa clase de fuego.",
+                        "En móvil, seleccione uno de los botones superiores (**A**, **B**, **C**, **D** o **K/F**) para comparar los cinco agentes frente a esa clase de fuego.",
                         "Revise la eficacia indicada en cada recuadro antes de elegir un equipo.",
                     ],
                     avisos: [
@@ -191,7 +191,7 @@ export const manualUsuario = {
                     introduccion:
                         "La guía detalla qué combustibles producen cada clase de fuego, qué extintores se recomiendan y el método **T-A-P-A**.",
                     pasos: [
-                        "En **Aprende más**, presione **Ver guía completa** o seleccione cualquier columna de **Clase de fuego** (en celular, toque **Ver guía →**).",
+                        "En **Aprende más**, presione **Ver guía completa** o seleccione cualquier columna de **Clase de fuego** (en móvil, toque **Ver guía →**).",
                         "Consulte la identificación, los combustibles, los extintores recomendados y las recomendaciones de seguridad de cada clase.",
                         "Revise el método **T-A-P-A**: **Tirar** del pasador, **Apuntar** a la base, **Presionar** la palanca y **Abanicar** de lado a lado.",
                         "Presione **Volver a la tabla** para regresar a la vista comparativa.",
@@ -271,7 +271,7 @@ export const manualUsuario = {
                                 "Extintor de gas frío que no deja residuos, ideal para aparatos eléctricos y computadoras.",
                         },
                         {
-                            termino: "**Agua a presión**",
+                            termino: "**Agua**",
                             definicion:
                                 "Apto únicamente para sólidos como papel, cartón o madera. Nunca debe usarse en cables eléctricos ni aceite.",
                         },
@@ -309,10 +309,10 @@ export const manualUsuario = {
                 "No. La consulta pública no requiere cuenta ni contraseña. Solo abra el enlace público en su navegador para consultar **Mapa**, **Agenda** y **Aprende más**.",
         },
         {
-            id: "faq-publico-celular",
-            pregunta: "¿Puedo usar SIME desde el celular o la tableta?",
+            id: "faq-publico-movil",
+            pregunta: "¿Puedo usar SIME desde el móvil o la tableta?",
             respuesta:
-                "Sí. SIME no requiere instalación y se adapta al tamaño de su computadora, tableta o celular. En celular, use la barra inferior para cambiar entre **Mapa**, **Agenda** y **Aprende más**.",
+                "Sí. SIME no requiere instalación y se adapta al tamaño de su computadora, tableta o móvil. En móvil, use la barra inferior para cambiar entre **Mapa**, **Agenda** y **Aprende más**.",
         },
         {
             id: "faq-publico-acceso-admin",

@@ -56,12 +56,12 @@ export const manualAdministrador = {
                 },
                 {
                     id: "primeros-pasos-navegacion",
-                    titulo: "¿Cómo me muevo por el sistema en computadora, tableta o celular?",
+                    titulo: "¿Cómo me muevo por el sistema en computadora, tableta o móvil?",
                     introduccion:
                         "SIME adapta el menú principal al tamaño de su pantalla para que tenga todos los módulos a la mano.",
                     pasos: [
                         "En computadora o tableta, use el menú lateral oscuro de la izquierda para entrar a **Resumen**, **Mapa**, **Extintores**, **Agenda** o **Historial**.",
-                        "En celular, use la barra fija de la parte inferior con los mismos cinco accesos.",
+                        "En móvil, use la barra fija de la parte inferior con los mismos cinco accesos.",
                         "Para abrir su perfil o salir de su cuenta, seleccione su nombre o iniciales en la esquina superior derecha y elija **Mi Perfil** o **Cerrar Sesión**.",
                     ],
                 },
@@ -78,7 +78,7 @@ export const manualAdministrador = {
                     avisos: [
                         {
                             tipo: "consejo",
-                            texto: "Desde el buscador superior también puede escribir una duda y abrir este **Centro de ayuda** con los resultados filtrados.",
+                            texto: "Desde el buscador superior también puede escribir **ayuda** o **manual** para abrir este **Centro de ayuda**.",
                         },
                     ],
                 },
@@ -119,12 +119,18 @@ export const manualAdministrador = {
                     id: "resumen-agenda-recomendaciones",
                     titulo: "¿Cómo consulto Próximo en la agenda y Recomendaciones?",
                     introduccion:
-                        "A la derecha del mapa (o abajo en celular) verá los próximos eventos y las sugerencias de cobertura.",
+                        "A la derecha del mapa (o abajo en móvil) verá los próximos eventos y las sugerencias de cobertura.",
                     pasos: [
                         "Revise **Próximo en la agenda** para ver los mantenimientos y capacitaciones más cercanos.",
                         "Seleccione **Ver agenda** para abrir el calendario completo.",
-                        "Revise **Recomendaciones** para identificar edificios o pisos sin extintores registrados o sin equipos disponibles.",
+                        "Revise **Recomendaciones** para identificar edificios o pisos sin extintores, ubicaciones sin ningún extintor disponible y el tipo de extintor sugerido para cada área.",
                         "Para atender una recomendación, entre a **Extintores** desde el menú y registre el equipo necesario.",
+                    ],
+                    avisos: [
+                        {
+                            tipo: "nota",
+                            texto: "El panel **Recomendaciones** muestra como máximo 3 recomendaciones a la vez y sugiere el tipo de extintor adecuado para cada área.",
+                        },
                     ],
                 },
             ],
@@ -208,7 +214,7 @@ export const manualAdministrador = {
                 },
                 {
                     id: "mapa-ubicar-tocar",
-                    titulo: "¿Cómo ubico un extintor en el plano desde celular o tableta?",
+                    titulo: "¿Cómo ubico un extintor en el plano desde móvil o tableta?",
                     introduccion:
                         "En pantallas táctiles no necesita arrastrar: puede colocar el equipo con dos toques.",
                     pasos: [
@@ -266,7 +272,7 @@ export const manualAdministrador = {
                     titulo: "¿Cómo registro un extintor nuevo?",
                     pasos: [
                         "Entre al módulo **Extintores** desde el menú.",
-                        "En celular o tableta, presione **Añadir**. En computadora, verifique que el panel derecho diga **Registrar nuevo extintor** (**Modo creación · Sin selección**).",
+                        "En móvil o tableta, presione **Añadir**. En computadora, verifique que el panel derecho diga **Registrar nuevo extintor** (**Modo creación · Sin selección**).",
                         "Seleccione el **Tipo** de agente y después la **Capacidad**.",
                         "Elija el **Edificio**, el **Piso** y la **Ubicación exacta**.",
                         "Verifique o elija la **Fecha de instalación**.",
@@ -295,7 +301,7 @@ export const manualAdministrador = {
                     avisos: [
                         {
                             tipo: "nota",
-                            texto: "Para salir del modo edición sin guardar, presione **Cancelar** en la parte superior del panel (o **Volver a la lista** en celular y tableta).",
+                            texto: "Para salir del modo edición sin guardar, presione **Cancelar** en la parte superior del panel (o **Volver a la lista** en móvil y tableta).",
                         },
                     ],
                 },
@@ -355,7 +361,7 @@ export const manualAdministrador = {
                     id: "agenda-programar-mantenimiento",
                     titulo: "¿Cómo programo un mantenimiento?",
                     pasos: [
-                        "Entre a **Agenda**. En celular o tableta, presione **Añadir**.",
+                        "Entre a **Agenda**. En móvil o tableta, presione **Añadir**.",
                         "En el panel lateral, seleccione la pestaña **Mantenimiento**.",
                         "Elija el equipo en **Seleccionar extintor** y verifique su ubicación y tipo en **Datos del extintor**.",
                         "En **Tipo de servicio**, seleccione **Revisión**, **Relleno de contenido** u **Otra**.",
@@ -373,7 +379,7 @@ export const manualAdministrador = {
                     id: "agenda-agendar-capacitacion",
                     titulo: "¿Cómo agendo una capacitación y aparto extintores?",
                     pasos: [
-                        "Entre a **Agenda**. En celular o tableta, presione **Añadir**.",
+                        "Entre a **Agenda**. En móvil o tableta, presione **Añadir**.",
                         "En el panel lateral, seleccione la pestaña **Capacitación**.",
                         "Escriba el título en **Nombre** y defina la **Fecha** y la **Hora**.",
                         "Elija la ubicación de la práctica en **Lugar**.",
@@ -399,7 +405,7 @@ export const manualAdministrador = {
                         "Verifique que el panel muestre **Detalles de Mantenimiento** o **Detalles de Capacitación** (**Modo edición · Evento seleccionado**).",
                         "Para modificar, edite los campos necesarios y presione **Guardar cambios**.",
                         "Para eliminar, presione **Eliminar** y confirme la acción en la ventana emergente.",
-                        "Para salir sin hacer cambios, presione **Cancelar** (o **Volver al calendario** en celular y tableta).",
+                        "Para salir sin hacer cambios, presione **Cancelar** (o **Volver al calendario** en móvil y tableta).",
                     ],
                     avisos: [
                         {
@@ -434,7 +440,7 @@ export const manualAdministrador = {
                     introduccion:
                         "Registre aquí cada descarga ocurrida en un conato, simulacro, capacitación u otro evento.",
                     pasos: [
-                        "Entre a **Historial**. En celular o tableta, presione **Añadir** para abrir el panel **Registrar uso**.",
+                        "Entre a **Historial**. En móvil o tableta, presione **Añadir** para abrir el panel **Registrar uso**.",
                         "En **Extintor**, seleccione el equipo que se utilizó.",
                         "En **Tipo de descarga**, elija **Total** si se vació por completo o **Parcial** si conserva carga.",
                         "Indique la **Fecha** y seleccione el **Tipo de motivo** (**Conato**, **Simulacro**, **Capacitación** u **Otro**).",
@@ -459,14 +465,18 @@ export const manualAdministrador = {
                         "Entre a **Historial** y presione **Exportar informe**.",
                         "En **Tipo de informe**, elija **Eventos de uso** o **Lista de extintores**.",
                         "En **Formato**, seleccione **PDF** o **Excel (.xlsx)**.",
-                        "En **Periodo**, indique la **Fecha de inicio** y la **Fecha de fin**.",
-                        "Si desea acotar el documento, elija un **Edificio o área (opcional)** y un **Piso (opcional)**.",
+                        "Si eligió **Eventos de uso**, revise el **Periodo**: aparece ya lleno con la fecha de hoy; cambie la **Fecha de inicio** y la **Fecha de fin** si lo necesita.",
+                        "Si desea acotar el documento, elija un **Edificio o área (opcional)** y después un **Piso (opcional)**.",
                         "Presione **Exportar** para descargar el archivo en su dispositivo.",
                     ],
                     avisos: [
                         {
                             tipo: "nota",
-                            texto: "El selector **Piso (opcional)** se habilita después de elegir un edificio o área. Si no elige ninguno, el informe incluye todo el plantel.",
+                            texto: "La **Lista de extintores** muestra el inventario actual y no usa fechas. Si borra las fechas al exportar **Eventos de uso**, aparecerá el mensaje **Elija la fecha de inicio y la de fin.**",
+                        },
+                        {
+                            tipo: "nota",
+                            texto: "El selector **Piso (opcional)** se habilita después de elegir un **Edificio o área (opcional)**. Si no elige ninguno, el informe incluye todo el plantel.",
                         },
                     ],
                 },
@@ -687,7 +697,7 @@ export const manualAdministrador = {
                                 "Extintor de gas frío sin residuos, ideal para equipos eléctricos y cómputo; se mide en kilogramos (kg).",
                         },
                         {
-                            termino: "**Agua a presión**",
+                            termino: "**Agua**",
                             definicion:
                                 "Apto únicamente para sólidos como papel, cartón o madera; nunca debe usarse en electricidad ni aceite. Se mide en litros.",
                         },
@@ -734,10 +744,10 @@ export const manualAdministrador = {
                 "Revise primero las carpetas de correo no deseado o spam. Asegúrese también de haber escrito el **correo con el que inicia sesión** en SIME, ya que el enlace solo se envía a la dirección registrada en **Mi Perfil**.",
         },
         {
-            id: "faq-usar-en-celular",
-            pregunta: "¿Puedo usar SIME desde el celular o la tableta?",
+            id: "faq-usar-en-movil",
+            pregunta: "¿Puedo usar SIME desde el móvil o la tableta?",
             respuesta:
-                "Sí. SIME se adapta automáticamente a computadora, tableta y celular. En celular, el menú pasa a la barra inferior, los formularios se abren con el botón **Añadir** y en **Mapa** puede ubicar extintores tocando la tarjeta y luego tocando el área en el plano.",
+                "Sí. SIME se adapta automáticamente a computadora, tableta y móvil. En móvil, el menú pasa a la barra inferior, los formularios se abren con el botón **Añadir** y en **Mapa** puede ubicar extintores tocando la tarjeta y luego tocando el área en el plano.",
         },
         {
             id: "faq-extintores-capacitacion",
