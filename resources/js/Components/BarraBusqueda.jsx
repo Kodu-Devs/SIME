@@ -17,19 +17,6 @@ import {
     X,
 } from "lucide-react";
 
-const PALABRAS_AYUDA_GENERICAS = [
-    "ayuda",
-    "manual",
-    "guia",
-    "como",
-    "preguntas",
-    "frecuentes",
-    "faq",
-    "soporte",
-    "tutorial",
-    "centro de ayuda",
-];
-
 // Catálogo predefinido basado en las rutas de web.php y los Seeders del proyecto
 const OPCIONES_SISTEMA = [
     // --- ACCIONES RÁPIDAS Y MÓDULOS ---
@@ -120,19 +107,7 @@ const OPCIONES_SISTEMA = [
         keywords:
             "ayuda manual guia como preguntas frecuentes faq soporte tutorial",
         icon: HelpCircle,
-        action: (consulta = "") => {
-            const texto = consulta.trim();
-            const textoNorm = normalizarTexto(texto);
-            const pasarQuery =
-                texto.length > 0 &&
-                !PALABRAS_AYUDA_GENERICAS.some(
-                    (p) => p === textoNorm || p.includes(textoNorm),
-                );
-            router.get(
-                route("ayuda.administrador"),
-                pasarQuery ? { q: texto } : {},
-            );
-        },
+        action: () => router.get(route("ayuda.administrador")),
     },
 
     // --- MAPA GENERAL Y EDIFICIOS (IDs según InstalacionSeeder.php) ---
@@ -274,10 +249,9 @@ export default function GlobalCommandSearch() {
     }, [query]);
 
     const ejecutarOpcion = (opcion) => {
-        const consultaActual = query;
         setAbierto(false);
         setQuery("");
-        opcion.action(consultaActual);
+        opcion.action();
     };
 
     const manejarTeclado = (e) => {
@@ -409,8 +383,8 @@ export default function GlobalCommandSearch() {
                             })}
                         </ul>
                     ) : (
-                        /* Opciones de respaldo si escribió un código o una consulta de ayuda */
-                        <div className="p-3 space-y-2">
+                        /* Opción de respaldo si escribió el código de un extintor */
+                        <div className="p-3">
                             <button
                                 type="button"
                                 onClick={() => {
@@ -429,28 +403,6 @@ export default function GlobalCommandSearch() {
                                     en Historial de equipos
                                 </div>
                                 <ArrowRight className="w-4 h-4 text-primario-700 shrink-0" />
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    const texto = query.trim();
-                                    setAbierto(false);
-                                    setQuery("");
-                                    router.get(route("ayuda.administrador"), {
-                                        q: texto,
-                                    });
-                                }}
-                                className="w-full text-left p-2.5 rounded-lg bg-neutro-50 hover:bg-acento-500/10 flex items-center justify-between gap-2 transition"
-                            >
-                                <div className="text-xs text-neutro-900">
-                                    Buscar{" "}
-                                    <span className="font-bold text-acento-500">
-                                        "{query}"
-                                    </span>{" "}
-                                    en el Centro de ayuda
-                                </div>
-                                <ArrowRight className="w-4 h-4 text-acento-500 shrink-0" />
                             </button>
                         </div>
                     )}
