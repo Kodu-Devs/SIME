@@ -199,7 +199,7 @@ export default function Index(props) {
                 />
 
                 {/* Vista Móvil */}
-                <div className="block md:hidden">
+                <div className="block lg:hidden">
                     {isMobileFormOpen ? (
                         <div className="space-y-3">
                             <button
@@ -231,8 +231,8 @@ export default function Index(props) {
                 </div>
 
                 {/* Vista Escritorio */}
-                <div className="hidden md:grid grid-cols-12 gap-6 items-start">
-                    <div className="col-span-8">
+                <div className="hidden lg:flex items-start gap-6">
+                    <div className="flex-1 min-w-0">
                         <ExtintoresTable
                             extintores={normalizedExtintores}
                             selectedExtintor={selectedExtintor}
@@ -240,7 +240,7 @@ export default function Index(props) {
                             footer={renderPagination()}
                         />
                     </div>
-                    <div ref={formPanelRef} className="col-span-4 sticky top-6">
+                    <div ref={formPanelRef} className="w-80 xl:w-96 shrink-0 sticky top-6">
                         <ExtintorFormPanel
                             selectedExtintor={selectedExtintor}
                             tipos={tipos}
