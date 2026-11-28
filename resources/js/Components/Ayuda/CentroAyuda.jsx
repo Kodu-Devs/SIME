@@ -11,9 +11,9 @@ import {
     FlameKindling,
     GraduationCap,
     HelpCircle,
-    History,
+    History as HistoryIcon,
     LayoutDashboard,
-    Map,
+    Map as MapIcon,
     MapPin,
     Rocket,
     Search,
@@ -34,9 +34,9 @@ const ICONOS = {
     FlameKindling,
     GraduationCap,
     HelpCircle,
-    History,
+    History: HistoryIcon,
     LayoutDashboard,
-    Map,
+    Map: MapIcon,
     MapPin,
     Rocket,
     User,
@@ -88,7 +88,10 @@ export default function CentroAyuda({ manual }) {
 
     // Sincroniza ?q= cuando llega desde el buscador del encabezado vía Inertia
     useEffect(() => {
-        const queryString = url.includes("?") ? url.split("?")[1].split("#")[0] : "";
+        const urlActual = typeof url === "string" ? url : "";
+        const queryString = urlActual.includes("?")
+            ? urlActual.split("?")[1].split("#")[0]
+            : "";
         const q = new URLSearchParams(queryString).get("q");
         if (q !== null) {
             setBusqueda(q);
@@ -100,21 +103,26 @@ export default function CentroAyuda({ manual }) {
     const hayBusqueda = consultaNormalizada.length > 0;
 
     const seccionesFiltradas = useMemo(() => {
-        const secciones = manual?.secciones || [];
+        const secciones = Array.isArray(manual?.secciones)
+            ? manual.secciones
+            : [];
         if (!hayBusqueda) return secciones;
 
         return secciones
             .map((seccion) => ({
                 ...seccion,
-                tareas: (seccion.tareas || []).filter((tarea) =>
-                    tareaCoincide(tarea, consultaNormalizada),
-                ),
+                tareas: (Array.isArray(seccion?.tareas)
+                    ? seccion.tareas
+                    : []
+                ).filter((tarea) => tareaCoincide(tarea, consultaNormalizada)),
             }))
             .filter((seccion) => seccion.tareas.length > 0);
     }, [manual, hayBusqueda, consultaNormalizada]);
 
     const preguntasFiltradas = useMemo(() => {
-        const preguntas = manual?.preguntas || [];
+        const preguntas = Array.isArray(manual?.preguntas)
+            ? manual.preguntas
+            : [];
         if (!hayBusqueda) return preguntas;
 
         return preguntas.filter((item) =>
@@ -124,7 +132,8 @@ export default function CentroAyuda({ manual }) {
 
     const totalResultados = useMemo(() => {
         const totalTareas = seccionesFiltradas.reduce(
-            (acumulado, sec) => acumulado + sec.tareas.length,
+            (acumulado, sec) =>
+                acumulado + (Array.isArray(sec?.tareas) ? sec.tareas.length : 0),
             0,
         );
         return totalTareas + preguntasFiltradas.length;
@@ -188,8 +197,15 @@ export default function CentroAyuda({ manual }) {
     // Navegación por ancla al cargar, al navegar con Inertia o al cambiar el hash
     useEffect(() => {
         const aplicarHash = () => {
-            const hash = window.location.hash.replace(/^#/, "");
-            if (!hash) return;
+            const hashCrudo = window.location.hash.replace(/^#/, "");
+            if (!hashCrudo) return;
+
+            let hash = hashCrudo;
+            try {
+                hash = decodeURIComponent(hashCrudo);
+            } catch {
+                hash = hashCrudo;
+            }
 
             requestAnimationFrame(() => {
                 desplazarAId(hash);
@@ -217,7 +233,7 @@ export default function CentroAyuda({ manual }) {
                 : elementosIndice[0].id,
         );
 
-        const visibles = new Map();
+        const visibles = new globalThis.Map();
 
         const observer = new IntersectionObserver(
             (entradas) => {
@@ -280,14 +296,16 @@ export default function CentroAyuda({ manual }) {
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                     <div className="min-w-0">
                         <h1 className="text-titulo-1 font-bold text-neutro-900">
-                            {manual.titulo}
+                            {manual?.titulo || "Centro de ayuda"}
                         </h1>
-                        <p className="text-xs sm:text-sm text-neutro-600 mt-1 leading-relaxed">
-                            {manual.descripcion}
-                        </p>
+                        {manual?.descripcion && (
+                            <p className="text-xs sm:text-sm text-neutro-600 mt-1 leading-relaxed">
+                                {manual.descripcion}
+                            </p>
+                        )}
                     </div>
 
-                    {manual.pdf && (
+                    {manual?.pdf && (
                         <a
                             href={manual.pdf}
                             target="_blank"

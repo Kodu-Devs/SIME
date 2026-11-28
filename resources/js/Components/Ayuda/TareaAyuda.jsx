@@ -3,6 +3,8 @@ import ImagenAyuda from "@/Components/Ayuda/ImagenAyuda";
 import TextoEnriquecido from "@/Components/Ayuda/TextoEnriquecido";
 
 export default function TareaAyuda({ tarea }) {
+    if (!tarea) return null;
+
     return (
         <article
             id={tarea.id}

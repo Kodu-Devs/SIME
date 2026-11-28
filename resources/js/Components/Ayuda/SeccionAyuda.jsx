@@ -1,7 +1,10 @@
 import TareaAyuda from "@/Components/Ayuda/TareaAyuda";
 
 export default function SeccionAyuda({ seccion, obtenerIcono }) {
+    if (!seccion) return null;
+
     const Icono = obtenerIcono(seccion.icono);
+    const tareas = Array.isArray(seccion.tareas) ? seccion.tareas : [];
 
     return (
         <section
@@ -32,7 +35,7 @@ export default function SeccionAyuda({ seccion, obtenerIcono }) {
             </header>
 
             <div className="space-y-5">
-                {seccion.tareas.map((tarea) => (
+                {tareas.map((tarea) => (
                     <TareaAyuda key={tarea.id} tarea={tarea} />
                 ))}
             </div>

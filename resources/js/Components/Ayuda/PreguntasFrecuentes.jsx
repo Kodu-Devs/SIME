@@ -5,7 +5,7 @@ import TextoEnriquecido from "@/Components/Ayuda/TextoEnriquecido";
 export default function PreguntasFrecuentes({ preguntas = [] }) {
     const [abiertas, setAbiertas] = useState({});
 
-    if (!preguntas || preguntas.length === 0) {
+    if (!Array.isArray(preguntas) || preguntas.length === 0) {
         return null;
     }
 
