@@ -27,6 +27,9 @@ Route::prefix('mapa')->name('mapa.')->group(function () {
 Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
 Route::get('/historial', [HistorialController::class, 'index'])->name('historial.index');
 
+// Centro de ayuda (Consulta pública)
+Route::inertia('/ayuda/consulta', 'Ayuda/Usuario')->name('ayuda.usuario');
+
 
 // ==========================================
 // RUTAS ADMINISTRATIVAS (Protegidas)
@@ -73,6 +76,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rutas de Perfil (Generadas por Breeze) 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // Centro de ayuda (Administrador)
+    Route::inertia('/ayuda', 'Ayuda/Administrador')->name('ayuda.administrador');
 });
 
 require __DIR__ . '/auth.php';

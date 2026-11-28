@@ -21,6 +21,16 @@ import {
     HelpCircle,
 } from "lucide-react";
 
+const AYUDA_POR_MODULO = {
+    dashboard: "resumen",
+    "mapa.*": "mapa",
+    "extintores.*": "extintores",
+    "agenda.*": "agenda",
+    "historial.*": "historial",
+    "alertas.*": "alertas",
+    "profile.*": "perfil",
+};
+
 export default function AdminLayout({ children }) {
     // Leemos auth y el objeto alertas que envía HandleInertiaRequests.php
     const { auth, alertas } = usePage().props;
@@ -134,6 +144,12 @@ export default function AdminLayout({ children }) {
     ];
 
     const enVistaAlertas = route().current("alertas.*");
+    const enVistaAyuda = route().current("ayuda.administrador");
+    const anclaAyuda = Object.entries(AYUDA_POR_MODULO).find(([patron]) =>
+        route().current(patron),
+    )?.[1];
+    const hrefAyuda =
+        route("ayuda.administrador") + (anclaAyuda ? `#${anclaAyuda}` : "");
 
     return (
         <div className="min-h-screen bg-neutro-50 text-neutro-900 flex flex-col md:flex-row pb-16 md:pb-0">
@@ -194,16 +210,39 @@ export default function AdminLayout({ children }) {
 
                     {/* Acciones Derecha: Ayuda + Campana de Notificaciones + Menú Administrador */}
                     <div className="flex items-center gap-2 sm:gap-3 relative">
-                        <a
-                            href="/manuales/manual-administrador.pdf"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title="Manual de administrador"
-                            aria-label="Abrir manual de administrador"
-                            className="p-2 rounded-full text-neutro-600 hover:bg-neutro-50 hover:text-neutro-900 transition"
+                        <Link
+                            href={hrefAyuda}
+                            onClick={(e) => {
+                                if (enVistaAyuda) {
+                                    e.preventDefault();
+                                    window.history.replaceState(
+                                        window.history.state,
+                                        "",
+                                        route("ayuda.administrador"),
+                                    );
+                                    const reducir = window.matchMedia?.(
+                                        "(prefers-reduced-motion: reduce)",
+                                    )?.matches;
+                                    window.scrollTo({
+                                        top: 0,
+                                        behavior: reducir ? "auto" : "smooth",
+                                    });
+                                }
+                            }}
+                            title={
+                                enVistaAyuda
+                                    ? "Volver al inicio de la ayuda"
+                                    : "Ayuda de esta sección"
+                            }
+                            aria-label="Ayuda"
+                            className={`p-2 rounded-full transition ${
+                                enVistaAyuda
+                                    ? "bg-primario-100/60 text-primario-700"
+                                    : "text-neutro-600 hover:bg-neutro-50 hover:text-neutro-900"
+                            }`}
                         >
                             <HelpCircle className="w-5 h-5" />
-                        </a>
+                        </Link>
 
                         <div ref={popoverRef} className="relative">
                             <button

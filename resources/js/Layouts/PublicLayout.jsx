@@ -9,10 +9,22 @@ import {
     HelpCircle,
 } from "lucide-react";
 
+const AYUDA_PUBLICA_POR_MODULO = {
+    "mapa.*": "mapa",
+    "agenda.*": "agenda",
+    "historial.*": "aprende",
+};
+
 export default function PublicLayout({
     children,
     stats = { total: 31, vigentes: 27, edificios: 6 },
 }) {
+    const enVistaAyuda = route().current("ayuda.usuario");
+    const anclaAyuda = Object.entries(AYUDA_PUBLICA_POR_MODULO).find(
+        ([patron]) => route().current(patron),
+    )?.[1];
+    const hrefAyuda =
+        route("ayuda.usuario") + (anclaAyuda ? `#${anclaAyuda}` : "");
     const publicNav = [
         { name: "Mapa", route: "mapa.index", active: "mapa.*", icon: Map },
         {
@@ -81,16 +93,39 @@ export default function PublicLayout({
 
                 {/* Derecha: Botón de Ayuda + Acceso Administrador */}
                 <div className="flex items-center gap-2 shrink-0">
-                    <a
-                        href="/manuales/manual-usuario.pdf"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Manual de usuario"
-                        aria-label="Abrir manual de usuario"
-                        className="p-2 rounded-full text-neutro-600 hover:bg-neutro-50 hover:text-neutro-900 transition"
+                    <Link
+                        href={hrefAyuda}
+                        onClick={(e) => {
+                            if (enVistaAyuda) {
+                                e.preventDefault();
+                                window.history.replaceState(
+                                    window.history.state,
+                                    "",
+                                    route("ayuda.usuario"),
+                                );
+                                const reducir = window.matchMedia?.(
+                                    "(prefers-reduced-motion: reduce)",
+                                )?.matches;
+                                window.scrollTo({
+                                    top: 0,
+                                    behavior: reducir ? "auto" : "smooth",
+                                });
+                            }
+                        }}
+                        title={
+                            enVistaAyuda
+                                ? "Volver al inicio de la ayuda"
+                                : "Ayuda de esta sección"
+                        }
+                        aria-label="Ayuda"
+                        className={`p-2 rounded-full transition ${
+                            enVistaAyuda
+                                ? "bg-primario-100/60 text-primario-700"
+                                : "text-neutro-600 hover:bg-neutro-50 hover:text-neutro-900"
+                        }`}
                     >
                         <HelpCircle className="w-5 h-5" />
-                    </a>
+                    </Link>
 
                     <Link
                         href={route("login")}
