@@ -103,10 +103,10 @@ export default function IndiceAyuda({
             </div>
 
             {/* Índice lateral fijo en escritorio */}
-            <aside className="hidden lg:block w-64 shrink-0">
+            <aside className="hidden lg:block w-64 shrink-0 lg:sticky lg:top-6 lg:self-start">
                 <nav
                     aria-label="Contenido de la ayuda"
-                    className="sticky top-6 bg-white rounded-xl border border-neutro-100 shadow-sm p-4"
+                    className="max-h-[calc(100vh-3rem)] overflow-y-auto bg-white rounded-xl border border-neutro-100 shadow-sm p-4"
                 >
                     <p className="text-xs font-bold uppercase tracking-wider text-neutro-600 px-3 mb-2.5">
                         En esta página
