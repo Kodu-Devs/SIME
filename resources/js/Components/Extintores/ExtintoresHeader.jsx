@@ -1,7 +1,7 @@
 import React from "react";
 import { Plus } from "lucide-react";
 
-export default function ExtintoresHeader({ onAddNew }) {
+export default function ExtintoresHeader({ onAddNew, showAddButton = true }) {
     return (
         <div className="flex items-center justify-between gap-4">
             <div>
@@ -12,8 +12,7 @@ export default function ExtintoresHeader({ onAddNew }) {
                     Inventario completo de equipos registrados
                 </p>
             </div>
-
-            {onAddNew && (
+            {onAddNew && showAddButton && (
                 <div className="block lg:hidden shrink-0">
                     <button
                         type="button"
