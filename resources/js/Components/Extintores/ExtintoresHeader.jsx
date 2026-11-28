@@ -12,10 +12,8 @@ export default function ExtintoresHeader({ onAddNew, showAddButton = true }) {
                     Inventario completo de equipos registrados
                 </p>
             </div>
-            {onAddNew && (
-                <div className="block lg:hidden shrink-0">
             {onAddNew && showAddButton && (
-                <div className="block md:hidden shrink-0">
+                <div className="block lg:hidden shrink-0">
                     <button
                         type="button"
                         onClick={onAddNew}
