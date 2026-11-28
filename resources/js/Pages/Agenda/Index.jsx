@@ -234,7 +234,7 @@ export default function Index({ eventos = [], mesActual, combos = {} }) {
                     </p>
                 </div>
 
-                {isAdmin && (
+                {isAdmin && !mostrarFormularioMovil && (
                     <button
                         type="button"
                         onClick={abrirFormularioVacio}

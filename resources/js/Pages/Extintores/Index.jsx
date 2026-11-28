@@ -185,7 +185,10 @@ export default function Index(props) {
             <Head title="Extintores" />
 
             <div className="w-full max-w-7xl mx-auto space-y-4 pb-6 overflow-x-hidden">
-                <ExtintoresHeader onAddNew={handleAddNew} />
+                <ExtintoresHeader
+                    onAddNew={handleAddNew}
+                    showAddButton={!isMobileFormOpen}
+                />
 
                 <FlashBanner />
 
